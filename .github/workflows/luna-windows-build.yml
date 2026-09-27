@@ -46,7 +46,8 @@ jobs:
         run: |
           set -euo pipefail
           for t in provider.registry provider.anthropic provider-connections-ui friendlyerror workspace-safety \
-                   tauri.hardening update-state-parity servicekeys.env sprite-loading world-setskin; do
+                   tauri.hardening update-state-parity servicekeys.env sprite-loading world-setskin \
+                   sprite-walk-motion cron.run-now; do
             node "test/$t.test.js"
           done
           node test/luna-claude-provider.e2e.test.js
