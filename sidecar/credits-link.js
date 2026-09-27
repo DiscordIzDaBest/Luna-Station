@@ -1,4 +1,4 @@
-/* sidecar/credits-link.js — device pairing client for StarNet Cloud + the durable link-config store.
+/* sidecar/credits-link.js — device pairing client for Luna Station Cloud + the durable link-config store.
 
    Slice 2 of the subscriptions plan: turn a static CREDITS_ACCOUNT env var into a real, user-driven LINK
    STATION flow. This module owns two things and NOTHING else (no billing, no admission — that stays in
@@ -117,7 +117,7 @@
       const ticket = ++generation;
       transition('pairing_started');
       pending.clear();
-      const j = await postJson('/v1/link/start', { deviceName: str(deviceName) || 'StarNet Station' });
+      const j = await postJson('/v1/link/start', { deviceName: str(deviceName) || 'Luna Station Station' });
       if (ticket !== generation) return { ok: false, error: 'superseded' };
       const code = str(j.code);
       if (!code) return { ok: false, error: 'no_code' };

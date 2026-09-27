@@ -738,7 +738,7 @@
       try { onRecovery(Object.assign({ sequence: ++recoveryAttemptSequence }, row || {})); } catch (e) { failNote('loop.onRecovery', e); }
     }
     // mid-stream retry backoff schedule (same shape as the adapters' pre-stream RETRY_DELAYS).
-    // Widened 2026-08-11 after the installed Hermes parity run: ~16.6s still lost all three StarNet
+    // Widened 2026-08-11 after the installed Hermes parity run: ~16.6s still lost all three Luna Station
     // attempts inside one real Codex overload window while valid Hermes turns took up to ~102s. The
     // final 30s/60s rungs give the same model turn ~106s of bounded patience. This never re-dispatches
     // completed tools: the retry loop sits wholly inside the current model call, after prior tool
@@ -1007,7 +1007,7 @@
       if (budget) {
         const b = budget.check(spentUsd);
         if (b && b.unknown) {
-          emit('agent.run.error', { agentId, runId, message: 'Spend history is unavailable or not durably saved. Restore the ledger and restart StarNet before continuing with spending limits.', transient: false });
+          emit('agent.run.error', { agentId, runId, message: 'Spend history is unavailable or not durably saved. Restore the ledger and restart Luna Station before continuing with spending limits.', transient: false });
           return end('error', { failureStage: 'budget', failureCode: 'spend_history_unavailable' });
         }
         if (b) return end('budget', { budgetScope: b.scope, budgetCapUsd: b.cap });

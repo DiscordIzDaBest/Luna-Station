@@ -7,7 +7,7 @@
 use std::collections::BTreeMap;
 use std::path::Path;
 
-pub(crate) const KEYCHAIN_SERVICE: &str = "ai.skynet.harness";
+pub(crate) const KEYCHAIN_SERVICE: &str = "local.lunastation.desktop";
 pub(crate) const KEYCHAIN_ACCOUNT: &str = "openrouter";
 
 /// Stable envelope-encryption key. Never replace an existing malformed/unreadable
@@ -233,7 +233,7 @@ pub(crate) fn read_telegram_bot_tokens(workspaces: &Path) -> BTreeMap<String, St
         .collect()
 }
 
-// ---- StarNet Cloud device token (keychain account "credits:device") ----
+// ---- Luna Station Cloud device token (keychain account "credits:device") ----
 //
 // The device token is a BEARER CREDENTIAL THAT SPENDS MONEY: anyone holding it can bill the
 // linked account until the balance runs out. It is minted by the sidecar (which polls the cloud),
@@ -247,7 +247,7 @@ pub(crate) fn credits_keychain_entry() -> keyring::Result<keyring::Entry> {
     keyring::Entry::new(KEYCHAIN_SERVICE, "credits:device")
 }
 
-/// The stored StarNet Cloud device token, or `None` if unset/empty.
+/// The stored Luna Station Cloud device token, or `None` if unset/empty.
 pub(crate) fn read_credits_token() -> Option<String> {
     credits_keychain_entry()
         .ok()
@@ -451,7 +451,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "Requires an unlocked native OS credential store; creates the persistent StarNet connector key if absent"]
+    #[ignore = "Requires an unlocked native OS credential store; creates the persistent Luna Station connector key if absent"]
     fn connector_keychain_roundtrip() {
         let first = connector_encryption_key().expect("native connector key available");
         let second = connector_encryption_key().expect("native connector key readable again");

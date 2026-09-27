@@ -199,7 +199,7 @@
     workbench: [
       { capId: 'workbench', tool: 'shell.exec', scope: 'execute', requiresConsent: true, network: true },
       { capId: 'workbench', tool: 'verify.run', scope: 'execute', requiresConsent: true, network: true },
-      // Local UI/game verification stays inside StarNet's headless CDP session. Pointer/keyboard
+      // Local UI/game verification stays inside Luna Station's headless CDP session. Pointer/keyboard
       // lock is emulated in-page, and coordinate/key input is synthetic — never Win32 input.
       // Deferred: a run that places the workbench is usually there to run shell, not to drive the local UI
       // harness. Still granted and dispatchable — tool.search reveals the set when a UI check is what's needed.
@@ -240,7 +240,7 @@
       { capId: 'orchestrator', tool: 'team.steer', scope: 'write', requiresConsent: false, network: false },
       { capId: 'orchestrator', tool: 'team.interrupt', scope: 'write', requiresConsent: false, network: false },
       { capId: 'orchestrator', tool: 'team.resume', scope: 'execute', requiresConsent: false, network: true },
-      // ROUTINES: create StarNet scheduled jobs through the built-in cron store (the same surface as the
+      // ROUTINES: create Luna Station scheduled jobs through the built-in cron store (the same surface as the
       // ROUTINES panel), never through OS crontab / Windows Task Scheduler. Lead-only like the rest of
       // orchestration; creation is consent-gated because it persists autonomous future work.
       { capId: 'orchestrator', tool: 'routine.list', scope: 'read', requiresConsent: false, network: false },

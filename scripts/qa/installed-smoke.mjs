@@ -9,7 +9,7 @@
  * is that proof, kept to a SMOKE (minutes, a handful of assertions) — not the full Atlas.
  *
  * HOW YOU RUN IT (operator, on Andrew's machine):
- *   1. Relaunch the installed StarNet with the WebView2 debug port open:
+ *   1. Relaunch the installed Luna Station with the WebView2 debug port open:
  *        $env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS='--remote-debugging-port=9333'
  *        & "$env:LOCALAPPDATA\..\StarNet.exe"     # or the Start-menu shortcut
  *      (9333 is the convention prior installed-exe CDP work used — desktop-bundles /

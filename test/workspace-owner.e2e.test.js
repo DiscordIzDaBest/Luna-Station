@@ -69,7 +69,7 @@ function waitExit(child, timeoutMs) {
   const processes = [];
   try {
     const fakeAppData = path.join(root, 'fake-app-data');
-    const protectedRoot = path.join(fakeAppData, 'ai.skynet.harness', 'workspaces');
+    const protectedRoot = path.join(fakeAppData, 'local.lunastation.desktop', 'workspaces');
     fs.mkdirSync(protectedRoot, { recursive: true });
     const protectedSentinel = path.join(protectedRoot, 'real-user-state.json');
     fs.writeFileSync(protectedSentinel, sentinelBytes);

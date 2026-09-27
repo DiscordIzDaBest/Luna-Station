@@ -367,7 +367,7 @@ function makeFakeSpawn() {
 
   /* ---- the child-env scrub must catch the GLUED secret spellings people actually have ----
      The `_` boundary meant STRIPE_APIKEY / GITHUB_PAT / FOO_ACCESSTOKEN never matched and rode straight
-     into every task child's env. StarNet's own KEYS vars always end in _API_KEY, which is why our fixtures
+     into every task child's env. Luna Station's own KEYS vars always end in _API_KEY, which is why our fixtures
      never showed it. ---- */
   {
     const { sanitizeChildEnv: scrub } = require('../sidecar/environment.js');

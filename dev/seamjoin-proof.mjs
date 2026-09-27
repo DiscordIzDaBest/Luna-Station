@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // dev/seamjoin-proof.mjs — the three separation lines Andrew circled on 2026-08-10, measured.
 //
-// His save (%APPDATA%\ai.skynet.harness\workspaces\agent.save.json) is all walnut/plank, and the
+// His save (%APPDATA%\local.lunastation.desktop\workspaces\agent.save.json) is all walnut/plank, and the
 // three circles are: the r18|r119 room join (5-tile overlap, walled both ends — the minority rule
 // called it a DOORWAY and dressed it), and the two real mouths of the r17 corridor. The fix: any
 // doorway whose two sides bake the identical deck paints NO threshold dressing, and per-plate tone

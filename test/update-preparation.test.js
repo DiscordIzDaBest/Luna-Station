@@ -47,7 +47,7 @@ const { makeUpdatePreparation } = require('../sidecar/update-preparation.js');
     A.ok(fs.existsSync(made.receipt.receiptFile), 'durable receipt exists beside it');
 
     const bundle = Recovery.readBundle(made.receipt.snapshot.file);
-    A.eq(bundle.browser.length, 1, 'snapshot carries browser-owned StarNet state');
+    A.eq(bundle.browser.length, 1, 'snapshot carries browser-owned Luna Station state');
     A.eq(bundle.files.some(row => row.path === 'agent.save.json'), true, 'snapshot carries canonical workspace state');
     A.eq(bundle.files.some(row => row.path === '.starnet-workspace-owner.json'), false, 'runtime owner claim is excluded from recovery state');
     A.eq(bundle.files.some(row => row.path.startsWith('.starnet-workspace-owner.json.generations/')), false, 'runtime generations cannot strand restored profiles');

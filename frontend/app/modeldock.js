@@ -1,4 +1,4 @@
-/* STARNET quick model selector. Lives in COMMS beside voice controls; transport state stays in Harness. */
+/* LUNA STATION quick model selector. Lives in COMMS beside voice controls; transport state stays in Harness. */
 'use strict';
 
 const ModelDock = (() => {
@@ -80,7 +80,7 @@ const ModelDock = (() => {
   }
   function providerLabel(p) {
     p = normalizeProvider(p);
-    const map = { starnet: 'STARNET', codex: 'GPT / CODEX', grok: 'GROK OAUTH', kimi: 'KIMI OAUTH', openrouter: 'OPENROUTER', openai: 'OPENAI API', anthropic: 'ANTHROPIC', gemini: 'GEMINI', xai: 'XAI', groq: 'GROQ', mistral: 'MISTRAL', deepseek: 'DEEPSEEK', together: 'TOGETHER', fireworks: 'FIREWORKS', perplexity: 'PERPLEXITY', cerebras: 'CEREBRAS', ollama: 'OLLAMA', custom: 'CUSTOM' };
+    const map = { starnet: 'LUNA STATION', codex: 'GPT / CODEX', grok: 'GROK OAUTH', kimi: 'KIMI OAUTH', openrouter: 'OPENROUTER', openai: 'OPENAI API', anthropic: 'ANTHROPIC', gemini: 'GEMINI', xai: 'XAI', groq: 'GROQ', mistral: 'MISTRAL', deepseek: 'DEEPSEEK', together: 'TOGETHER', fireworks: 'FIREWORKS', perplexity: 'PERPLEXITY', cerebras: 'CEREBRAS', ollama: 'OLLAMA', custom: 'CUSTOM' };
     return map[p] || String(p || 'openrouter').toUpperCase();
   }
   function normalizeProvider(p) {
@@ -210,7 +210,7 @@ const ModelDock = (() => {
     const p = provider();
     // Preserve a saved current model only while the active catalog is unavailable. Once a successful catalog
     // says it is absent, reconcileCurrentModel() has either mapped it to a proven provider-native id or cleared
-    // it. Re-inserting it here was the stale-model bug: a bare Anthropic id appeared selectable under STARNET.
+    // it. Re-inserting it here was the stale-model bug: a bare Anthropic id appeared selectable under LUNA STATION.
     if (current && isAgentModel({ id: current, provider: p }) && !list.some(m => m.id === current && normalizeProvider(m.provider) === p) && !(catalogState[p] && catalogState[p].confirmed)) {
       list.unshift({ id: current, name: current, provider: p, fallback: true, unverifiedCurrent: true });
     }
@@ -824,7 +824,7 @@ const ModelDock = (() => {
     if (open) closeDock(); else openDock();
   }
 
-  // The model picker's account door always leads to StarNet. It does not change the
+  // The model picker's account door always leads to Luna Station. It does not change the
   // active provider, promise a working model, or start a subscription transaction.
   function openSubscription(event) {
     const invoke = (typeof window !== 'undefined' && window.__TAURI__ && window.__TAURI__.core)
@@ -835,7 +835,7 @@ const ModelDock = (() => {
     Promise.resolve().then(() => invoke('open_external_url', { url: 'https://www.starnetos.com/pricing' }))
       .catch(() => {
         if (typeof StationUI !== 'undefined' && StationUI.notify) {
-          StationUI.notify('Could not open your browser. Visit www.starnetos.com/pricing for your StarNet subscription.', 'warn');
+          StationUI.notify('Could not open your browser. Visit www.starnetos.com/pricing for your Luna Station subscription.', 'warn');
         }
       });
   }

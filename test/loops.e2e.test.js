@@ -118,7 +118,7 @@ async function until(B, headers, pred, label, ms) {
        FINAL pre-dormancy iteration is fire-and-forget, so ~8% of runs (worse under gate load) its mock hit
        landed only AFTER the driver's settle had written 'dormant' and this test had snapshotted — reading as
        "a dormant loop spent money" when the loop subsystem had provably stopped (instrumented timeline proof,
-       2026-07-30: the trailing prompt began "You are StarNet background skill review", never with the
+       2026-07-30: the trailing prompt began "You are Luna Station background skill review", never with the
        objective or a <loop_ledger>). An iteration prompt is the ONLY prompt that BEGINS with the objective
        (loopjob-driver buildMessages puts the objective first; every aux prompt opens with its own scaffolding),
        so the counter anchors at position 0 — it still counts every real iteration, including any that would

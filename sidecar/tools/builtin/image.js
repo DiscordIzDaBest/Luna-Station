@@ -180,7 +180,7 @@
     const or = deps.openrouter || {};
     const apiKey = or.apiKey || deps.apiKey || '';
     const protocol = or.protocol || 'openrouter-chat';
-    const providerLabel = or.provider === 'starnet' ? 'StarNet' : (or.provider === 'openai' ? 'OpenAI' : 'OpenRouter');
+    const providerLabel = or.provider === 'starnet' ? 'Luna Station' : (or.provider === 'openai' ? 'OpenAI' : 'OpenRouter');
     const orBaseUrl = String(or.baseUrl || deps.baseUrl || '').trim().replace(/\/+$/, '');
     const orUrl = orBaseUrl ? orBaseUrl + '/chat/completions' : DEFAULT_OR_URL;
     const openAIImageUrl = orBaseUrl ? orBaseUrl + '/images/generations' : DEFAULT_OPENAI_IMAGE_URL;
@@ -209,10 +209,10 @@
 
     async function orPost(body, timeoutMs, parentSignal) {
       checkCancelled(parentSignal);
-      if (!apiKey) throw new Error('STUDIO image generation is unavailable: no media connection is configured. Open SETTINGS and connect an OpenRouter API key for image generation, or link this station to your StarNet account, then retry; no image was produced.');
+      if (!apiKey) throw new Error('STUDIO image generation is unavailable: no media connection is configured. Open SETTINGS and connect an OpenRouter API key for image generation, or link this station to your Luna Station account, then retry; no image was produced.');
       const res = await withTimeout(signal => doFetch(orUrl, {
         method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://starnet.local', 'X-Title': 'STARNET' },
+        headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://starnet.local', 'X-Title': 'LUNA STATION' },
         body: JSON.stringify(body),
         signal
       }).then(async r => {
@@ -233,7 +233,7 @@
 
     async function openAIImagePost(body, timeoutMs, parentSignal) {
       checkCancelled(parentSignal);
-      if (!apiKey) throw new Error('STUDIO image generation is unavailable: no media connection is configured. Open SETTINGS and connect an OpenAI or OpenRouter API key for image generation, or link this station to your StarNet account, then retry; no image was produced.');
+      if (!apiKey) throw new Error('STUDIO image generation is unavailable: no media connection is configured. Open SETTINGS and connect an OpenAI or OpenRouter API key for image generation, or link this station to your Luna Station account, then retry; no image was produced.');
       const res = await withTimeout(signal => doFetch(openAIImageUrl, {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },

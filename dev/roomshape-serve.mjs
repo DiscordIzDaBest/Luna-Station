@@ -46,7 +46,7 @@ const marks = { 'SHAPE.cornerN': /SHAPE = \{ cornerN/.test(js), 'lampRows()': /f
 const bad = Object.entries(marks).filter(([, ok]) => !ok).map(([k]) => k);
 
 console.log(`
-  StarNet (seeded, past onboarding)  ->  ${URL}
+  Luna Station (seeded, past onboarding)  ->  ${URL}
   crtlab sliders                     ->  ${URL}?crtlab=1
   workspace                          ->  ${WS}   (persists; --fresh to reset)
   build markers                      ->  ${bad.length ? 'MISMATCH: ' + bad.join(', ') + ' — this port is NOT serving this branch' : 'ok (this branch)'}

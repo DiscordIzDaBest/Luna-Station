@@ -1,4 +1,4 @@
-/* STARNET — assets.js : PixelLab sprite loading + per-agent recoloring */
+/* LUNA STATION — assets.js : PixelLab sprite loading + per-agent recoloring */
 'use strict';
 
 const SPRITES = (() => {
@@ -63,7 +63,8 @@ const SPRITES = (() => {
       : ((DATA.SKINS[b && b.skin] && DATA.SKINS[b.skin].set) || DATA.SKINS[DATA.DEFAULT_SKIN].set);
   }
   function bodyScale(b) { return drawScaleFor(setForBody(b)); }
-  function isReviewSet(set) { return /^(approved|readability|industrial)_/.test(set); }
+  // Production crew sets authored on the 144px / 76px-standing master (luna_ = the original Luna Station crew).
+  function isReviewSet(set) { return /^(approved|readability|industrial|luna)_/.test(set); }
 
   /* foot-line measurement — every PixelLab master leaves transparent padding BELOW the feet
      (the crew sets all sit ~23px up from the 92px canvas bottom). The contact shadow is drawn

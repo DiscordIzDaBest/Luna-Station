@@ -4,7 +4,7 @@
 // (2026-08-15, Andrew, a tight crop of one junction: "i am only talking about circumstances like
 // this" — a hull run cut off at a hard edge with an unpainted wedge before the next wall.)
 //
-// Bakes %APPDATA%\ai.skynet.harness\workspaces\agent.save.json on MAGENTA, then finds every
+// Bakes %APPDATA%\local.lunastation.desktop\workspaces\agent.save.json on MAGENTA, then finds every
 // magenta region that is ENCLOSED by hull (bounded on all four sides within ~6 tiles). Open sky is
 // unbounded and drops out; what survives is a hole the eye reads as a gap in the wall. Ranks them
 // by area and dumps NN-zoomed crops so each can be judged.
@@ -21,7 +21,7 @@ const CDP_PORT = Number(process.env.SKYNET_CDP_PORT || 9387);
 const URL = `http://127.0.0.1:${PORT}/`;
 const ZOOM = Number(process.env.SKYNET_ZOOM || 6);
 
-const savePath = join(process.env.APPDATA, 'ai.skynet.harness', 'workspaces', 'agent.save.json');
+const savePath = join(process.env.APPDATA, 'local.lunastation.desktop', 'workspaces', 'agent.save.json');
 const stationDoc = JSON.parse(readFileSync(savePath, 'utf8')).doc?.station;
 if (!stationDoc) { console.error('no .doc.station in save'); process.exit(2); }
 

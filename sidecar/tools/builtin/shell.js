@@ -452,7 +452,7 @@
     const c = String(cmd == null ? '' : cmd), dialect = opts.dialect;
     const heads = commandHeads(c, dialect);
     if (heads.some(h => BROWSER_NAMES.has(exeName((headTokens(h)[0] || {}).value)))) {
-      return 'launches a browser outside StarNet\'s synthetic-input CDP sandbox — use browser.test_navigate/browser.test_input';
+      return 'launches a browser outside Luna Station\'s synthetic-input CDP sandbox — use browser.test_navigate/browser.test_input';
     }
     const sources = commandSources(c, opts);
     const expanded = sources.join('\n');
@@ -464,7 +464,7 @@
       return 'can inject/capture input, launch opaque code, or alter the user\'s interactive session';
     }
     if (sources.some(s => /(?:^|\s)--open(?:[=\s]|$)/i.test(s))) return 'opens a framework/browser window on the user\'s screen — keep dev servers headless';
-    if (BROWSER_AUTOMATION_RE.test(expanded)) return 'runs browser automation outside StarNet\'s owned pointer-lock emulator — use browser.test_*';
+    if (BROWSER_AUTOMATION_RE.test(expanded)) return 'runs browser automation outside Luna Station\'s owned pointer-lock emulator — use browser.test_*';
     if (GUI_RUNTIME_RE.test(expanded) || heads.some(h => LOCAL_PROGRAM_RE.test(h && h.text != null ? h.text : String(h || '')))) return 'launches a GUI/native runtime on the user\'s interactive desktop';
     return null;
   }
@@ -478,7 +478,7 @@
   const MACHINE_HEAD_RULES = [
     { re: /^(?:shutdown|logoff|reboot|halt|poweroff|tsdiscon|rwinsta)(?:\.(?:exe|com))?(?=\s|$)/i, why: 'shuts down, reboots, disconnects, or logs the user out of their machine' },
     { re: /^(?:taskkill|tskill|pskill|kill|pkill|killall)(?:\.(?:exe|com))?(?=\s|$)/i, why: 'kills processes the agent does not own — stop your OWN background processes with shell.bg.kill' },
-    { re: /^schtasks(?:\.(?:exe|com))?(?=\s|$)[\s\S]*?\s\/(?:create|change|delete|run)\b/i, why: 'creates or changes a Windows scheduled task (machine persistence that outlives StarNet)' },
+    { re: /^schtasks(?:\.(?:exe|com))?(?=\s|$)[\s\S]*?\s\/(?:create|change|delete|run)\b/i, why: 'creates or changes a Windows scheduled task (machine persistence that outlives Luna Station)' },
     { re: /^reg(?:\.exe)?\s+(?:add|delete|import|load|unload|copy)\b/i, why: 'writes the Windows registry' },
     { re: /^regedit(?:\.(?:exe|com))?(?=\s|$)/i, why: 'opens or imports into the Windows registry' },
     { re: /^sc(?:\.exe)?\s+(?:create|config|delete|start|stop|failure|sdset)\b/i, why: 'creates or changes Windows services' },
@@ -494,7 +494,7 @@
   const MACHINE_GLOBAL_RULES = [
     { re: /\bHKEY_|(?:^|[\s"'`=(\\])HK(?:LM|CU|CR|U|CC)[:\\]/i, why: 'references a Windows registry hive' },
     { re: /\bdefaults\s+write\b/i, why: 'changes macOS system preferences' },
-    { re: /(?:^|[\s"'`=(])shell:startup\b|Start\s?Menu[\\/]+Programs[\\/]+Startup/i, why: 'writes to the Startup folder (machine persistence that outlives StarNet)' }
+    { re: /(?:^|[\s"'`=(])shell:startup\b|Start\s?Menu[\\/]+Programs[\\/]+Startup/i, why: 'writes to the Startup folder (machine persistence that outlives Luna Station)' }
   ];
   function breaksMachineState(cmd, dialect) {
     const c = String(cmd == null ? '' : cmd);
@@ -601,7 +601,7 @@
     const abs = P.isAbsolute(raw) || /^[A-Za-z]:[\\/]/.test(raw) ? P.resolve(raw) : P.resolve(current, raw);
     if (!withinJail(P, abs, jailRoot) && !allowExternal) throw new Error('cwd must stay inside your workspace');
     if (!allowProtected && !withinJail(P, abs, jailRoot) && root && pathInside(P, abs, root))
-      throw new Error('cwd cannot point at another agent or protected StarNet workspace sibling');
+      throw new Error('cwd cannot point at another agent or protected Luna Station workspace sibling');
     if (fs && fs.existsSync && !fs.existsSync(abs)) throw new Error('cwd does not exist: ' + raw);
     if (fs && fs.statSync) {
       try { if (!fs.statSync(abs).isDirectory()) throw new Error('cwd is not a directory: ' + raw); }
@@ -639,7 +639,7 @@
   }
 
   /* ANSI/VT control sequences, stripped before any shell output reaches the model (ref-parity: the reference
-     harness has an ansi_strip; StarNet had nothing, so escapes arrived raw). npm, git, cargo, pytest and friends emit colour
+     harness has an ansi_strip; Luna Station had nothing, so escapes arrived raw). npm, git, cargo, pytest and friends emit colour
      whenever they believe a TTY is attached, and the model reads the control bytes as TOKENS — '[32m'
      is billed content that means "green" to nobody, and on a long build log it is a large fraction of the
      output. Three shapes are handled: OSC strings (window titles, hyperlinks — ESC ] … BEL or ST), CSI
@@ -797,7 +797,7 @@
           ? environment.workspaceRoot(aid) : cwd;
         const shellDialect = environment && environmentBackendId !== 'local' ? 'posix' : (isWin ? 'cmd' : 'posix');
         const safetyDeny = remoteOwner ? null : commandSafetyRisk(cmd, { cwd: hostCwd, fs: fs, pathMod: P, dialect: shellDialect, isWin });
-        if (safetyDeny) throw new Error('refused [' + safetyDeny.kind + ']: this command ' + safetyDeny.reason + '. StarNet task processes preserve the user\'s control of their computer; use browser.test_* for local UI/game verification.');
+        if (safetyDeny) throw new Error('refused [' + safetyDeny.kind + ']: this command ' + safetyDeny.reason + '. Luna Station task processes preserve the user\'s control of their computer; use browser.test_* for local UI/game verification.');
         if (!environment) { try { fs.mkdirSync(cwd, { recursive: true }); } catch (_) {} }
         const checkpoint = typeof ctx.checkpointMutation === 'function'
           ? Promise.resolve().then(function () { return ctx.checkpointMutation(hostCwd, 'shell.exec', { always: true }); }).catch(function () { return null; })

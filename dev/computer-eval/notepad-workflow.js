@@ -13,7 +13,7 @@ async function run(binary, directory) {
   const root = path.resolve(directory); fs.mkdirSync(root, { recursive: true });
   const name = 'starnet-cua-' + randomUUID().slice(0, 8) + '.txt';
   const file = path.join(root, name);
-  const initial = 'StarNet evaluation fixture.\r\n';
+  const initial = 'Luna Station evaluation fixture.\r\n';
   const added = 'Background editing verified.';
   fs.writeFileSync(file, initial, { flag: 'wx' });
   const measurements = [];

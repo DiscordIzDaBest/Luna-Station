@@ -117,7 +117,7 @@ function workshopTurns(text) {
 function scenarioFor(messages) {
   /* Match the CURRENT ask — the LAST user turn — exactly, never by keyword and never the first turn.
 
-     Two things made earlier versions of this pick the wrong script, and both are real StarNet behaviour:
+     Two things made earlier versions of this pick the wrong script, and both are real Luna Station behaviour:
        1. a BACKGROUND SKILL REVIEW fork runs after each completed run through this same mock, and its prompt
           EMBEDS the run it reviews, so keyword matching hit the fork too;
        2. two runs sharing a streamId make the sidecar REPLAY the stream's earlier turns into the request, so

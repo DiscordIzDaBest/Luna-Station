@@ -1,6 +1,6 @@
-/* STARNET — the DEAD-ENGINE diagnostic fallback (2026-07-29).
+/* LUNA STATION — the DEAD-ENGINE diagnostic fallback (2026-07-29).
 
-   WHY THIS TEST EXISTS. A 0.7.0 user sat on "Can't reach StarNet's local service" for a day. All support ever
+   WHY THIS TEST EXISTS. A 0.7.0 user sat on "Can't reach Luna Station's local service" for a day. All support ever
    received was a screenshot of that sentence — because the app's one self-service diagnostic door,
    "⧉ copy diagnostics for a bug report", fetched GET /api/diagnostics FROM THE SIDECAR. So in the exact failure
    the door is offered under, it returned nothing and the user had nothing to send. Worse, that one sentence

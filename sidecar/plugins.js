@@ -97,13 +97,13 @@
       const id = String((spec && spec.id) || '').trim();
       if (!idOk(id)) return { ok: false, error: 'use letters, numbers, dot, dash or underscore (max 64)' };
       const name = String((spec && spec.name) || '').trim() || id;
-      const description = String((spec && spec.description) || '').trim() || 'A StarNet plugin.';
+      const description = String((spec && spec.description) || '').trim() || 'A Luna Station plugin.';
       const base = P.join(dir, id);
       try { await fsp.stat(base); return { ok: false, error: 'a plugin folder named "' + id + '" already exists' }; }
       catch (_) { /* good — it does not exist yet */ }
 
       const source = [
-        '/* ' + name + ' — a StarNet plugin.',
+        '/* ' + name + ' — a Luna Station plugin.',
         ' *',
         ' * register(api) runs once at station boot. api.on(event, handler) is the whole surface:',
         ' *   pre_tool_call    before a tool runs — return {decision:"block", reason:"…"} to stop it',

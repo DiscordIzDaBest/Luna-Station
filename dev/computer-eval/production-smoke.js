@@ -12,8 +12,8 @@ async function run(base) {
   fs.mkdirSync(root, { recursive: true });
   const filename = 'starnet-production-' + randomUUID().slice(0, 8) + '.txt';
   const file = path.join(root, filename);
-  const initial = 'StarNet production fixture.\r\n';
-  const addition = 'Saved through the real StarNet run.';
+  const initial = 'Luna Station production fixture.\r\n';
+  const addition = 'Saved through the real Luna Station run.';
   fs.writeFileSync(file, initial, { flag: 'wx' });
   const token = await bootToken(base, base);
   const request = async (route, body) => {

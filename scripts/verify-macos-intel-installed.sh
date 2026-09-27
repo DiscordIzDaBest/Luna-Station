@@ -18,11 +18,11 @@ fail() {
 [ -f "$fixture_root/agent.save.json" ] || fail "v0.9.0 save fixture is missing"
 [ -f "$fixture_root/recovery-canary.txt" ] || fail "v0.9.0 recovery canary is missing"
 
-legacy="$HOME/.local/share/StarNet/workspaces"
-desktop="$HOME/Library/Application Support/ai.skynet.harness/workspaces"
-app_data="$HOME/Library/Application Support/ai.skynet.harness"
+legacy="$HOME/.local/share/LunaStation/workspaces"
+desktop="$HOME/Library/Application Support/local.lunastation.desktop/workspaces"
+app_data="$HOME/Library/Application Support/local.lunastation.desktop"
 startup_log="$app_data/startup.log"
-installed="/Applications/StarNet.app"
+installed="/Applications/Luna Station.app"
 mount_point="$RUNNER_TEMP/starnet-intel-dmg"
 trust_log="$RUNNER_TEMP/starnet-intel-spctl.txt"
 source_hash_before=""
@@ -41,7 +41,7 @@ source_hash_before=$(shasum -a 256 "$legacy/agent.save.json" | awk '{print $1}')
 mounted=false
 cleanup() {
   if pgrep -f "$installed/Contents/MacOS/skynet-desktop" >/dev/null 2>&1; then
-    osascript -e 'tell application "StarNet" to quit' >/dev/null 2>&1 || true
+    osascript -e 'tell application "Luna Station" to quit' >/dev/null 2>&1 || true
     sleep 2
   fi
   if [ "$mounted" = true ]; then hdiutil detach "$mount_point" >/dev/null 2>&1 || true; fi
@@ -55,7 +55,7 @@ source_app=$(find "$mount_point" -maxdepth 2 -type d -name 'StarNet.app' -print 
 
 sudo ditto "$source_app" "$installed"
 exe="$installed/Contents/MacOS/skynet-desktop"
-[ -x "$exe" ] || fail "installed StarNet executable is missing"
+[ -x "$exe" ] || fail "installed Luna Station executable is missing"
 file "$exe" | grep -q 'x86_64' || fail "installed executable is not x86_64"
 codesign --verify --deep --strict --verbose=2 "$installed"
 
@@ -96,12 +96,12 @@ APPLESCRIPT
 }
 
 quit_cleanly() {
-  osascript -e 'tell application "StarNet" to quit'
+  osascript -e 'tell application "Luna Station" to quit'
   for _ in $(seq 1 80); do
     if ! pgrep -f "$exe" >/dev/null 2>&1; then return 0; fi
     sleep 0.25
   done
-  fail "StarNet did not exit after the normal application Quit event"
+  fail "Luna Station did not exit after the normal application Quit event"
 }
 
 launch_with_finder

@@ -289,7 +289,7 @@ function writeSummary(results, proofs, installer) {
   };
   writeJson(join(OUT, 'replacement-sweep-status.json'), status);
 
-  let md = '# StarNet Replacement Sweep\n\n';
+  let md = '# Luna Station Replacement Sweep\n\n';
   md += '- Generated: `' + status.generatedAt + '`\n';
   md += '- Scope: `' + status.scope + '`\n';
   md += '- Verdict: `' + status.verdict + '`\n';

@@ -22,6 +22,17 @@ const result = spawnSync(process.execPath, [
   '--no-pre-build-ctor'
 ], { cwd: ROOT, encoding: 'utf8', env: Object.assign({}, process.env, { STARNET_UPDATER_KEY_FILE: keyFile }) });
 
+// LUNA STATION: this private build has no updater feed, so the public release cutter must REFUSE (fail closed)
+// with an explanation — it must never try to sign or publish anything. The upstream happy-path assertions below
+// only apply when a feed is configured again.
+const lunaConf = JSON.parse(readFileSync(join(ROOT, 'src-tauri', 'tauri.conf.json'), 'utf8'));
+if (!(lunaConf.plugins && lunaConf.plugins.updater && (lunaConf.plugins.updater.endpoints || []).length)) {
+  assert.notEqual(result.status, 0, 'release cutter refuses in a private build');
+  assert.match(result.stdout + result.stderr, /public release cutting is disabled in this private Luna Station build/);
+  assert.doesNotMatch(result.stdout + result.stderr, /signer sign/, 'no signing command is even printed');
+  console.log('release-cut.test: OK (private build: release cutting refused)');
+  process.exit(0);
+}
 assert.equal(result.status, 0, result.stderr || result.stdout);
 const output = result.stdout + result.stderr;
 assert.match(output, /desktop:build .*explicit updater signing follows/i);

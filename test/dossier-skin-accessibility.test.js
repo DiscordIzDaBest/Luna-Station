@@ -52,5 +52,5 @@ const legacyHtml = renderProduction(legacyAgent);
 const selected = [...legacyHtml.matchAll(/data-skin="([^"]+)"[^>]*aria-pressed="true"/g)].map(m => m[1]);
 A.eq(selected, ['station_minion'], 'retired saved ID highlights its approved replacement');
 A.eq(legacyAgent.skin, 'minionchar', 'rendering the picker preserves the saved ID');
-A.ok(legacyHtml.includes('assets/sprites/approved_station_minion/rot_south.png'), 'replacement tile shows approved artwork');
+A.ok(legacyHtml.includes('assets/sprites/luna_medic/rot_south.png'), 'replacement tile shows the Luna crew artwork');
 A.report('dossier-skin-accessibility.test');

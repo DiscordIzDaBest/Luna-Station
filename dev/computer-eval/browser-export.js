@@ -16,7 +16,7 @@ async function run(directory) {
       return res.end(csv);
     }
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end('<!doctype html><title>StarNet export fixture</title><h1>Evaluation report</h1><a href="/report.csv" download>Export report</a>');
+    res.end('<!doctype html><title>Luna Station export fixture</title><h1>Evaluation report</h1><a href="/report.csv" download>Export report</a>');
   });
   await new Promise(r => server.listen(0, '127.0.0.1', r));
   const driver = browser.makeCdpDriver({ cdpPort: 0, forceHeadless: true, profileDir: path.join(root, 'chrome-profile'), downloadDir: path.join(root, 'downloads') });

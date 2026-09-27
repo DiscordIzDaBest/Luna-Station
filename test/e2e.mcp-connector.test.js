@@ -371,7 +371,7 @@ async function readNdjson(res) {
     });
     A.eq(googleBeforeSetup.status, 503, 'direct Google sign-in refuses before the one-time app client exists');
     const googleBeforeBody = await googleBeforeSetup.json();
-    A.ok(googleBeforeBody.signInAvailable === false && googleBeforeBody.code === 'google_signin_unavailable', 'unconfigured builds assign setup responsibility to StarNet, not the customer');
+    A.ok(googleBeforeBody.signInAvailable === false && googleBeforeBody.code === 'google_signin_unavailable', 'unconfigured builds assign setup responsibility to Luna Station, not the customer');
 
     const googleMissingSecret = await fetch(B + '/api/connectors/oauth/client', {
       method: 'POST', headers, body: JSON.stringify({ id: 'gmail', clientId: 'fake-client.apps.googleusercontent.com' })

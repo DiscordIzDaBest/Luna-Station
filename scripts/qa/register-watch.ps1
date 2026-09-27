@@ -45,7 +45,7 @@ if (-not $RepoRoot -or $RepoRoot.Trim() -eq '') {
   $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 }
 if (-not (Test-Path (Join-Path $RepoRoot 'package.json'))) {
-  Write-Error ("RepoRoot '" + $RepoRoot + "' has no package.json. Pass -RepoRoot pointing at the StarNet repo.")
+  Write-Error ("RepoRoot '" + $RepoRoot + "' has no package.json. Pass -RepoRoot pointing at the Luna Station repo.")
   exit 1
 }
 
@@ -56,12 +56,12 @@ $npmPath = if ($npmCmd) { $npmCmd.Source } else { 'npm.cmd' }
 
 # The three headless tasks. Each runs `cmd /c npm run <script>` with the repo as the working dir.
 $tasks = @(
-  @{ Name = 'StarNet-QA-Guardian-Hourly'; Script = 'qa:guardian'; When = 'hourly';  Desc = 'StarNet QA: hourly trunk green-gate (test:fast + shoot + golden + audit).' }
-  @{ Name = 'StarNet-QA-Beginner-Daily';  Script = 'qa:beginner'; When = 'daily';   Desc = 'StarNet QA: daily fresh-user --ui-only reachability run.' }
-  @{ Name = 'StarNet-QA-Janitor-Weekly';  Script = 'qa:janitor';  When = 'weekly';  Desc = 'StarNet QA: weekly hygiene sweep (propose-only).' }
+  @{ Name = 'StarNet-QA-Guardian-Hourly'; Script = 'qa:guardian'; When = 'hourly';  Desc = 'Luna Station QA: hourly trunk green-gate (test:fast + shoot + golden + audit).' }
+  @{ Name = 'StarNet-QA-Beginner-Daily';  Script = 'qa:beginner'; When = 'daily';   Desc = 'Luna Station QA: daily fresh-user --ui-only reachability run.' }
+  @{ Name = 'StarNet-QA-Janitor-Weekly';  Script = 'qa:janitor';  When = 'weekly';  Desc = 'Luna Station QA: weekly hygiene sweep (propose-only).' }
 )
 
-Write-Host "StarNet QA watch -- scheduled-task registrar"
+Write-Host "Luna Station QA watch -- scheduled-task registrar"
 Write-Host "  repo root : $RepoRoot"
 Write-Host "  npm       : $npmPath"
 Write-Host "  mode      : $(if ($Remove) { 'REMOVE' } elseif ($Apply) { 'APPLY (registering)' } else { 'DRY-RUN (nothing will change)' })"

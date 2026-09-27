@@ -27,13 +27,13 @@ function proof(hash, bytes, overrides) {
     machineKind: 'windows-sandbox',
     cleanMachine: true,
     installer: { sha256: hash, bytes },
-    install: { succeeded: true, method: 'manual', installLocation: 'C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\Programs\\StarNet' },
+    install: { succeeded: true, method: 'manual', installLocation: 'C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\Programs\\Luna Station' },
     launch: {
       succeeded: true,
-      observedWindowTitle: 'StarNet',
-      exePath: 'C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\Programs\\StarNet\\skynet-desktop.exe',
-      startupRoot: 'C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\Programs\\StarNet',
-      workspaceRoot: 'C:\\Users\\WDAGUtilityAccount\\AppData\\Roaming\\ai.skynet.harness\\workspaces'
+      observedWindowTitle: 'Luna Station',
+      exePath: 'C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\Programs\\Luna Station\\skynet-desktop.exe',
+      startupRoot: 'C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\Programs\\Luna Station',
+      workspaceRoot: 'C:\\Users\\WDAGUtilityAccount\\AppData\\Roaming\\local.lunastation.desktop\\workspaces'
     },
     notes: []
   }, overrides || {});
@@ -135,7 +135,7 @@ try {
       install: { succeeded: true, method: 'manual', installLocation: 'C:\\Users\\andro\\AppData\\Local\\Programs\\StarNetT4UpdateSmoke-20260628-065002' },
       launch: {
         succeeded: true,
-        observedWindowTitle: 'StarNet',
+        observedWindowTitle: 'Luna Station',
         exePath: 'C:\\Users\\andro\\AppData\\Local\\Programs\\StarNetT4UpdateSmoke-20260628-065002\\skynet-desktop.exe',
         startupRoot: 'C:\\Users\\andro\\AppData\\Local\\Programs\\StarNetT4UpdateSmoke-20260628-065002',
         workspaceRoot: 'C:\\Users\\andro\\AppData\\Local\\Programs\\StarNetT4UpdateSmoke-20260628-065002\\sidecar\\workspaces'

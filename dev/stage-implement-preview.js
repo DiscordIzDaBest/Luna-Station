@@ -41,7 +41,7 @@ Each entry names its trigger, what it needs, and what it produces.
 **Needs:** read access to the drive being reported on.
 **Produces:** the top 20 directories by size, with a delta against the previous run.
 
-## 3. Open-window census  (StarNet tool, ~2 h)
+## 3. Open-window census  (Luna Station tool, ~2 h)
 **Trigger:** "what was I working on yesterday?"
 **Needs:** a background sampler and somewhere to persist samples.
 **Produces:** a rollup of active windows per hour.
@@ -56,7 +56,7 @@ const MANIFEST = {
   files: [{ path: 'automation-backlog.md', bytes: Buffer.byteLength(PLAN, 'utf8') }],
   howToUse: 'Open automation-backlog.md.',
   notVerified: [
-    'Confirm the Windows fields available in the intended StarNet runtime.',
+    'Confirm the Windows fields available in the intended Luna Station runtime.',
     'Review redaction behaviour on a real machine.',
     'Choose which candidate to build first.'
   ]

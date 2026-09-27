@@ -2364,7 +2364,7 @@
         }
         return { ok: true, browser: String(v.Browser || 'Chrome'), port: port };
       } catch (e) {
-        return { ok: false, error: 'browser.attach: nothing is listening on 127.0.0.1:' + port + '. Use browser.login for a saved StarNet session. Advanced attachment requires Chrome launched with --remote-debugging-port=' + port + ' and a separate --user-data-dir; current Chrome does not expose its default profile this way.' };
+        return { ok: false, error: 'browser.attach: nothing is listening on 127.0.0.1:' + port + '. Use browser.login for a saved Luna Station session. Advanced attachment requires Chrome launched with --remote-debugging-port=' + port + ' and a separate --user-data-dir; current Chrome does not expose its default profile this way.' };
       }
     }
     async function detach() {
@@ -2668,7 +2668,7 @@
          this file drives a browser the station owns; this one drives the Commander's, where every account
          they have is already signed in. The consent card is the only place a human sees that difference
          before it happens, so `false` is never passed for the consent flag here. */
-      exec('browser.attach', 'Attach to an explicitly prepared Chrome debugging session. Prefer browser.login for guided sign-in with a reusable StarNet profile. Advanced attachment requires --remote-debugging-port=<port> and a separate --user-data-dir; current Chrome refuses debugging its default profile. Only accounts signed into that separate profile are available. Use this when a task needs a real logged-in session that browser.login cannot supply. browser.eval stays refused while attached. browser.detach lets go without closing their browser.',
+      exec('browser.attach', 'Attach to an explicitly prepared Chrome debugging session. Prefer browser.login for guided sign-in with a reusable Luna Station profile. Advanced attachment requires --remote-debugging-port=<port> and a separate --user-data-dir; current Chrome refuses debugging its default profile. Only accounts signed into that separate profile are available. Use this when a task needs a real logged-in session that browser.login cannot supply. browser.eval stays refused while attached. browser.detach lets go without closing their browser.',
         { type: 'object', required: ['port'], properties: { port: { type: 'number' } } },
         async a => {
           const r = await session.attach(a.port);

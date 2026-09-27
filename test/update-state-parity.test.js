@@ -289,12 +289,18 @@ function loadSaveModule() {
   const path = require('node:path');
   const ROOT = path.resolve(__dirname, '..');
   const conf = JSON.parse(fs.readFileSync(path.join(ROOT, 'src-tauri', 'tauri.conf.json'), 'utf8').replace(/^﻿/, ''));
-  const endpoint = conf.plugins.updater.endpoints[0];
+  const endpoints = conf.plugins.updater.endpoints || [];
   const updatesSrc = fs.readFileSync(path.join(ROOT, 'frontend', 'app', 'updates.js'), 'utf8');
   const pageMatch = updatesSrc.match(/RELEASES_PAGE = '([^']+)'/);
   A.ok(pageMatch, 'updates.js declares RELEASES_PAGE');
   const slugOf = u => (String(u).match(/github\.com\/([^/]+\/[^/]+)\//) || [])[1];
-  A.eq(slugOf(pageMatch[1] + '/'), slugOf(endpoint),
+  // LUNA STATION: a private build has NO updater feed (Luna Station's feed would install Luna Station over Luna Station),
+  // and the native updater commands refuse. The manual link must never point at the upstream releases.
+  A.eq(endpoints.length, 0, 'private build bakes no updater endpoint');
+  A.ok(/const LUNA_UPDATES_ENABLED: bool = false;/.test(fs.readFileSync(path.join(ROOT, 'src-tauri', 'src', 'main.rs'), 'utf8')),
+    'native update check/install are disabled in the shell');
+  A.ok(!/androoAGI|starnet-releases/i.test(pageMatch[1]), 'manual-fallback page never points at the upstream Luna Station releases');
+  if (endpoints.length) A.eq(slugOf(pageMatch[1] + '/'), slugOf(endpoints[0]),
     'manual-fallback releases page and the baked updater endpoint point at the SAME owner/repo');
   A.ok(/\/releases\/latest$/.test(pageMatch[1]), 'manual fallback points at /releases/latest (never a pinned tag)');
 }

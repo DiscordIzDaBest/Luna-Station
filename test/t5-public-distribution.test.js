@@ -16,7 +16,13 @@ const APP_VERSION = TAURI_CONF.version;
 // The updater endpoint is the single source of truth; the T5 hosting proof compares the
 // evidence's latestJsonUrl against it. Derive the installer asset URL from the same channel
 // so this fixture tracks the configured endpoint instead of hardcoding a dead host.
-const LATEST_JSON_URL = TAURI_CONF.plugins.updater.endpoints[0];
+const LATEST_JSON_URL = (TAURI_CONF.plugins.updater.endpoints || [])[0];
+// LUNA STATION: a private build has no public distribution channel (no updater feed), so the T5 public-distribution
+// proof does not apply. It becomes live again automatically if an updater endpoint is ever configured.
+if (!LATEST_JSON_URL) {
+  console.log('t5-public-distribution.test: SKIP (private Luna Station build: no public distribution channel)');
+  process.exit(0);
+}
 const INSTALLER_URL = LATEST_JSON_URL.replace(/\/releases\/latest\/download\/latest\.json$/, '/releases/download/v' + APP_VERSION + '/StarNet_' + APP_VERSION + '_x64-setup.exe');
 
 function cleanEnv(extra) {

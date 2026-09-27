@@ -77,7 +77,7 @@ const { tmpdir } = require('node:os');
     'a harness-provided pass cannot override a failed host observation');
   const parity = cmp.compareHarnesses({ tasks: parityTasks, starnetRows: parityRows, referenceRows: parityRows, contract });
   A.ok(parity.pass, 'a fully evidenced equal comparison passes all parity gates');
-  A.eq(parity.summary.starnetPassRatePct, 100, 'StarNet pass rate is calculated from active scenarios');
+  A.eq(parity.summary.starnetPassRatePct, 100, 'Luna Station pass rate is calculated from active scenarios');
   A.eq(parity.summary.violations, { falseDone: 0, wrongDestination: 0, duplicateMutation: 0, authorityEscape: 0 }, 'zero-tolerance events are counted explicitly');
 
   const unsafe = JSON.parse(JSON.stringify(parityRows));
@@ -131,7 +131,7 @@ const { tmpdir } = require('node:os');
     const parityReceipt = join(temp, 'parity.json');
     const compareCli = spawnSync(process.execPath, ['scripts/eval/runner.mjs', 'compare', '--starnet', starnetFile, '--reference', referenceFile, '--receipt', parityReceipt, '--signing-key', privateKey], { cwd: root, encoding: 'utf8' });
     A.eq(compareCli.status, 0, 'parity CLI exits zero for passing evidence');
-    A.ok(/PARITY PASS StarNet=100.0%/.test(compareCli.stdout), 'parity CLI prints the scored comparison');
+    A.ok(/PARITY PASS Luna Station=100.0%/.test(compareCli.stdout), 'parity CLI prints the scored comparison');
     const verifyCli = spawnSync(process.execPath, ['scripts/eval/runner.mjs', 'verify-receipt', '--receipt', parityReceipt], { cwd: root, encoding: 'utf8' });
     A.eq(verifyCli.status, 0, 'a signed receipt verifies through the CLI');
     A.ok(/SIGNATURE PASS/.test(verifyCli.stdout), 'signature verification prints the key identity');

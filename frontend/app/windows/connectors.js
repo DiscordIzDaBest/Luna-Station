@@ -1,4 +1,4 @@
-/* STARNET — windows/connectors.js : the TOOLSETS & CONNECTORS window (extracted verbatim from stationui.js).
+/* LUNA STATION — windows/connectors.js : the TOOLSETS & CONNECTORS window (extracted verbatim from stationui.js).
    Loads AFTER stationui.js (see index.html) and registers itself via StationUI.registerWindow;
    the only stationui internals it touches are the enumerated StationUI.h helper surface
    (esc/sfx/notify/fmtRel, mountConsole, and openSignIn for catalog OAuth flows). */
@@ -213,7 +213,7 @@
         <div class="ext-choices" aria-label="Add an extension">
           <button class="ext-choice" data-ext-editor="hook" aria-controls="hk-form" aria-expanded="false">
             <span class="ext-choice-icon" aria-hidden="true">⌁</span>
-            <span><b>Run a command automatically</b><small>Choose when StarNet runs your script.</small></span><span aria-hidden="true">＋</span>
+            <span><b>Run a command automatically</b><small>Choose when Luna Station runs your script.</small></span><span aria-hidden="true">＋</span>
           </button>
           <button class="ext-choice" data-ext-editor="plugin" aria-controls="pl-form" aria-expanded="false">
             <span class="ext-choice-icon" aria-hidden="true">⌘</span>
@@ -324,7 +324,7 @@
       { id: 'keys', label: 'SAVED API CONNECTIONS', glyph: '⊟', desc: 'The platform credentials your agents actually hold, plus a safe drop for a custom API the catalog does not list.', build: frag(secKeys) },
       { id: 'mcp', label: 'CONNECTED SERVICES', glyph: '⧉', desc: 'Manage service access, check connection status, and reconnect when needed.', build: frag(secMcp) },
       { id: 'custom', label: 'CREATE / ADVANCED', glyph: '＋', desc: 'Configure a custom server, API, skill package, hook or plugin.', build: frag('<div class="ab-router-grid"><button class="ab-route" data-ab-to="mcp">Add a custom MCP server</button><button class="ab-route" data-ab-to="keys">Add a custom API key</button><button class="ab-route" data-ab-to="exchange">Import a skill package</button><button class="ab-route" data-ab-to="extensions">Create hooks and plugins</button></div>') },
-      { id: 'extensions', label: 'EXTENSIONS', glyph: '⌥', desc: 'Automate a step or extend StarNet with your own code.', build: frag(secExt) }
+      { id: 'extensions', label: 'EXTENSIONS', glyph: '⌥', desc: 'Automate a step or extend Luna Station with your own code.', build: frag(secExt) }
     ].concat(lanes.reduce((acc, l) => acc.concat(l.sections), [])), {
       search: true,
       groups: [
@@ -882,7 +882,7 @@
         '<details class="mc-inspect"><summary>' + (detail ? 'Error &amp; connection details' : 'Connection details') + (c.tools && c.tools.length ? ' · ' + c.tools.length + ' tools' : '') + '</summary>' +
           '<div class="mc-hint">Service ID: <code>' + esc(c.id) + '</code></div>' +
           '<div class="mc-url dim">' + where + timeout + '</div>' +
-          '<div class="mc-hint">' + (c.account && c.account.email ? '' : 'Account identity: not verified by StarNet. ') + 'Browser logins are separate from this connection.</div>' +
+          '<div class="mc-hint">' + (c.account && c.account.email ? '' : 'Account identity: not verified by Luna Station. ') + 'Browser logins are separate from this connection.</div>' +
           detail + tools +
         '</details>' +
         '<div class="mc-acts">' +
@@ -919,7 +919,7 @@
         if (storageError) {
           overview.textContent = 'Saved services unavailable';
           notices.innerHTML += '<div class="mc-notice"><b>Credential storage</b>' + esc(storageError) + '</div>';
-          listEl.innerHTML = '<div class="mc-detail">Your saved connections have not been erased. Unlock the credential store and restart StarNet.</div>';
+          listEl.innerHTML = '<div class="mc-detail">Your saved connections have not been erased. Unlock the credential store and restart Luna Station.</div>';
           return;
         }
         if (list.length) {
@@ -1129,7 +1129,7 @@
       const chip = e.platformApi && e.unattendedSupported === false
         ? ['', 'manual setup', 'var(--gold)']
         : (e.signInAvailable === false ? ['', e.releaseDeferred ? 'deferred' : 'sign-in unavailable', 'var(--gold)'] : (CC_CHIP[e.authType] || CC_CHIP.none));
-      const origin = e.googleApi ? '<span class="cc-badge cc-official" title="StarNet connector using Google’s APIs">STARNET · GOOGLE API</span>' : e.platformApi
+      const origin = e.googleApi ? '<span class="cc-badge cc-official" title="Luna Station connector using Google’s APIs">LUNA STATION · GOOGLE API</span>' : e.platformApi
         ? '<span class="cc-badge cc-official" title="first-party REST API documented by the vendor">✓ official API</span>'
         : (e.official ? '<span class="cc-badge cc-official" title="first-party server, run by the vendor">✓ official</span>'
                       : '<span class="cc-badge cc-community" title="community-run server">community</span>');
@@ -1154,7 +1154,7 @@
             '<div class="mc-hint">Stored locally by the sidecar, sent as ' + keyDelivery + ', never displayed again.</div></div>'
         : '';
       const clientField = e.googleApi && e.signInAvailable === false
-        ? '<div class="mc-hint">' + esc(e.signInMessage || 'Google sign-in is not available in this build. StarNet needs to finish enabling it. No account setup is required from you.') + '</div>' : '';
+        ? '<div class="mc-hint">' + esc(e.signInMessage || 'Google sign-in is not available in this build. Luna Station needs to finish enabling it. No account setup is required from you.') + '</div>' : '';
       const home = e.homepage ? ' <a class="cc-home dim" href="' + esc(e.homepage) + '" target="_blank" rel="noopener">site ↗</a>' : '';
       // data-search: the console search box (stationui.js doFilter) matches textContent + this attribute, so a
       // Commander typing "google drive" reaches the Google Workspace card even though those words are only in
@@ -1354,7 +1354,7 @@
         notice.setAttribute('aria-label', 'Google connection and data use');
         notice.innerHTML = '<strong>CONNECT ' + esc(label.toUpperCase()) + '</strong>' +
           '<p>' + esc((e && e.blurb) || 'Connect the selected Google service using the permissions you approve in Google.') + '</p>' +
-          '<p>When an agent uses this connection, content from the Google service can be sent to your selected AI model provider. With StarNet Credits, those requests also pass through the StarNet credits gateway.</p>' +
+          '<p>When an agent uses this connection, content from the Google service can be sent to your selected AI model provider. With Luna Station Credits, those requests also pass through the Luna Station credits gateway.</p>' +
           '<p>Sign-in credentials are saved on this device. Conversations, files and memories may retain content from your requests. Removing the connection clears its saved credentials; it does not erase previous work or revoke access in your Google account.</p>' +
           '<p><a class="bb sm" href="https://starnetos.com/legal/privacy#google-workspace" target="_blank" rel="noopener">Google data use and removal details ↗</a></p>' +
           '<div class="mc-acts"><button class="bb sm" data-google-continue>CONTINUE TO GOOGLE</button><button class="bb sm" data-google-cancel>CANCEL</button></div>';
@@ -1430,8 +1430,8 @@
       notice.setAttribute('aria-label', 'Sign in with GitHub');
       notice.style.cssText = 'position:fixed;inset:0;margin:auto;width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;padding:24px;background:#17140e;color:var(--ph,#ddbd83);border:1px solid var(--gold,#ac853e);z-index:10000;box-shadow:0 0 0 100vmax #0009';
       notice.innerHTML = '<strong>CONNECT GITHUB</strong><p>1. Copy this code: <code style="font-size:20px;user-select:all">' + esc(device.userCode) + '</code> <button class="bb sm" data-device-copy>COPY CODE</button></p>' +
-        '<p>2. Open GitHub, enter the code, and approve StarNet’s repository and organization access.</p>' +
-        '<p>3. Return here. StarNet will check and save your connection on this device.</p>' +
+        '<p>2. Open GitHub, enter the code, and approve Luna Station’s repository and organization access.</p>' +
+        '<p>3. Return here. Luna Station will check and save your connection on this device.</p>' +
         '<div class="mc-acts"><button class="bb sm" data-device-open>OPEN GITHUB</button><button class="bb sm" data-device-cancel>CANCEL</button></div><p data-device-status role="status"></p>';
       document.body.appendChild(notice); notice.showModal();
       notice.addEventListener('cancel', ev => { ev.preventDefault(); ccCancelSignIn(id); });
@@ -1444,7 +1444,7 @@
       const open = async () => {
         const result = await openSignIn(device.url);
         if (!result.opened) progress('Could not open GitHub. Allow pop-ups and choose OPEN GITHUB.');
-        else { ccPendingWin.set(id, result.win || null); progress('Waiting for you to enter the code and approve StarNet in GitHub…'); }
+        else { ccPendingWin.set(id, result.win || null); progress('Waiting for you to enter the code and approve Luna Station in GitHub…'); }
       };
       notice.querySelector('[data-device-open]').addEventListener('click', open);
       notice.querySelector('[data-device-cancel]').addEventListener('click', () => ccCancelSignIn(id));

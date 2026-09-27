@@ -124,7 +124,7 @@
 
      projectScopeLine above tells the agent WHERE it is working. It never told it HOW that project wants to be
      worked in. Every serious codebase carries its conventions in a file at the root — AGENTS.md, CLAUDE.md,
-     .cursorrules — and until now StarNet read none of them at run time: `harness-import.js` parses AGENTS.md,
+     .cursorrules — and until now Luna Station read none of them at run time: `harness-import.js` parses AGENTS.md,
      but that is the one-time MIGRATION importer for adopting another harness's home, not live project context.
      So an agent anchored to the Commander's repo re-derived its conventions from scratch on every run, and
      violated the ones it could not guess.

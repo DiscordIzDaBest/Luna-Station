@@ -20,7 +20,7 @@
   // them. `tools` is deliberately NOT in this list: silently removing tools would let a task run proceed
   // without the capability it needs (the run must fail honestly instead).
   const DROPPABLE_PARAMS = ['stream_options', 'parallel_tool_calls', 'tool_choice', 'reasoning_effort', 'max_tokens'];
-  // The chat-completions wire accepts this effort scale; StarNet's wider scale (xhigh/max) clamps into it.
+  // The chat-completions wire accepts this effort scale; Luna Station's wider scale (xhigh/max) clamps into it.
   const WIRE_EFFORTS = ['minimal', 'low', 'medium', 'high'];
   function wireEffort(value) {
     const v = String(value || '').trim().toLowerCase();
@@ -370,14 +370,14 @@
         // run never pay the extra round-trip). Does not consume a transient-retry attempt.
         if (dropUnsupportedParam(body, res.status, detail)) { attempt--; continue; }
         // A vendor API rejecting a slash-prefixed id as an unknown/invalid model means a ROUTED-catalog id
-        // (StarNet managed / OpenRouter, e.g. "openai/gpt-…") reached a direct vendor endpoint. Without this
+        // (Luna Station managed / OpenRouter, e.g. "openai/gpt-…") reached a direct vendor endpoint. Without this
         // line the user sees only the vendor's bare "invalid model ID" and has no path back (2026-08-25
         // stranded-user incident) — name the mismatch and the fix. Slash-native catalogs (together, fireworks,
         // groq) are safe: their ids resolve on their own endpoints, so this only fires on a real mismatch.
         if ((res.status === 400 || res.status === 404)
           && /invalid model|is not a valid model|model .*(does not exist|not found)/i.test(String(detail))
           && String(body.model || '').indexOf('/') > 0) {
-          detail += ' — "' + body.model + '" is a routed-catalog model id (vendor/model), but this provider calls the vendor API directly. Switch the provider in the model picker (STARNET or OPENROUTER for routed ids), or pick a model from this provider\'s own catalog.';
+          detail += ' — "' + body.model + '" is a routed-catalog model id (vendor/model), but this provider calls the vendor API directly. Switch the provider in the model picker (LUNA STATION or OPENROUTER for routed ids), or pick a model from this provider\'s own catalog.';
         }
         const err = new Error(errLabel + ' http ' + res.status + ' - ' + detail);
         err.status = res.status;

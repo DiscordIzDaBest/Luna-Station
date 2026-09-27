@@ -8,7 +8,7 @@ const { friendlyError, actionButton, KINDS, CAP_INFO } = require('../frontend/ap
 /* ---- THE SIDECAR'S OUTBOUND CALL FAILED => name the PROVIDER, not the local service ----
    From a real 0.7.0 user report (2026-07-29): their diagnostics showed a healthy local engine serving the report
    itself, with five `fetch failed` entries — the sidecar could not reach chatgpt.com/api.openai.com — while the
-   app told them "Can't reach StarNet's local service, restart it". They lost a day to it.
+   app told them "Can't reach Luna Station's local service, restart it". They lost a day to it.
    The discriminator is word order and it is decisive: NODE/undici says "fetch failed", a BROWSER says "Failed to
    fetch". So `fetch failed` can only have been produced inside the sidecar and forwarded, i.e. the broken hop is
    sidecar -> provider. These assertions lock BOTH directions, because the whole defect was one string being
@@ -30,7 +30,7 @@ for (const raw of [
   A.ok(/running fine/i.test(v.userMessage), raw + ' reassures the user their install is healthy');
 }
 // …and the browser-side wordings must NOT be captured by the upstream bucket (they really are local transport).
-for (const raw of ['Failed to fetch', 'cannot reach the STARNET sidecar', 'terminated', 'Load failed']) {
+for (const raw of ['Failed to fetch', 'cannot reach the LUNA STATION sidecar', 'terminated', 'Load failed']) {
   A.eq(friendlyError(new Error(raw)).kind, 'network', raw + ' stays a LOCAL transport verdict');
 }
 
@@ -306,7 +306,7 @@ for (const raw of [
 /* ---- PROVIDER 5xx/OVERLOAD => name the PROVIDER's servers, never the local service (2026-07-30) ----
    The report wave behind this: users seeing "servers are unavailable out of the blue" during industry-wide
    provider load spikes, because every provider 500/529/"overloaded" landed on the server_error copy that says
-   "The LOCAL StarNet service hit an error". A message naming a component owes proof it is at fault. The
+   "The LOCAL Luna Station service hit an error". A message naming a component owes proof it is at fault. The
    discriminator is EVIDENCE in the raw: provider phrasing or a provider name → provider; a "sidecar HTTP 5xx"
    with neither → the one case where our own route demonstrably answered, and only THAT keeps the local copy. */
 {
@@ -322,7 +322,7 @@ for (const raw of [
     A.eq(v.kind, 'provider_server_error', raw + ' is the PROVIDER\'s server fault (delegate path)');
     A.eq(kindFromRaw(raw.toLowerCase(), null), 'provider_server_error', raw + ' — BROWSER ladder agrees');
     A.eq(v.retryable, true, raw + ' is retryable (load spikes pass)');
-    A.ok(!/local .*service|starnet service/i.test(v.userMessage) || /StarNet itself is fine/i.test(v.userMessage),
+    A.ok(!/local .*service|starnet service/i.test(v.userMessage) || /Luna Station itself is fine/i.test(v.userMessage),
       raw + ' must NEVER blame the local service');
     A.ok(/provider/i.test(v.userMessage), raw + ' names the provider\'s servers');
     A.ok(/fine/i.test(v.userMessage), raw + ' reassures the user their install is healthy');
@@ -335,7 +335,7 @@ for (const raw of [
     'BROWSER: a bare sidecar 500 keeps the local-service copy');
   A.eq(friendlyError(Object.assign(new Error('sidecar HTTP 500 — internal error'), { status: 500 })).kind,
     'server_error', 'DELEGATE: a bare sidecar 500 keeps the local-service copy');
-  A.ok(/local starnet service/i.test(KINDS.server_error.msg), 'the local copy still exists for the proven-local case');
+  A.ok(/local luna station service/i.test(KINDS.server_error.msg), 'the local copy still exists for the proven-local case');
   // the two ladders must agree on the flagship shape, or the halves drift again
   A.eq(kindFromRaw('anthropic http 529 - overloaded', null),
     friendlyError(new Error('Anthropic http 529 - Overloaded')).kind,

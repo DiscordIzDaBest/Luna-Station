@@ -1,4 +1,4 @@
-/* STARNET — bootguard.js : the FIRST app script. Makes a broken boot LOUD instead of silent.
+/* LUNA STATION — bootguard.js : the FIRST app script. Makes a broken boot LOUD instead of silent.
 
    The audit finding this answers ("first run fails silently by construction"): nothing in frontend/ listened for
    window `error` / `unhandledrejection`, and app.js guards every module with `typeof X !== 'undefined'` — so a
@@ -78,7 +78,7 @@
   function isStationScript(s) {
     // Every authored station module lives below one of these three roots. Public hosts may append their own
     // analytics/challenge scripts (for example Cloudflare's /beacon.min.js); a blocked optional host script is
-    // not evidence that StarNet failed to boot. Keep the allowlist structural so real app/shared 404s remain loud.
+    // not evidence that Luna Station failed to boot. Keep the allowlist structural so real app/shared 404s remain loud.
     return /^(?:app|js|shared)\//.test(shortPath(s));
   }
   // Catalog retry retained for browser/dev service startup; failure does not prove engine health.
@@ -199,7 +199,7 @@
   }
   function report() {
     const L = [];
-    L.push('STARNET BOOT GUARD (page-side — measured by the app window itself)');
+    L.push('LUNA STATION BOOT GUARD (page-side — measured by the app window itself)');
     L.push('when:           ' + new Date().toISOString());
     L.push('page:           ' + String((root.location && root.location.pathname) || '/'));
     L.push('boot check:     ' + (!state.checked ? 'not run yet' : (state.missing.length || state.scriptFailures) ? 'FAILED' : 'passed'));

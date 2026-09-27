@@ -1,4 +1,4 @@
-/* node test/rename-migrate.test.js — Skynet→StarNet localStorage migration (data-safety net).
+/* node test/rename-migrate.test.js — Skynet→Luna Station localStorage migration (data-safety net).
    Proves the boot pass copies every legacy `skynet.*` key forward to `starnet.*` WITHOUT losing the
    old keys (rollback), never clobbers an existing new key, ignores foreign keys, and is idempotent. */
 'use strict';

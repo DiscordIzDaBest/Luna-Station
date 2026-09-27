@@ -1,4 +1,4 @@
-/* STARNET — util.js : helpers + event bus */
+/* LUNA STATION — util.js : helpers + event bus */
 'use strict';
 
 const U = {

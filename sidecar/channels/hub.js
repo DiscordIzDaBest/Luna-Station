@@ -922,7 +922,7 @@
         const me = (roster || []).find(x => String(x.agentId) === String(boundId));
         const who = me ? (me.name || me.agentId) : boundId;
         await deliver(chatId,
-          'STARNET online — you are talking to ' + who + '.\n\n'
+          'LUNA STATION online — you are talking to ' + who + '.\n\n'
           + 'Just say what you need in plain language and I will get on it. I can search and read the web, '
           + 'work with your files, remember things for you, and run scheduled work.\n\n'
           + helpText(), '', 'command');
@@ -1500,7 +1500,7 @@
       try { emit('channel.inbound', { channel, chatId, agentId, userId: msg.userId || '', kind: msg.chatType === 'group' ? 'group' : 'dm' }); } catch (_) {}
 
       if (!sec.model || (!usingCodex && !sec.configured && !sec.key)) {
-        await deliver(chatId, '⚠ ' + (sec.error || 'No provider/model is configured yet. Open the STARNET app → Messaging tab and connect.'), '', 'error');
+        await deliver(chatId, '⚠ ' + (sec.error || 'No provider/model is configured yet. Open the LUNA STATION app → Messaging tab and connect.'), '', 'error');
         return;
       }
 

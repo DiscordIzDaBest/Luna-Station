@@ -25,7 +25,7 @@ module.exports = (async () => {
       A.eq(JSON.stringify(messages), original, model + ': durable history unchanged');
     }
   }
-  // Managed StarNet uses this adapter too. An interrupted history must get the same repair as
+  // Managed Luna Station uses this adapter too. An interrupted history must get the same repair as
   // direct OpenRouter, before it reaches a strict Chat Completions upstream.
   {
     const input = [
@@ -407,7 +407,7 @@ module.exports = (async () => {
 
   /* ---- managed upstream failures retain safe diagnostic identity ----
      OpenRouter can answer only "Provider returned error" at the top level while carrying the provider, code,
-     and a StarNet correlation id separately. Those fields must survive into diagnostics; raw metadata must not. */
+     and a Luna Station correlation id separately. Those fields must survive into diagnostics; raw metadata must not. */
   {
     const fetchImpl = async () => new Response(JSON.stringify({
       error: {

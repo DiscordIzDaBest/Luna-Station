@@ -255,7 +255,7 @@ function greenCfg() {
   const receiptPath = path.join(repoRoot, 'qa', 'installed', 'last-smoke.json');
   const artifactPath = path.join(repoRoot, 'StarNet.exe');
   const evidencePath = path.join(repoRoot, EVIDENCE_IDENTITY.path);
-  const artifactBytes = Buffer.from('exact running StarNet executable', 'utf8');
+  const artifactBytes = Buffer.from('exact running Luna Station executable', 'utf8');
   const artifactIdentity = {
     path: artifactPath,
     sha256: crypto.createHash('sha256').update(artifactBytes).digest('hex'),

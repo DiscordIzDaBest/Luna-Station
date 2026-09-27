@@ -100,7 +100,7 @@ const { toolsetRows, toggleableCaps } = require('./capability/toolsets.js');   /
 const { makeCapCtx } = require('./capability/capGate.js');
 const { composeOffice, stationWithObject, stationWithConnectors } = require('./capability/office.js');   // THE MOAT: interactive office = compute freebie + placed caps
 const { summarizeCapabilities } = require('./capability/capsummary.js');   // truthful "what you can/can't do" so the agent stops over-promising
-const { starnetManual } = require('./manual.js');   // truthful "how StarNet works" so the agent can guide a stuck Commander (interactive only)
+const { starnetManual } = require('./manual.js');   // truthful "how Luna Station works" so the agent can guide a stuck Commander (interactive only)
 const FinishLine = require('./finish-line.js');     // immutable "crawl to the finish line" task doctrine at the final prompt seam
 const { makeHarnessSnapshot } = require('./harness-snapshot.js');   // bounded secret-free build/scheduler/connectors/diagnostics truth for station.inspect
 const { makeOpenRouterProvider } = require('./providers/openrouter.js');
@@ -306,7 +306,7 @@ const { makeVerifyTool } = require('./tools/builtin/verify.js');    // the workb
 const { makeLspManager } = require('./lsp-manager.js');             // lazy installed-language-server edit diagnostics
 const { makeOrchestrationTools } = require('./tools/builtin/orchestration.js');   // Stage 2: team.dispatch (lead->worker delegation)
 const { makeStationTools } = require('./tools/builtin/station.js');               // session verbs (list/create/focus) over the station bridge
-const { makeRoutineTools } = require('./tools/builtin/routines.js'); // ROUTINES: agent-created StarNet cron jobs
+const { makeRoutineTools } = require('./tools/builtin/routines.js'); // ROUTINES: agent-created Luna Station cron jobs
 const { makeLoopTools } = require('./tools/builtin/loops.js');       // LOOPS: model-facing durable standing-objective controls
 const { makeCommsTools } = require('./tools/builtin/comms.js');      // COMMS: outbound reach — an agent messages a connected chat
 const cronGuard = require('./cron-guard.js');                        // routine prompt-injection tripwire (pure, see file header)
@@ -324,8 +324,8 @@ const sharedSpecialties = require('../shared/specialties.js');   // Class Loadou
 // the [ORCHESTRATION] teamNote never drift from the Recruitment Bay (single source of truth).
 const SPECIALIST_CLASSES = (sharedSpecialties.BUILTINS || []).map(s => ({ id: s.id, tagline: s.tagline || '' }));
 
-// ---- Skynet→StarNet env back-compat ------------------------------------------------------------
-// The project was renamed Skynet → StarNet; its env vars moved SKYNET_* → STARNET_*. ENV() reads the
+// ---- Skynet→Luna Station env back-compat ------------------------------------------------------------
+// The project was renamed Skynet → Luna Station; its env vars moved SKYNET_* → STARNET_*. ENV() reads the
 // NEW name first and falls back to the LEGACY one, so existing launch configs / shells / the desktop
 // shell keep working unchanged. Membership test (not truthiness) so a deliberately-empty STARNET_X
 // still wins over a set SKYNET_X — preserving each downstream var's exact empty-vs-unset semantics.
@@ -398,18 +398,18 @@ const SHARED = path.resolve(__dirname, '..', 'shared');
 // (ledger/memory/secrets/cron) and degrades every permission grant to a deny. App-data is always writable.
 function defaultWorkspaces() {
   if (process.platform === 'darwin') {
-    // Match Tauri app.path().app_data_dir() exactly. Older manual sidecars used ~/.local/share/StarNet;
+    // Match Tauri app.path().app_data_dir() exactly. Older manual sidecars used ~/.local/share/LunaStation;
     // that location remains a recovery candidate, never a second canonical station.
-    return path.join(os.homedir() || '.', 'Library', 'Application Support', 'ai.skynet.harness', 'workspaces');
+    return path.join(os.homedir() || '.', 'Library', 'Application Support', 'local.lunastation.desktop', 'workspaces');
   }
   const base = process.env.LOCALAPPDATA || process.env.APPDATA            // Windows: %LOCALAPPDATA% (machine-local app data)
     || process.env.XDG_DATA_HOME                                          // Linux XDG
     || path.join(os.homedir() || '.', '.local', 'share');                 // POSIX fallback
-  // Skynet→StarNet rename back-compat: prefer the NEW dir; if it doesn't exist yet but the OLD one does, keep
+  // Skynet→Luna Station rename back-compat: prefer the NEW dir; if it doesn't exist yet but the OLD one does, keep
   // using the old one IN PLACE (no move) so existing data is never lost and any old-code process that still
-  // looks for \Skynet\ keeps sharing the same data (no split-brain). Fresh installs land under \StarNet\.
-  const neu = path.join(base, 'StarNet', 'workspaces');
-  const old = path.join(base, 'Skynet', 'workspaces');   // legacy pre-rename location — read in place, never renamed
+  // looks for \Skynet\ keeps sharing the same data (no split-brain). Fresh installs land under \Luna Station\.
+  const neu = path.join(base, 'LunaStation', 'workspaces');
+  const old = path.join(base, 'Luna', 'workspaces');   // legacy pre-rename location — read in place, never renamed
   try { if (!fs.existsSync(neu) && fs.existsSync(old)) return old; } catch (_) {}
   return neu;
 }
@@ -431,10 +431,10 @@ if (startupWorkspaceRecovery && startupWorkspaceRecovery.lockUnavailable) {
   // A LIVE concurrent process holds the parent-level recovery lock — it may be renaming this very
   // workspace right now. Opening stores here would race that rename, so refuse the boot outright,
   // matching the owner-claim refusal below (same fail-closed semantics, same exit code).
-  console.error('✗ StarNet refused to open this workspace because another process is recovering it.');
+  console.error('✗ Luna Station refused to open this workspace because another process is recovering it.');
   console.error('  workspace: ' + WORKSPACES);
   console.error('  safety code: ' + String(startupWorkspaceRecovery.code || 'RECOVERY_LOCK_UNAVAILABLE'));
-  console.error('  Close the other StarNet process and retry. StarNet will not risk concurrent writes.');
+  console.error('  Close the other Luna Station process and retry. Luna Station will not risk concurrent writes.');
   process.exit(73);
 }
 if (startupWorkspaceRecovery && startupWorkspaceRecovery.applied) {
@@ -454,7 +454,7 @@ const devWorkspaceSafety = DEV_MODE
   ? classifyWorkspace(WORKSPACES, { path: path, env: process.env, platform: process.platform, homedir: () => os.homedir() })
   : { protected: false };
 if (devWorkspaceSafety.protected) {
-  console.error('✗ StarNet refused to run DEV/QA against a canonical user workspace.');
+  console.error('✗ Luna Station refused to run DEV/QA against a canonical user workspace.');
   console.error('  workspace: ' + WORKSPACES);
   console.error('  safety code: DEV_WORKSPACE_PROTECTED');
   console.error('  Set STARNET_WORKSPACES to a dedicated scratch directory and retry.');
@@ -484,11 +484,11 @@ if (!workspaceOwnerClaim.ok) {
   const holderPid = workspaceOwnerClaim.holder && workspaceOwnerClaim.holder.valid
     ? workspaceOwnerClaim.holder.pid : 'unverified';
   const ownerCode = String(workspaceOwnerClaim.code || 'WORKSPACE_OWNER_UNAVAILABLE');
-  console.error('✗ StarNet refused to open this workspace because another process may own it.');
+  console.error('✗ Luna Station refused to open this workspace because another process may own it.');
   console.error('  workspace: ' + WORKSPACES);
   console.error('  holder PID: ' + holderPid);
   console.error('  safety code: ' + ownerCode);
-  console.error('  Close the other StarNet process and retry. StarNet will not risk concurrent writes.');
+  console.error('  Close the other Luna Station process and retry. Luna Station will not risk concurrent writes.');
   // The refusal itself is a fault exit for the breaker. NOTHING here weakens the owner safety: the claim is never
   // retried or reclaimed, no store is opened, no user file is written. When the breaker trips, the honest state
   // is "degraded: workspace owner unavailable" served from a HOLDING listener that answers only /api/health
@@ -498,7 +498,7 @@ if (!workspaceOwnerClaim.ok) {
   const verdict = CRASH_LOOP_BREAKER ? crashLedger.record({ code: 73, summary: 'workspace owner unavailable (holder PID ' + holderPid + ', ' + ownerCode + ')' }) : { tripped: false };
   if (!verdict.tripped) process.exit(73);
   const holdReason = 'degraded: workspace owner unavailable — another process may own ' + WORKSPACES + ' (holder PID ' + holderPid + '). ' +
-    'Close the other StarNet process and restart. StarNet will not risk concurrent writes (' + ownerCode + '; ' + crashLedger.describe() + ')';
+    'Close the other Luna Station process and restart. Luna Station will not risk concurrent writes (' + ownerCode + '; ' + crashLedger.describe() + ')';
   console.error('[process-fault] CRASH LOOP — ' + crashLedger.describe() + '; holding a degraded listener on :' + PORT + ' instead of exiting 73 again');
   const holding = http.createServer((req, res) => {
     const url = String(req.url || '');
@@ -667,21 +667,24 @@ const CREDITS_PURCHASE_URL = String(ENV('CREDITS_PURCHASE_URL') || '').trim();
 // Floor for the low-credit warning. The EFFECTIVE threshold is max(this, the per-run cap) — see the
 // makeCredits wiring below for why the cap is the meaningful half. 0 disables the warning outright.
 const CREDITS_LOW_USD = (() => { const n = Number(ENV('CREDITS_LOW_USD')); return Number.isFinite(n) && n >= 0 ? n : 5; })();
-// STARNET_CLOUD_URL points at the hosted StarNet Cloud service (accounts + credits + device linking). When set,
+// STARNET_CLOUD_URL points at the hosted Luna Station Cloud service (accounts + credits + device linking). When set,
 // the STORE offers a LINK STATION flow that pairs this station to an account and configures credits LIVE (no env,
 // no restart). Empty => the feature is absent (honesty law): the /api/credits/link/* routes 404 and no LINK card
 // renders. Env CREDITS_* config still wins over a linked device (operator override / backward compat).
 //
 // THE SHIPPED DEFAULT AND ITS SWITCH. A packaged build sets no env, so with an env-only lookup the entire
-// subscription is invisible to every user who ever installs StarNet — the feature would exist and reach nobody.
+// subscription is invisible to every user who ever installs Luna Station — the feature would exist and reach nobody.
 // The default therefore lives in the binary, behind ONE flag: while CLOUD_LIVE is false the station behaves
 // exactly as if no cloud existed, because offering LINK STATION against a service that is not deployed yet
 // would be a button that promises an account we cannot actually create. This is the same gate, and must be
 // flipped in the same breath, as `CREDITS.live` in website/site.js — the site's buy buttons and the app's link
 // button have to tell the same story on the same day. An explicit STARNET_CLOUD_URL always wins, so operators
 // and this repo's own live tests can point at a local service without touching the flag.
-const CLOUD_LIVE = true;                                    // ← launch switch: flip WITH website/site.js CREDITS.live
-const CLOUD_URL_DEFAULT = 'https://account.starnetos.com';   // the deployed StarNet Cloud (see starnet-cloud)
+// LUNA STATION: a private build has no managed cloud. Luna Station's cloud (account.starnetos.com) belongs to the
+// upstream project, so the switch is OFF: no LINK STATION offer, no managed-credits provider, no calls to it. An
+// explicit STARNET_CLOUD_URL still wins for an operator who runs their own compatible service.
+const CLOUD_LIVE = false;
+const CLOUD_URL_DEFAULT = 'https://account.starnetos.com';   // the deployed Luna Station Cloud (see starnet-cloud)
 const CLOUD_URL = String(ENV('CLOUD_URL') || (CLOUD_LIVE ? CLOUD_URL_DEFAULT : '')).trim();
 // The linked station's device token, injected by the DESKTOP from the OS keychain at spawn (keychain account
 // "credits:device"). It is a bearer credential that spends money, so the desktop adopts it out of
@@ -748,7 +751,7 @@ const NIGHTSHIFT_AGENT = String(ENV('NIGHTSHIFT_AGENT') || 'agent').trim() || 'a
 // ≈8-min single-run worst-case bound; env-tunable. Per-worker spend is still capped by ORCH_PER_WORKER.
 const ORCH_DISPATCH_TIMEOUT_MS = num(ENV('DISPATCH_TIMEOUT_MS'), CRON_MAX_RUN_MS);
 const CRON_DEFAULT_MODEL = String(ENV('DEFAULT_MODEL') || '').trim();
-const CRON_PERSONA = 'You are an autonomous STARNET station agent running a SCHEDULED routine — no human is watching. '
+const CRON_PERSONA = 'You are an autonomous LUNA STATION station agent running a SCHEDULED routine — no human is watching. '
   + 'Carry out the task with your REAL tools (web search/read, files, memory); ground every factual claim in what the '
   + 'tools actually return and cite sources; save any durable deliverable to your workspace with fs_write. Be concise. '
   + 'If there is genuinely nothing new or noteworthy to report this run, reply with EXACTLY "[SILENT]" and nothing else.';
@@ -1419,7 +1422,7 @@ try {
   }
 } catch (_) {}
 
-// BUNDLED SKILL LIBRARY (capability-gated recipe packs shipped WITH StarNet — distinct from skillStore above,
+// BUNDLED SKILL LIBRARY (capability-gated recipe packs shipped WITH Luna Station — distinct from skillStore above,
 // which holds what the agent SAVES at runtime). Loaded once from sidecar/skills/library/*.md; the user's
 // enable/disable choices persist append-only (same fsync discipline as skillStore). Injected into each run's
 // system prompt below, gated by requires ⊆ the agent's placed objects (object = capability — the moat).
@@ -1596,12 +1599,12 @@ loadAgentRoster();
 /* ---- P2.1 (UPDATE_STATE_SAFETY_AUDIT): WORKSPACE-ROOT schemaVersion stamp + forward-version guard.
    Individual stores are versioned in isolation (roster/savestore/cron each carry `version:1`), but there is no
    ROOT marker to key a multi-store migration on and — more importantly — nothing stops an OLDER sidecar from
-   writing a workspace a NEWER StarNet already upgraded. This stamps <WORKSPACES>/.schema-version.json at boot and,
+   writing a workspace a NEWER Luna Station already upgraded. This stamps <WORKSPACES>/.schema-version.json at boot and,
    if the stamp on disk is from a NEWER sidecar (schemaVersion > ours), sets a DEGRADED flag: the app still READS
    and RUNS (never block a user out of their own station), but envelope-level DESTRUCTIVE writes to versioned
    stores this code can't fully understand (roster + save) are REFUSED with an honest error. Truthful-telemetry:
-   don't guess — SAY the workspace was written by a newer StarNet. Mirrors the last-run-version marker the Rust
-   shell writes (%APPDATA%/ai.skynet.harness/last-run-version) in spirit: a version marker that gates behavior. */
+   don't guess — SAY the workspace was written by a newer Luna Station. Mirrors the last-run-version marker the Rust
+   shell writes (%APPDATA%/local.lunastation.desktop/last-run-version) in spirit: a version marker that gates behavior. */
 const WORKSPACE_SCHEMA_VERSION = 1;
 const SCHEMA_VERSION_FILE = path.join(WORKSPACES, '.schema-version.json');
 // DEGRADED when the workspace on disk was stamped by a sidecar NEWER than this one. Read by handleRoster /
@@ -1622,11 +1625,11 @@ function initWorkspaceSchemaStamp() {
     const stamped = Number(existing.schemaVersion);
     workspaceStampVersion = Number.isFinite(stamped) ? stamped : WORKSPACE_SCHEMA_VERSION;
     if (Number.isFinite(stamped) && stamped > WORKSPACE_SCHEMA_VERSION) {
-      // A NEWER StarNet wrote this workspace. Refuse to clobber versioned stores; log LOUDLY so this is never silent.
+      // A NEWER Luna Station wrote this workspace. Refuse to clobber versioned stores; log LOUDLY so this is never silent.
       workspaceDegraded = true;
-      console.error('[schema] WORKSPACE WRITTEN BY A NEWER STARNET: on-disk schemaVersion=' + stamped +
+      console.error('[schema] WORKSPACE WRITTEN BY A NEWER LUNA STATION: on-disk schemaVersion=' + stamped +
         ' > this sidecar understands ' + WORKSPACE_SCHEMA_VERSION + '. Entering DEGRADED mode — reads/runs continue, ' +
-        'but roster/save WRITES are refused to avoid corrupting newer data. Update this StarNet to the latest build.');
+        'but roster/save WRITES are refused to avoid corrupting newer data. Update this Luna Station to the latest build.');
       return;
     }
     // Same or older stamp: safe to keep using. (A future migration would re-stamp UP here after upgrading stores.)
@@ -2254,7 +2257,7 @@ function providerCredentialError(provider) {
   if (registryProviderUsesDeviceOAuth(id)) return 'sign in to ' + label + ' first - a signed-in subscription + model are required';
   // starnet's baseUrl+bearer both come from the device link, so "configure the base URL" / "connect a key"
   // are remedies that do not exist for it — the one real remedy is (re)linking the station.
-  if (id === 'starnet') return 'link this station to a StarNet account (SETTINGS -> STARNET) to run on credits';
+  if (id === 'starnet') return 'link this station to a Luna Station account (SETTINGS -> LUNA STATION) to run on credits';
   if (providerRequiresBaseUrl(id)) return 'configure the ' + label + ' base URL';
   if (providerRequiresKey(id)) return 'connect a ' + label + ' API key';
   return 'provider is not configured';
@@ -2910,7 +2913,7 @@ async function runBackgroundSkillReview(o) {
     });
     result = await runAgentLoop({
       messages: [
-        { role: 'system', content: 'You are a quiet StarNet skillbase maintenance worker. Use only skill tools, then stop.' },
+        { role: 'system', content: 'You are a quiet Luna Station skillbase maintenance worker. Use only skill tools, then stop.' },
         { role: 'user', content: prompt }
       ],
       provider, emit: () => {}, cost, tools: toolDefs, dispatch, capCtx,
@@ -2966,7 +2969,7 @@ async function runSkillCurator(o) {
     const dispatch = async (c, ctx) => { if (fromWire.has(c.name)) c = Object.assign({}, c, { name: fromWire.get(c.name) }); return registry.dispatch(c, ctx); };
     result = await runAgentLoop({
       messages: [
-        { role: 'system', content: 'You are a quiet StarNet skill curator. Use only skill tools, then stop.' },
+        { role: 'system', content: 'You are a quiet Luna Station skill curator. Use only skill tools, then stop.' },
         { role: 'user', content: skillCurator.buildPrompt({ skills: all }) }
       ],
       provider, emit: () => {}, cost, tools: toolDefs, dispatch, capCtx,
@@ -3260,7 +3263,7 @@ function hardlineFloor(call) {
    which flips THAT chat to surface:'interactive' and answers the prompt over an inline keyboard (C6; the
    pause/resolve stays here in channelAskConsent/channelResolveConsent, the hub only renders and routes the
    tap). Opt-in: nothing starts unless the Commander connects (or env is set). */
-const TELEGRAM_PERSONA = 'You are the Commander\'s AI agent aboard the STARNET station, reachable over Telegram. '
+const TELEGRAM_PERSONA = 'You are the Commander\'s AI agent aboard the LUNA STATION station, reachable over Telegram. '
   + 'Address the user as "Commander", keep a spark of personality, and keep replies concise and chat-friendly. '
   + 'When the Commander gives you a task you have REAL tools (web search/read, files, memory) — use them and '
   + 'report what you actually found; never claim you cannot act.';
@@ -3902,7 +3905,7 @@ if (require.main === module) {
 // Real terminal sessions are a distinct rail from shell.bg: node-pty supplies POSIX forkpty / Windows ConPTY,
 // while this host owns durability, cwd policy, orphan receipts and lifecycle cleanup. Native loading is caught
 // here (not at module top): an unsupported/broken binding leaves terminal.start honestly unavailable without
-// preventing every other StarNet capability from booting.
+// preventing every other Luna Station capability from booting.
 let terminalPty = null, terminalPtyLoadError = '';
 try { terminalPty = require('node-pty'); }
 catch (e) { terminalPtyLoadError = String((e && e.message) || e || 'node-pty unavailable'); }
@@ -4298,7 +4301,7 @@ function loadConnectorState() {
 let connectorState = loadConnectorState();
 if (connectorVault.protected && !connectorStorageError) {
   try { connectorVault.migrate(CONNECTORS_STATE_FILE, connectorState, [CONNECTORS_FILE, CONNECTORS_OAUTH_FILE]); }
-  catch (_) { connectorStorageError = 'Connector credential migration is incomplete. Restart StarNet to retry; saved credentials have been preserved.'; console.error('[connectors] ' + connectorStorageError); }
+  catch (_) { connectorStorageError = 'Connector credential migration is incomplete. Restart Luna Station to retry; saved credentials have been preserved.'; console.error('[connectors] ' + connectorStorageError); }
 }
 let connectorConfigs = connectorState.configs;
 let connectorOauth = connectorState.oauth;
@@ -7100,7 +7103,7 @@ async function runLoopCheck(loop, before) {
    The identity is passed with -c so a machine with no global git identity can still run a loop. Nothing here
    ever pushes. ====================================================================================== */
 
-const LOOP_GIT_ID = ['-c', 'user.name=StarNet Loop', '-c', 'user.email=loop@starnet.local'];
+const LOOP_GIT_ID = ['-c', 'user.name=Luna Station Loop', '-c', 'user.email=loop@starnet.local'];
 
 async function loopIsRepo(root) {
   const r = await runGit(root, ['rev-parse', '--is-inside-work-tree'], 15000);
@@ -8220,7 +8223,7 @@ let telegramStatus = { connected: false, state: 'down', detail: '', delivery: { 
 // startup value. Empty = "we don't know our own name", which the gate treats as "do not silence the room".
 let stationBotUsername = '';
 // The bot's DISPLAY name, learned from the same getMe. It is the wake word: "@thebot check the logs" is how
-// you address a bot, "StarNet, check the logs" is how people actually type it.
+// you address a bot, "Luna Station, check the logs" is how people actually type it.
 let stationBotName = '';
 // Telegram PRIVACY MODE, from the same getMe. null until we are told. With it ON (the default) a group
 // delivers us only commands, @mentions and replies to us — so wake words and observe-mode are promises we
@@ -8665,7 +8668,7 @@ function stopAllTelegramBots() { for (const id of [...telegramBots.keys()]) stop
 // H6.2: Discord — the adapter shipped fully-tested but the host never started it. Wire it the SAME way as
 // Telegram, but through the generic channelRegistry/wireChannel so there is one inbound->runOnce path. The live
 // gateway connects over a real WebSocket from the bot token (transport default); everything else is the shared hub.
-const DISCORD_PERSONA = 'You are the Commander\'s AI agent aboard the StarNet station, reachable over Discord. '
+const DISCORD_PERSONA = 'You are the Commander\'s AI agent aboard the Luna Station station, reachable over Discord. '
   + 'Address the user as "Commander", keep a spark of personality, and keep replies concise and chat-friendly. '
   + 'When the Commander gives you a task you have REAL tools (web search/read, files, memory) — use them and '
   + 'report what you actually found; never claim you cannot act.';
@@ -8914,7 +8917,7 @@ async function handleDevInbound(req, res) {
    ids, signal gets the signal-cli REST endpoint+account. Adding channel N+1 stays a registry row, not a fork. ---- */
 const GENERIC_CHANNEL_IDS = ['slack', 'matrix', 'signal'];
 function channelPersona(label) {
-  return 'You are the Commander\'s AI agent aboard the STARNET station, reachable over ' + label + '. '
+  return 'You are the Commander\'s AI agent aboard the LUNA STATION station, reachable over ' + label + '. '
     + 'Address the user as "Commander", keep a spark of personality, and keep replies concise and chat-friendly. '
     + 'When the Commander gives you a task you have REAL tools (web search/read, files, memory) — use them and '
     + 'report what you actually found; never claim you cannot act.';
@@ -9023,7 +9026,7 @@ const openaiCompat = makeOpenAiCompat({
     const ticket = updatePreparation
       ? updatePreparation.beginRequest('POST', '/v1/chat/completions')
       : { ok: true, release: function () {} };
-    if (!ticket.ok) throw Object.assign(new Error('StarNet is frozen at a verified pre-update recovery point.'), { code: ticket.code });
+    if (!ticket.ok) throw Object.assign(new Error('Luna Station is frozen at a verified pre-update recovery point.'), { code: ticket.code });
     try { return await runOnce(opts); } finally { ticket.release(); }
   },
   apiKey: () => String(ENV('API_KEY') || ENV('V1_KEY') || '').trim(),   // env STARNET_API_KEY / STARNET_V1_KEY (SKYNET_* alias too)
@@ -9084,7 +9087,7 @@ const server = http.createServer((req, res) => {
   if (!mutationTicket.ok) {
     res.writeHead(423, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
     return res.end(JSON.stringify({ ok: false, frozen: true, code: mutationTicket.code,
-      error: 'StarNet is frozen at a verified pre-update recovery point.' }));
+      error: 'Luna Station is frozen at a verified pre-update recovery point.' }));
   }
   // Central async-route guard: EVERY handler below is dispatched through Promise.resolve(...).catch so a throw
   // AFTER the body is parsed (a store error, a bad-await) can never leave the socket hanging forever. A sync
@@ -9795,7 +9798,7 @@ server.listen(PORT, '127.0.0.1', () => {
   const url = 'http://127.0.0.1:' + PORT;
   const bar = '═'.repeat(58);
   console.log('\n' + bar);
-  console.log('  ▲ STARNET — THE FULL APP IS RUNNING (UI + agent engine).');
+  console.log('  ▲ LUNA STATION — THE FULL APP IS RUNNING (UI + agent engine).');
   console.log('     Open in your browser:  ' + url);
   console.log('     This one process IS the complete product — the UI you see and');
   console.log('     the agents/web-search/tools behind it are all served from here.');
@@ -10126,7 +10129,7 @@ function handleRoutingSampleStatus(_req, res) {
    additionalProperties:false — re-proven by validate() in test/routing.sample.e2e.test.js). ---- */
 const SAMPLE_CHAT = 'sample';
 const SAMPLE_TEXT = 'SAMPLE JOB: summarize what this work line does, in three sentences.';
-const SAMPLE_PERSONA = 'You are an agent aboard the STARNET station. This is a clearly-labeled SAMPLE JOB — a small test '
+const SAMPLE_PERSONA = 'You are an agent aboard the LUNA STATION station. This is a clearly-labeled SAMPLE JOB — a small test '
   + 'crate the Commander sent through the work line to prove it runs end to end. Do the small task directly and '
   + 'report the result clearly, in a few sentences.';
 let sampleHub = null;        // lazy singleton, one per station — mirrors getDevHub
@@ -10372,7 +10375,7 @@ async function handleCredits(req, res) {
   const linkSaved = !CREDITS_URL && creditsLink.hasSaved();
   // The account page can revoke a station without touching this machine. In that case the old local file /
   // keychain token still exists, but the cloud's 401/403 is the authority: it is NOT a live link and must not
-  // keep STARNET selected or turn an old cached $0 into "no credits". Return 200 so both frontend consumers
+  // keep LUNA STATION selected or turn an old cached $0 into "no credits". Return 200 so both frontend consumers
   // can read the reason, offer the normal pairing flow, and replace the stale keychain token on relink.
   if (linkSaved && snap.authStatus === 'invalid') {
     return creditsJson(res, 200, {
@@ -10654,7 +10657,7 @@ async function handleConfigExport(req, res) {
   let body; try { body = JSON.parse(await readBody(req, 1 << 20)) || {}; } catch (e) { return json(400, { error: 'bad json' }); }
   const snap = collectExportSnapshot(body.sections);
   let env;
-  try { env = configExport.buildExport(snap, { now: Date.now(), app: 'StarNet', only: Array.isArray(body.only) ? body.only : null }); }
+  try { env = configExport.buildExport(snap, { now: Date.now(), app: 'Luna Station', only: Array.isArray(body.only) ? body.only : null }); }
   catch (e) { return json(409, { ok: false, error: (e && e.message) || 'configuration cannot be exported safely' }); }
   return json(200, env);
 }
@@ -11206,7 +11209,7 @@ function handleConnectorCatalog(req, res) {
   // (e.g. id 'notion' pointing at a different / self-hosted URL) must NOT flip the vetted vendor card to ADDED.
   const payload = connectorCatalog.browse((connectorConfigs || []).map(c => c && { id: c.id, url: c.url || '' }));
   // Only availability crosses the wire, never publisher registration values. Missing configuration
-  // is StarNet's responsibility, so the customer UI never exposes an application-credential form.
+  // is Luna Station's responsibility, so the customer UI never exposes an application-credential form.
   const markNeedsClient = (e) => {
     if (e.staticOauth) e.needsClient = !connectorOauthClient(e.staticOauth.authorizationServer).clientId;
     if (e.googleApi) {
@@ -11434,7 +11437,7 @@ async function handleConnectorOauthStart(req, res) {
   if (target.error) return json(target.status || 400, { error: target.error });
   const entry = target.entry;
   if (connectorStorageError) return json(503, { error: connectorStorageError, code: 'connector_storage_locked', signInAvailable: false });
-  if (googleClientConfig.isSelectedFiles(entry) && !connectorVault.protected) return json(503, { error: 'Selected Google files requires encrypted credential storage in the StarNet desktop app.', code: 'connector_storage_required' });
+  if (googleClientConfig.isSelectedFiles(entry) && !connectorVault.protected) return json(503, { error: 'Selected Google files requires encrypted credential storage in the Luna Station desktop app.', code: 'connector_storage_required' });
   if (googleConnectorDeferred(entry)) return json(503, { error: googleClientConfig.DEFERRED, code: 'google_release_deferred', signInAvailable: false });
   const rawAttempt = String(body.attemptId || '').trim();
   const attemptId = /^[A-Za-z0-9_-]{8,80}$/.test(rawAttempt) ? rawAttempt : crypto.randomBytes(12).toString('hex');
@@ -11489,7 +11492,7 @@ async function handleConnectorOauthStart(req, res) {
     let www = '';
     try {
       const pr = await mcpOauth.withDeadline(net, signal => connectorOauthFetch(entry.url, { method: 'POST', signal, redirect: 'manual', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' },
-        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'StarNet', version: '1' } } }) }), 'connector authorization probe');
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'Luna Station', version: '1' } } }) }), 'connector authorization probe');
       www = (pr.headers && pr.headers.get && pr.headers.get('www-authenticate')) || '';
     } catch (_) {}
     const disc = await mcpOauth.discover({ fetchImpl: connectorOauthFetch, serverUrl: entry.url, wwwAuthenticate: www, signal: controller.signal, timeoutMs: CONNECTOR_OAUTH_LEG_MS, deadlineAt, now: net.now });
@@ -11504,7 +11507,7 @@ async function handleConnectorOauthStart(req, res) {
     if (!clientId || tokenEndpointAuthMethod !== requiredAuthMethod || (requiredAuthMethod !== 'none' && !clientSecret)) {
       if (!disc.registrationEndpoint) return json(502, { error: 'this server needs a pre-registered OAuth client (no dynamic registration)' });
       const reg = await mcpOauth.registerClient({ fetchImpl: connectorOauthFetch, registrationEndpoint: disc.registrationEndpoint,
-        redirectUri: CONNECTOR_OAUTH_REDIRECT, clientName: 'StarNet', tokenEndpointAuthMethod: requiredAuthMethod,
+        redirectUri: CONNECTOR_OAUTH_REDIRECT, clientName: 'Luna Station', tokenEndpointAuthMethod: requiredAuthMethod,
         signal: controller.signal, timeoutMs: CONNECTOR_OAUTH_LEG_MS, deadlineAt, now: net.now });
       clientId = reg.clientId;
       clientSecret = reg.clientSecret;
@@ -11590,9 +11593,9 @@ async function handleConnectorOauthCallback(req, res) {
   if (pending && pending.googleApi) {
     if (Date.now() - pending.at > 600000) {
       connectorOauthPending.delete(state);
-      return page('Sign-in expired', 'Please start Google sign-in again in StarNet.', false);
+      return page('Sign-in expired', 'Please start Google sign-in again in Luna Station.', false);
     }
-    if (pending.exchanging) return page('Sign-in expired', 'This sign-in is already being completed. Return to StarNet.', false);
+    if (pending.exchanging) return page('Sign-in expired', 'This sign-in is already being completed. Return to Luna Station.', false);
     pending.exchanging = true;
   } else if (state) connectorOauthPending.delete(state);
   if (providerErr) {
@@ -11684,7 +11687,7 @@ function spotifyHtml(res, code, title, body) {
   res.end('<!doctype html><meta charset=utf-8><title>' + spotifyEsc(title) + '</title>' +
     '<body style="font:16px/1.5 system-ui,sans-serif;background:#0b0f14;color:#bfe8d4;display:grid;place-items:center;height:90vh;text-align:center">' +
     '<div><h2 style="margin:.2em 0">' + spotifyEsc(title) + '</h2><p>' + spotifyEsc(body) + '</p>' +
-    '<p style="opacity:.55;font-size:.9em">You can close this window and return to StarNet.</p></div>');
+    '<p style="opacity:.55;font-size:.9em">You can close this window and return to Luna Station.</p></div>');
 }
 
 async function handleSpotifyStart(req, res) {
@@ -11715,7 +11718,7 @@ async function handleSpotifyCallback(req, res) {
   const state = u.searchParams.get('state') || '';
   const pending = spotifyPending.get(state);
   spotifyPending.delete(state);
-  if (!code || !pending) return spotifyHtml(res, 400, 'Link expired', 'That sign-in link is no longer valid — start again from StarNet Settings.');
+  if (!code || !pending) return spotifyHtml(res, 400, 'Link expired', 'That sign-in link is no longer valid — start again from Luna Station Settings.');
   try {
     const r = await globalThis.fetch(spotifyPkce.TOKEN_URL, {
       method: 'POST',
@@ -11808,7 +11811,7 @@ function widgetSources() {
     available: c.enabled !== false && ['up', 'cached'].includes(c.state) && !c.authRequired }));
   for (const k of serviceKeys) if (k && k.key) out.push({ kind: 'servicekey', id: k.envVar,
     label: redact(k.name), state: k.enabled === false ? 'disabled' : 'configured', available: k.enabled !== false });
-  out.push({ kind: 'agent', id: 'starnet', label: 'StarNet', state: 'available', available: true });
+  out.push({ kind: 'agent', id: 'starnet', label: 'Luna Station', state: 'available', available: true });
   return out;
 }
 function handleWidgetSources(req, res) {
@@ -13657,14 +13660,14 @@ async function applyNightPatch(agentId, runId, relDir, target, title) {
     return { ok: false, error: 'the patch failed to apply after branching (rolled back, no change kept):\n' + String(ap.stderr).slice(0, 400), branch };
   }
   await runGit(root, ['add', '-A']);
-  const commit = await runGit(root, ['-c', 'user.name=StarNet Night Shift', '-c', 'user.email=nightshift@starnet.local', 'commit', '-m', 'night-shift: ' + String(title || 'patch').slice(0, 80)]);
+  const commit = await runGit(root, ['-c', 'user.name=Luna Station Night Shift', '-c', 'user.email=nightshift@starnet.local', 'commit', '-m', 'night-shift: ' + String(title || 'patch').slice(0, 80)]);
   if (!commit.ok) return { ok: false, error: 'applied the patch but could not commit it:\n' + String(commit.stderr).slice(0, 300), branch };
   const head = await runGit(root, ['rev-parse', '--short', 'HEAD']);
   return { ok: true, branch, commit: head.stdout.trim(), root, prevBranch: curBranch };
 }
 
 // the DEFAULT Implement destination for a file deliverable (no folder picker on the simplified card):
-// <Desktop or home>/StarNet deliverables/<title-slug>-<runId8>. ONE function, used by BOTH the pre-click
+// <Desktop or home>/Luna Station deliverables/<title-slug>-<runId8>. ONE function, used by BOTH the pre-click
 // plan preview (workshopImplementPlan) and the actual keep copy — so what the card promises is byte-identical
 // to where the files land.
 function workshopDefaultDest(man, runId) {
@@ -13673,7 +13676,7 @@ function workshopDefaultDest(man, runId) {
   try { if (!fs.existsSync(base)) base = home; } catch (_) { base = home; }
   const slug = String((man && man.title) || 'deliverable').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'deliverable';
   const runTag = String(runId || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 8) || 'run';
-  return path.join(base, 'StarNet deliverables', slug + '-' + runTag);
+  return path.join(base, 'Luna Station deliverables', slug + '-' + runTag);
 }
 
 // what Implement (decide keep) WILL actually do for this manifest, resolved against the CURRENT blessed
@@ -13933,7 +13936,7 @@ async function serveWorkshopRun(req, res) {
 // not proof of a fresh human gesture and can never launch a desktop application.
 async function handleWorkshopOpen(req, res) {
   const json = (code, obj) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(obj)); };
-  return json(403, { error: 'Open this file manually; StarNet cannot launch desktop applications from a run.' });
+  return json(403, { error: 'Open this file manually; Luna Station cannot launch desktop applications from a run.' });
 }
 
 // POST /api/workshop/shift { agentId } — force-fire ONE workshop shift NOW (attended test of the unattended path).
@@ -14267,9 +14270,9 @@ async function handleRoster(req, res) {
   if (hasStamp && agentRosterUpdatedAt && incomingUpdatedAt < agentRosterUpdatedAt) {
     return json(200, { ok: false, stale: true, updatedAt: agentRosterUpdatedAt });
   }
-  // P2.1: DEGRADED — this workspace was stamped by a NEWER StarNet. Refuse a destructive roster overwrite (the
+  // P2.1: DEGRADED — this workspace was stamped by a NEWER Luna Station. Refuse a destructive roster overwrite (the
   // route replaces the whole store) rather than corrupt data this code doesn't understand. Reads/runs are untouched.
-  if (workspaceDegraded) return json(200, { ok: false, error: 'workspace written by newer StarNet', degraded: true });
+  if (workspaceDegraded) return json(200, { ok: false, error: 'workspace written by newer Luna Station', degraded: true });
   const previousRoster = new Map(agentRoster);
   const previousRaw = new Map(agentRosterRaw);
   const previousUpdatedAt = agentRosterUpdatedAt;
@@ -14682,12 +14685,12 @@ async function runSlashForChannel(input, ctx) {
   // caller, but an authenticated owner Telegram DM is the Commander's remote control surface and executes the
   // exact same snippet path as the desktop palette.
   if (out.directive.type === 'exec') {
-    if (!ctx.ownerTrusted) return { ok: false, text: 'That is one of your shell commands — for safety those only run in the StarNet desktop app, not over messaging.' };
+    if (!ctx.ownerTrusted) return { ok: false, text: 'That is one of your shell commands — for safety those only run in the Luna Station desktop app, not over messaging.' };
     return runUserExec(out.directive);
   }
   // Only dispatch:'server' commands can answer off-browser. A client command would need the DOM, so say that
   // plainly rather than returning an empty reply that reads like a failure.
-  if (out.directive.type !== 'server') return { ok: false, text: 'That command only works in the StarNet desktop app.' };
+  if (out.directive.type !== 'server') return { ok: false, text: 'That command only works in the Luna Station desktop app.' };
   let r;
   try { r = await slashActions.run(out.directive.action, out.directive.args, { agentId: agentId, placed: placed }); }
   catch (e) { return { ok: false, text: 'That command failed: ' + ((e && e.message) || e) }; }
@@ -15314,7 +15317,7 @@ async function runOnce(o) {
 }
 async function runOnceCore(o) {
   if (updatePreparation.isFrozen()) {
-    throw Object.assign(new Error('StarNet is frozen at a verified pre-update recovery point.'), { code: 'UPDATE_MUTATIONS_FROZEN' });
+    throw Object.assign(new Error('Luna Station is frozen at a verified pre-update recovery point.'), { code: 'UPDATE_MUTATIONS_FROZEN' });
   }
   // Only host-routed workflow runs carry this origin; /api/run never accepts it.
   const workflowLine = o.runsLine === true ? router.lineOfAgent(o.agentId) : o.lineId;
@@ -15375,7 +15378,7 @@ async function runOnceCore(o) {
   const surface = o.surface === 'interactive' ? 'interactive' : 'autonomous';
   // A Telegram owner DM has already crossed that channel's owner-only admission gate. It is therefore the
   // Commander's remote control surface: grant the same non-physical capability/credential reach as sitting at
-  // StarNet, while preserving `surface` for the separate question of whether this chat asked for approval cards.
+  // Luna Station, while preserving `surface` for the separate question of whether this chat asked for approval cards.
   // This bit is host-minted at channel ingress, never derived from text, tool output, or model state.
   const ownerTrusted = !!o.ownerTrusted;
   const accessSurface = ownerTrusted ? 'interactive' : surface;
@@ -15569,7 +15572,7 @@ async function runOnceCore(o) {
     : stationMaxIters;
   // WHO IS MANAGED (issue #6, 2026-08-30): only a run whose spend actually lands on the managed account.
   // On a device-LINKED station that is solely the 'starnet' relay provider — a BYOK run (own Gemini/OpenAI/…
-  // key) pays its own vendor directly, so gating it on StarNet balance stranded linked-but-unfunded users at
+  // key) pays its own vendor directly, so gating it on Luna Station balance stranded linked-but-unfunded users at
   // WAKE ("Out of managed credit" with a valid key in hand) and double-billed funded ones at settle. An env
   // STARNET_CREDITS_URL deployment is operator-metered: there the operator fronts every metered run's keys,
   // so ALL metered runs still reserve/settle against the managed account (original P2 semantics, unchanged).
@@ -15907,7 +15910,7 @@ async function runOnceCore(o) {
   // worker can never open or steal the Commander's sessions. Only visual actions require a live page.
   makeStationTools({ station: require('./overseer.js').isCoordinatorRun({ ...o, agentId, surface })
     ? overseerStation(o.streamId, runId) : stationBridge }).register(registry);
-  // routine.create/list: the lead can schedule real StarNet ROUTINES through the same cron store the panel uses.
+  // routine.create/list: the lead can schedule real Luna Station ROUTINES through the same cron store the panel uses.
   makeRoutineTools({
     roster: () => agentRoster,
     listJobs: () => cronJobs,
@@ -16172,7 +16175,7 @@ async function runOnceCore(o) {
   const defaultObjects = composeOffice({ surface: officeSurface, lead: o.lead || ownerTrusted, connectorIds: connectors.ids(), extraObjects: o.extraObjects });
   let station = o.station || { agents: { [agentId]: { id: agentId, room: 'office' } }, rooms: { office: { id: 'office', objects: defaultObjects } } };
   // OWNER TELEGRAM PARITY + UNATTENDED GRANTS — the OBJECT half. A remote owner has the same workbench,
-  // connected tools and lead orchestration reach as the Commander at StarNet. The existing explicit routine
+  // connected tools and lead orchestration reach as the Commander at Luna Station. The existing explicit routine
   // grants retain their narrower behavior. Every addition is non-mutating and applies to a bay station too,
   // whose explicit room otherwise bypasses composeOffice.
   if (ownerTrusted || unattendedGrants.indexOf('workbench') >= 0) station = stationWithObject(station, agentId, 'workbench');
@@ -16465,7 +16468,7 @@ async function runOnceCore(o) {
   let cost = makeCostEngine({ priceOf: provider.priceOf });
 
   // Settings selects from the OpenRouter catalog. Its saved model strings therefore name OpenRouter routes,
-  // including legacy saves. StarNet keeps its existing managed catalog route; it must not switch payers.
+  // including legacy saves. Luna Station keeps its existing managed catalog route; it must not switch payers.
   // Explicit per-run models and environment defaults retain their primary provider.
   // Do not infer a provider from model spelling: different adapters can accept the same model identifier.
   // Source PRECEDENCE (P0-3, additive): an explicit per-run request list (o.fallbackModels) wins; else the
@@ -16746,7 +16749,7 @@ async function runOnceCore(o) {
       const t = registry.get(realName);
       const impact = impactOfTool(t);
       const why = (impact === 'physical-input' || impact === 'visible-desktop')
-        ? 'real desktop/physical control carries no grant on ANY StarNet agent run — no attended-control lease exists'
+        ? 'real desktop/physical control carries no grant on ANY Luna Station agent run — no attended-control lease exists'
         : (impact === 'external-unknown')
           ? (/^mcp:/.test(String((t && t.capability) || ''))
               // a real connector tool: the honest remedy on an unattended run is the per-routine grant, not "wait
@@ -17135,7 +17138,7 @@ async function runOnceCore(o) {
         : '')
       + taskDoctrineNote
       + (wireNames.indexOf('routine_create') >= 0
-        ? 'When the Commander asks for a cron, routine, scheduled/recurring task, reminder, or standing job, use routine_create/routine_list in StarNet ROUTINES; do not use shell_exec, crontab, Windows Task Scheduler, Python scripts, or OS schedulers. '
+        ? 'When the Commander asks for a cron, routine, scheduled/recurring task, reminder, or standing job, use routine_create/routine_list in Luna Station ROUTINES; do not use shell_exec, crontab, Windows Task Scheduler, Python scripts, or OS schedulers. '
         : '')
       + (hasWebTools ? 'Ground every current factual claim in what web_search / web_fetch actually return, and cite the source URLs; ' : '')
       + 'do not invent facts, figures, or links. '
@@ -17212,7 +17215,7 @@ async function runOnceCore(o) {
       + 'or a custom name + purpose. It returns the new '
       + 'agentId, which you can immediately hand work to with team.dispatch. When the Commander asks you to create or '
       + 'summon an agent, actually DO it with team.summon — don\'t just describe it or claim you cannot. '
-      + 'For scheduled work, create StarNet routines with routine_create; if the work clearly belongs to a specialist '
+      + 'For scheduled work, create Luna Station routines with routine_create; if the work clearly belongs to a specialist '
       + '(research/news/latest => researcher/scout/analyst), target that agentId, or summon the specialist first.';
     teamNote += '\n• CREW CONFIGURATION: use team.config to read Dossier documents, then team.configure to edit the requested agent by exact ID. '
       + 'A notebook entry does not update another agent\'s Purpose or standing orders. Report a change only after the tool confirms it was saved. '
@@ -17258,7 +17261,7 @@ async function runOnceCore(o) {
       ? skillsCatalog.compose(SKILL_LIBRARY, { overrides: skillPrefs.overrides(), placedTypes: skillPlacedTypes, agentSkills: agentSkills })
       : '';
   } catch (_) { /* a skill-injection hiccup must never break a run */ }
-  // STARNET OPERATOR MANUAL: how the station works, so the agent can guide a stuck Commander. Interactive
+  // LUNA STATION OPERATOR MANUAL: how the station works, so the agent can guide a stuck Commander. Interactive
   // only (same gate as capsummary — a Commander is present to help and the build UI exists). Sits right
   // BEFORE the authoritative <capabilities_ground_truth>, which it defers to, so the two never disagree.
   // CHAT DIET: ~9KB. Gated on isTask too — a 'how do I …' question classifies as a task (classify.js defaults to
@@ -20288,9 +20291,9 @@ async function handleSaveWrite(req, res) {
   // string, so derive from body.agent.id (an explicit body.agentId wins if a future caller sends one).
   const agentId = String(body.agentId || (body.agent && body.agent.id) || 'agent');
   if (!/^[A-Za-z0-9_-]{1,40}$/.test(agentId)) return json(400, { error: 'agentId must be 1-40 chars of [A-Za-z0-9_-]' });
-  // P2.1: DEGRADED — refuse a save write when this workspace was stamped by a NEWER StarNet (writing a newer save
+  // P2.1: DEGRADED — refuse a save write when this workspace was stamped by a NEWER Luna Station (writing a newer save
   // envelope shape through older code risks silent field loss). Reads (GET /api/save) still serve; runs continue.
-  if (workspaceDegraded) return json(200, { ok: false, error: 'workspace written by newer StarNet', degraded: true });
+  if (workspaceDegraded) return json(200, { ok: false, error: 'workspace written by newer Luna Station', degraded: true });
   // Once a rating is acknowledged, a stale tab without that ledger watermark may not replace the durable
   // projection and temporarily erase XP. It can reload/replay the ledger, then save normally.
   const ratingSyncAt = Math.max(0, Number(body.stationStats && body.stationStats.ratingSyncAt) || 0);

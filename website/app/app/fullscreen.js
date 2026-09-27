@@ -1,4 +1,4 @@
-/* STARNET fullscreen.js
+/* LUNA STATION fullscreen.js
    F11 toggles the real desktop window in Tauri, with a browser Fullscreen API
    fallback for the local preview. */
 'use strict';

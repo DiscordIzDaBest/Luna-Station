@@ -1,4 +1,4 @@
-/* STARNET — app.css : screens for the REAL harness (title · connect · game).
+/* LUNA STATION — app.css : screens for the REAL harness (title · connect · game).
    Reuses the v7 phosphor/CRT design language from style.css (vars + body::before/after).
    No "web app" softness — 2px hard lines, inverted-block headers, heavy bloom. */
 
@@ -1701,7 +1701,7 @@ body.no-curve #stage-wrap::before { background: none; box-shadow: none; }
     0 0 22px var(--ph-glow2);
   transform-origin: left bottom; animation: lv-pop .2s var(--ease-out);
 }
-/* curved glass over the whole module — it is a screen, like every other StarNet surface */
+/* curved glass over the whole module — it is a screen, like every other Luna Station surface */
 .live-voice-panel::after {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
   pointer-events: none; z-index: 6; background: var(--glass);

@@ -46,9 +46,9 @@ function station(name, updatedAt, marker) {
 (async () => {
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'starnet-lineage-http-'));
   const appData = path.join(sandbox, 'appdata');
-  const current = path.join(appData, 'ai.skynet.harness', 'workspaces');
-  const legacyA = path.join(appData, 'StarNet', 'workspaces');
-  const legacyB = path.join(appData, 'Skynet', 'workspaces');
+  const current = path.join(appData, 'local.lunastation.desktop', 'workspaces');
+  const legacyA = path.join(appData, 'LunaStation', 'workspaces');
+  const legacyB = path.join(appData, 'Luna', 'workspaces');
   fs.mkdirSync(current, { recursive: true }); fs.mkdirSync(legacyA, { recursive: true }); fs.mkdirSync(legacyB, { recursive: true });
   fs.writeFileSync(path.join(current, '.migration-receipt.json'), JSON.stringify({ version: 1, validated: true, files: [] }));
   fs.writeFileSync(path.join(legacyA, 'agent.save.json'), JSON.stringify(station('NOVA', 77, 'private-nova-marker')));

@@ -2,7 +2,7 @@
 
    Channel configs (Telegram/Discord) live at WORKSPACES/channels/secrets.json. Historically the whole record —
    INCLUDING the bot token AND the resolved provider API `key` — was persisted plaintext there. On the desktop
-   build BOTH secrets belong in the OS keychain (keyring service "ai.skynet.harness"): the bot token under account
+   build BOTH secrets belong in the OS keychain (keyring service "local.lunastation.desktop"): the bot token under account
    "channel:<id>", the BYOK provider key under the provider's own account — both injected into the sidecar env at
    spawn (SKYNET_<ID>_TOKEN / SKYNET_<PROVIDER>_API_KEY) and live-pushed via token-gated endpoints. The sidecar
    resolves the provider key at connect/run time from that runtime layer (providerRuntimeKey -> runtimeKeys/env),

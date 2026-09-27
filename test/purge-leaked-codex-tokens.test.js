@@ -45,7 +45,7 @@ const env = {
 };
 
 // the signed-in copy — must SURVIVE
-const installToken = write(path.join(appBase, 'ai.skynet.harness', 'workspaces', 'codex', 'tokens.json'));
+const installToken = write(path.join(appBase, 'local.lunastation.desktop', 'workspaces', 'codex', 'tokens.json'));
 const configuredToken = write(path.join(configuredRoot, 'codex', 'tokens.json'));
 // leaked copies — must GO
 const scratch = path.join(root, 'scratch');

@@ -194,7 +194,7 @@ A.ok(/if let Err\(e\) = install_result[\s\S]*?\*guard = Some\(update\)/.test(mai
   'a failed native update restores the verified pending update for retry');
 A.ok(/UpdateInstallEvent::Installing[\s\S]*?app\.restart\(\)/.test(mainRs),
   'a successful macOS/non-Windows update reaches the explicit restart path');
-A.ok(/const KEYCHAIN_SERVICE: &str = "ai\.skynet\.harness"/.test(credentialsRs),
+A.ok(/const KEYCHAIN_SERVICE: &str = "local\.lunastation\.desktop"/.test(credentialsRs),
   'candidate keeps the released OS keychain service namespace');
 A.ok(/"openrouter" => KEYCHAIN_ACCOUNT\.to_string\(\)/.test(credentialsRs) && /format!\("provider:\{id\}"\)/.test(credentialsRs),
   'candidate keeps the released provider credential account references');
@@ -205,8 +205,8 @@ A.ok(/format!\("channel:\{channel\}"\)/.test(credentialsRs) && /read_channel_tok
 // the desktop bundle-id shelf before stores open, survives the candidate reader, and leaves the source intact.
 const intelHome = fs.mkdtempSync(path.join(os.tmpdir(), 'starnet-upgrade-085-intel-mac-'));
 try {
-  const legacyMac = path.join(intelHome, '.local', 'share', 'StarNet', 'workspaces');
-  const desktopMac = path.join(intelHome, 'Library', 'Application Support', 'ai.skynet.harness', 'workspaces');
+  const legacyMac = path.join(intelHome, '.local', 'share', 'LunaStation', 'workspaces');
+  const desktopMac = path.join(intelHome, 'Library', 'Application Support', 'local.lunastation.desktop', 'workspaces');
   fs.mkdirSync(legacyMac, { recursive: true });
   makeSaveStore({ fs, pathMod: path, root: legacyMac, clock: { now: () => 1700000000100 } }).save('agent', oldDoc);
   const sourceBytes = fs.readFileSync(path.join(legacyMac, 'agent.save.json'));

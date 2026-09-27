@@ -14,7 +14,7 @@ window.OverseerSetup = (() => {
   };
   function reflectProvider(provider) {
     const title = el('ov-connection-title');
-    if (title) title.textContent = provider === 'starnet' ? 'Your StarNet account' : (providers[provider]?.[0] || 'Provider');
+    if (title) title.textContent = provider === 'starnet' ? 'Your Luna Station account' : (providers[provider]?.[0] || 'Provider');
     const help = el('ov-connection-help');
     if (help) help.textContent = provider === 'starnet' ? 'Confirm your account in the browser, then choose a model.'
       : provider === 'ollama' ? 'Choose a model installed on this computer.'
@@ -25,7 +25,7 @@ window.OverseerSetup = (() => {
     const logo = el('ov-connection-logo');
     if (logo) {
       logo.classList.toggle('ov-starnet-logo', provider === 'starnet');
-      logo.style.setProperty('--provider-icon', 'url("' + new URL('assets/brand/' + (provider === 'starnet' ? 'starnet-wordmark.svg' : 'providers/' + (provider === 'codex' ? 'openai' : provider) + '.svg'), document.baseURI).href + '")');
+      logo.style.setProperty('--provider-icon', 'url("' + new URL('assets/brand/' + (provider === 'starnet' ? 'luna-emblem.png' : 'providers/' + (provider === 'codex' ? 'openai' : provider) + '.svg'), document.baseURI).href + '")');
     }
   }
   function beginConnection() {

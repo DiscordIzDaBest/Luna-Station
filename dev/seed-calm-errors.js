@@ -95,7 +95,7 @@ function startMock() {
       } else {
         w.doc.station = {
           schema: 'starnet.station', version: 1, _nid: 4,
-          meta: { name: 'STARNET STATION', createdAt: 0, tier: 0, spawnRoomId: 'r1', trunkRoomId: 'r1' },
+          meta: { name: 'LUNA STATION STATION', createdAt: 0, tier: 0, spawnRoomId: 'r1', trunkRoomId: 'r1' },
           rooms: { r1: { id: 'r1', kind: 'hab', name: 'HAB-01', rects: [{ x1: 0, y1: 0, x2: 17, y2: 10 }], floorStyle: 'hull', floorMat: null, wallStyle: null, wallMat: null, tier: 0, floorPaint: {} } },
           order: ['r1'],
           props: [

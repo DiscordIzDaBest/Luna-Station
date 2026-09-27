@@ -12,11 +12,10 @@ function harness(search){
  const ordinary=harness('?propSet=projection'),unchanged={sprites:{'blank.rot.south':['old.png']}};
  await ordinary.box.study.install(unchanged);assert.equal(ordinary.requests(),0);assert.equal(ordinary.box.study.setFor({id:'agent'}),null);assert.equal(Object.keys(unchanged.sprites).length,1);
  const active=harness('?propSet=projection&skinSet=study'),manifest={sprites:{'blank.rot.south':['old.png']}};
- await active.box.study.install(manifest);assert.equal(active.box.study.sets.length,37);assert.equal(Object.keys(manifest.sprites).length,Object.keys(data.sprites).length+1);
- const selected=new Set();for(let i=0;i<37;i++){const body={id:'agent-'+i,skin:'blank',state:'walk'},before=JSON.stringify(body);selected.add(active.box.study.setFor(body));assert.equal(JSON.stringify(body),before);assert.equal(active.box.study.setFor(body),active.box.study.setFor(body));}assert.equal(selected.size,37);
- assert(!data.skins.some(s=>s.id==='minionchar'),'unfinished duplicate removed');
- assert(data.skins.some(s=>s.id==='station_minion'&&s.complete),'completed Station Minion retained');
- assert(data.skins.some(s=>s.id==='pikachu'&&s.approvedRelease==='v0.11.2'),'approved Pikachu retained');
+ await active.box.study.install(manifest);assert.equal(active.box.study.sets.length,24);assert.equal(Object.keys(manifest.sprites).length,Object.keys(data.sprites).length+1);
+ const selected=new Set();for(let i=0;i<24;i++){const body={id:'agent-'+i,skin:'blank',state:'walk'},before=JSON.stringify(body);selected.add(active.box.study.setFor(body));assert.equal(JSON.stringify(body),before);assert.equal(active.box.study.setFor(body),active.box.study.setFor(body));}assert.equal(selected.size,24);
+ assert(data.skins.every(s=>/^luna_/.test(s.renderSet)&&s.complete),'every selected skin is an original, complete Luna crew set');
+ assert(new Set(data.skins.map(s=>s.skin)).size===data.skins.length,'one catalog entry per saved skin id');
  for(const skin of data.skins){
   const set=skin.renderSet,scale=active.box.DATA.SKINS[set].scale;
   assert.equal(scale,data.standingHeight/skin.sourceStandingHeight);
@@ -30,5 +29,5 @@ function harness(search){
    assert.ok(manifest.sprites[set+'.walk.'+dir]?.length>1,skin.id+' animated walk '+dir);
   }
  }
- console.log('PASS: opt-in isolation, 37 selected skins, native standing height, authored sitting and walking tracks.');
+ console.log('PASS: opt-in isolation, 24 selected skins, native standing height, authored sitting and walking tracks.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

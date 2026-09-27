@@ -21,7 +21,7 @@ function loadDesktopClient({ env, readFile }) {
   } catch (_) { return null; } // UI reports unavailable; release staging fails with a useful operator error.
 }
 
-const UNAVAILABLE = 'Google sign-in is not available in this build. StarNet needs to finish enabling it. You do not need to create an app or enter credentials.';
+const UNAVAILABLE = 'Google sign-in is not available in this build. Luna Station needs to finish enabling it. You do not need to create an app or enter credentials.';
 // Release scope, deliberately source-controlled: publisher credentials do not enable this feature.
 const RELEASE_DEFERRED = true;
 const SELECTED_FILES_ENABLED = true;

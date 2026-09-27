@@ -1,4 +1,4 @@
-/* STARNET — chat.js : the in-game COMMS panel.
+/* LUNA STATION — chat.js : the in-game COMMS panel.
    Talking to your agent is a REAL streaming model call (via Harness). While a reply
    the agent walks to its workstation and types (World.setActivity('task')).
    Supports: preloaded history (resume), and an "awaiting purpose" first-message mode. */
@@ -381,7 +381,7 @@ const Chat = (() => {
     const ask = index => {
       if (!isActiveWs(ws) || index >= calls.length) return;
       const call = calls[index];
-      toolLine('before the restart, did ' + String(call.name || 'this action') + ' actually happen? StarNet will not run it again while the answer is uncertain.', true);
+      toolLine('before the restart, did ' + String(call.name || 'this action') + ' actually happen? Luna Station will not run it again while the answer is uncertain.', true);
       choices([
         { label: 'It happened', value: 'happened' },
         { label: 'It did not happen', value: 'did_not_happen' },
@@ -415,7 +415,7 @@ const Chat = (() => {
       if (review && announce && isActiveWs(ws) && !recoveryNotices.has(review.runId)) {
         recoveryNotices.add(review.runId);
         const names = (review.uncertain || []).map(x => x.name || 'action').join(', ');
-        toolLine('recovery paused — ' + (names || 'an action') + ' may already have happened. StarNet will not repeat it; verify the outcome before continuing.', true);
+        toolLine('recovery paused — ' + (names || 'an action') + ' may already have happened. Luna Station will not repeat it; verify the outcome before continuing.', true);
         offerRecoveryReview(review, ws);
       }
       return review ? 'review' : 'none';
@@ -848,14 +848,14 @@ const Chat = (() => {
       return;
     }
     // LARGE-PASTE CONTEXT GUARD: the 100K composer ceiling is a transport allowance, not a promise that every
-    // model has room for 100K characters plus StarNet's system/tool context. When the live catalog or an honest
+    // model has room for 100K characters plus Luna Station's system/tool context. When the live catalog or an honest
     // per-conversation projection proves the selected model is too small, keep the paste byte-for-byte in the
     // composer and explain the remedy instead of clearing it into a provider context-overflow failure.
     const contextIssue = t ? composerContextIssue(activeWs, t) : null;
     if (contextIssue) {
       const model = (typeof Harness !== 'undefined' && Harness.getModel) ? Harness.getModel() : 'this model';
       const limit = (typeof U !== 'undefined' && U.tokens) ? U.tokens(contextIssue.limit) : contextIssue.limit;
-      const note = 'Paste kept — it may exceed ' + model + '\'s ' + limit + '-token context once StarNet\'s working context is included. Choose a larger-context model or split the text; nothing was sent.';
+      const note = 'Paste kept — it may exceed ' + model + '\'s ' + limit + '-token context once Luna Station\'s working context is included. Choose a larger-context model or split the text; nothing was sent.';
       localLine(note);
       if (typeof StationUI !== 'undefined' && StationUI.notify) StationUI.notify('paste kept — selected model context is too small', 'warn');
       return;
@@ -1419,8 +1419,8 @@ const Chat = (() => {
     if (cronSession && !busy && !readable) next.push({
       role: 'system', sys: true, error: true, transcriptPending: true,
       content: reachable
-        ? '⚠ output has not arrived yet — StarNet will retry automatically when this session opens'
-        : '⚠ couldn\'t load the output yet — StarNet will retry automatically when this session opens'
+        ? '⚠ output has not arrived yet — Luna Station will retry automatically when this session opens'
+        : '⚠ couldn\'t load the output yet — Luna Station will retry automatically when this session opens'
     });
     if (JSON.stringify(next) === JSON.stringify(ws.history || [])) return reachable;
     ws.history = next;
@@ -1565,7 +1565,7 @@ const Chat = (() => {
     }
     return kept;
   }
-  // char/4 is StarNet's calibrated dialogue estimate, but it can undercount dense Unicode. Half the real UTF-8
+  // char/4 is Luna Station's calibrated dialogue estimate, but it can undercount dense Unicode. Half the real UTF-8
   // bytes is a deliberately cautious second lens that still lets a full 100K English paste fit a 128K model.
   function contextEstimateMessages(messages) {
     const src = Array.isArray(messages) ? messages : [];
@@ -3925,7 +3925,7 @@ const Chat = (() => {
     implBtn.title = (plan && plan.action === 'apply') ? ('applies this patch to a new branch in ' + plan.root)
       : patchSaveOnly ? 'saves the .patch file only — it will NOT be applied to your project'
       : buildable ? ('has ' + who + ' BUILD what this describes — nothing is copied to a folder')
-      : ('saves the files to ' + ((plan && plan.dest) || 'your StarNet deliverables folder'));
+      : ('saves the files to ' + ((plan && plan.dest) || 'your Luna Station deliverables folder'));
     // why a build can be refused, in the Commander's words — never a raw reason code.
     const implFailCopy = (reason) => {
       const r = String(reason || '');
@@ -3982,8 +3982,8 @@ const Chat = (() => {
       const saved = res.applied
         ? ('✓ implemented — applied to branch ' + (res.branch || '?') + (res.root ? (' in ' + res.root) : ''))
         : res.savedOnly
-          ? ('⚠ patch file saved to ' + (res.destPath || 'your StarNet deliverables folder') + ' — NOT applied to your project')
-          : ('✓ implemented — files saved to ' + (res.destPath || 'your StarNet deliverables folder'));
+          ? ('⚠ patch file saved to ' + (res.destPath || 'your Luna Station deliverables folder') + ' — NOT applied to your project')
+          : ('✓ implemented — files saved to ' + (res.destPath || 'your Luna Station deliverables folder'));
       decideNote(saved); sendNote(); settle(saved, false, res.applied ? '' : (res.destPath || ''));
     };
     acts.appendChild(implBtn);
@@ -6898,7 +6898,7 @@ const Chat = (() => {
      runs immediately. ↑/↓ move, Enter/Tab run, Esc closes. */
   let slashItems = [], slashSel = 0;
   let slashServerCommands = null, slashCatalogLoading = null, slashCatalogLoaded = null;
-  /* ---------- /goal AUTONOMOUS LOOP (StarNet's "Ralph loop") ----------
+  /* ---------- /goal AUTONOMOUS LOOP (Luna Station's "Ralph loop") ----------
      The loop STATE (goal / status / turnsUsed / subgoals / …) rides on the workstream record as ws.goalLoop, so a
      standing goal survives a reload/switch exactly like the thread history (workstreams.js carries the field through
      serialize()). GoalLoop (goalloop.js) owns the PURE parse + state machine; here we own the aux JUDGE model call
@@ -6960,7 +6960,7 @@ const Chat = (() => {
     Object.freeze({ name: 'reload-mcp', aliases: ['reload_mcp'], desc: 'refresh configured MCP connectors', argsHint: '[connector-id]', action: 'reload-mcp' }),
     Object.freeze({ name: 'reload-skills', aliases: ['reload_skills'], desc: 'refresh the slash skill catalog', action: 'reload-skills' }),
     Object.freeze({ name: 'debug', desc: 'show chat and slash debug state', action: 'debug' }),
-    Object.freeze({ name: 'version', aliases: ['v'], desc: 'show StarNet version information', action: 'version' })
+    Object.freeze({ name: 'version', aliases: ['v'], desc: 'show Luna Station version information', action: 'version' })
   ]);
   function isSlashOpen() { const p = el('chat-slash'); return !!(p && !p.hidden); }
   function copyLastReply() {
@@ -7337,7 +7337,7 @@ const Chat = (() => {
       }
       return localLine('Loop: every ' + cur.label + ', ' + cur.fired + '/' + LOOP_MAX_ITERS + ' runs done'
         + (cur.skipped ? ', ' + cur.skipped + ' tick' + (cur.skipped === 1 ? '' : 's') + ' skipped (a run, a question or another stream had the floor)' : '')
-        + ' — "' + String(cur.prompt).slice(0, 60) + '". It stops if you close StarNet; /routine makes it permanent.');
+        + ' — "' + String(cur.prompt).slice(0, 60) + '". It stops if you close Luna Station; /routine makes it permanent.');
     }
 
     const sp = raw.search(/\s/);
@@ -7555,7 +7555,7 @@ const Chat = (() => {
     } else localLine('Could not change approval mode.');
   }
   /* ---- reasoning effort — a REAL dial, not a status readout.
-     The old handler answered "Reasoning effort is not a separate StarNet toggle yet", which was simply false:
+     The old handler answered "Reasoning effort is not a separate Luna Station toggle yet", which was simply false:
      Harness stores it per PROVIDER, persists it, the model dock sets it alongside model+provider, and every run
      payload carries it (harness.js chat()). The command just never reached any of that. */
   const REASONING_LEVELS = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'];
@@ -7600,7 +7600,7 @@ const Chat = (() => {
       + '. Takes effect on your next message.' + reasoningModelNote());
   }
   /* ---- /fast — a shortcut onto that SAME dial.
-     StarNet has no separate "fast mode", and inventing one would be a lie — the old handler admitted as much and
+     Luna Station has no separate "fast mode", and inventing one would be a lie — the old handler admitted as much and
      then did nothing at all. Minimal reasoning effort IS what makes replies come back quickly and cheaply, so
      /fast drives the real control instead of pretending to be its own switch. */
   function fastCommand() {
@@ -7801,7 +7801,7 @@ const Chat = (() => {
       const j = r.ok ? await r.json() : null;
       if (j) {
         const bits = [];
-        if (j.app) bits.push('StarNet ' + j.app);
+        if (j.app) bits.push('Luna Station ' + j.app);
         if (j.harness && j.harness !== j.app) bits.push('harness ' + j.harness);
         if (j.node) bits.push('Node ' + j.node);
         return localLine('Version: ' + (bits.length ? bits.join(', ') : 'unknown') + '.');
@@ -8790,7 +8790,7 @@ const Chat = (() => {
       } else {
         // A throw that is NOT a deliberate Stop: an unexpected disconnect or a hard fetch/network error. Persist
         // whatever streamed FIRST — before the await below (ordering locked by test/comms-presence.test.js).
-        // NEVER synthesize 'cannot reach the STARNET sidecar' here again (2026-07-29): it forced the "restart the
+        // NEVER synthesize 'cannot reach the LUNA STATION sidecar' here again (2026-07-29): it forced the "restart the
         // app" copy onto every abort, including a dead PROVIDER stream on a healthy install. Say only what we
         // witnessed and let Harness.pingEngine measure the rest — full rationale in harness.js + friendlyerror.js.
         persistPartial(ws, acc);

@@ -40,7 +40,7 @@
   /* RAW-BODY CEILING, applied BEFORE anything parses the response.
      htmlToText is a chain of lazy `[\s\S]*?` replaces — quadratic in the input — and the clamp to
      FETCH_MAX_CHARS ran AFTER it. Measured on a page of repeated "<script>": 64KB -> 55ms, 256KB -> 880ms,
-     1MB -> 14.3 SECONDS of synchronous event-loop freeze, and it grows from there. StarNet is one process,
+     1MB -> 14.3 SECONDS of synchronous event-loop freeze, and it grows from there. Luna Station is one process,
      so that is the whole station stopped by a page the agent was asked to read — and web_fetch is
      read-only, no-consent, callable on any URL including one suggested by untrusted content.
      2MB leaves the extractor far more material than the 6k it will keep, while bounding the worst case to
@@ -772,7 +772,7 @@
     };
 
     /* ---------- web_request: call a third-party REST API with the Commander's key ----------
-       WHY THIS EXISTS: before it, nothing in StarNet could send a custom header. web_fetch's whole schema
+       WHY THIS EXISTS: before it, nothing in Luna Station could send a custom header. web_fetch's whole schema
        is {url}, so ANY authenticated API meant handing the agent a full shell (shell.exec + curl), which
        needs a placed workbench and is a far larger grant than "make one HTTPS call". This tool is the
        narrow capability that job actually needs.

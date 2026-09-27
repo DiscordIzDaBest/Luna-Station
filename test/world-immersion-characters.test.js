@@ -12,6 +12,15 @@ const SpriteLoadPlan = require('../frontend/js/sprite-load-plan.js');
 const frontend = path.join(__dirname, '..', 'frontend');
 const source = fs.readFileSync(path.join(frontend, 'js', 'assets.js'), 'utf8');
 const manifest = JSON.parse(fs.readFileSync(path.join(frontend, 'assets', 'sprites', 'manifest.json'), 'utf8'));
+// The engine keeps a LEGACY render path for sets that are not production 144px masters (no luna_/approved_ prefix).
+// Luna Station ships none, so the legacy cases below alias real Luna frames under the legacy set names 'blank' and
+// 'skeleton' (and the leader fallback 'ultron') — the same bytes, routed through the legacy geometry — to keep
+// that path covered.
+for (const [key, frames] of Object.entries(manifest.sprites)) {
+  if (key.startsWith('luna_cadet.')) manifest.sprites['blank.' + key.slice('luna_cadet.'.length)] = frames;
+  if (key.startsWith('luna_graphite.')) manifest.sprites['skeleton.' + key.slice('luna_graphite.'.length)] = frames;
+  if (key.startsWith('luna_overseer.')) manifest.sprites['ultron.' + key.slice('luna_overseer.'.length)] = frames;
+}
 const decoded = new Map();
 const close = (a, b, label) => assert.ok(Math.abs(a - b) < 1e-8, `${label}: ${a} vs ${b}`);
 
@@ -121,7 +130,7 @@ const appearance = { light: { color: [96, 168, 240], strength: 0.5, dx: 1, dy: 0
 test('normal desktop roster renders the selected refresh without preview flags, with planted walking feet', async () => {
   const selected = JSON.parse(fs.readFileSync(path.join(frontend, 'assets/skin-study-0914/runtime-motion.json')));
   const { sprites, catalog } = await harness(true);
-  assert.equal(Object.keys(catalog).length, 37);
+  assert.equal(Object.keys(catalog).length, 24);
   for (const skin of selected.skins) {
     assert.equal(catalog[skin.skin].set, skin.renderSet, skin.skin + ' keeps its saved ID');
     await sprites.ensureSkin(skin.skin);
@@ -147,21 +156,21 @@ test('normal desktop roster renders the selected refresh without preview flags, 
     }
   }
   assert.equal(catalog.minionchar, catalog.station_minion, 'retired duplicate remains readable in existing saves');
-  assert.equal(sprites.setForBody(body({ skin: 'unknown' })), 'approved_android', 'unknown/default skin uses refresh');
+  assert.equal(sprites.setForBody(body({ skin: 'unknown' })), 'luna_cadet', 'unknown/default skin uses the default Luna crew set');
 });
 
 test('standing breath fixes the real measured foot line, keeps native masters and restores sampling state', async () => {
   const { sprites } = await harness();
   const b = body(); const frames = [1000, 2200, 4000].map(t => draw(sprites, b, t, {}).frame);
   const image = frames[0].image;
-  assert.equal(image.width, 92); assert.equal(image.height, 92);
+  assert.equal(image.width, 144); assert.equal(image.height, 144);
   const pad = padFor(image);
   for (const frame of frames) {
     const [x, y, w, h] = frame.args;
-    close(w, 92 * 0.4, 'original width/scale');
+    close(w, 144 * 0.4, 'original width/scale');
     close(x, Math.round((b.px - w / 2) * 2) / 2, 'device-pixel x snap');
     close(y + h * (1 - pad / image.height), Math.round((b.py - 3) * 2) / 2, 'planted feet');
-    assert.ok(Math.abs(h - 92 * 0.4) < 0.5, 'quiet breath cannot swell the silhouette');
+    assert.ok(Math.abs(h - 144 * 0.4) < 0.5, 'quiet breath cannot swell the silhouette');
     assert.equal(frame.smoothing, true); assert.equal(frame.quality, 'high');
   }
   assert.notEqual(frames[0].args[3], frames[1].args[3], 'standing has a subtle breath');
@@ -178,7 +187,7 @@ test('legacy calls and existing state tracks keep their motion, seat padding and
   const pad = padFor(base.frame.image) * 0.4;
   close(y, Math.round((70.25 - h - 3 + Math.sin(1000 / 600 + 1) * 0.7 + pad) * 2) / 2,
     'three-argument idle geometry remains compatible');
-  close(w, 36.8, 'master still drawn at established scale');
+  close(w, 57.6, 'master still drawn at established scale (144px master x 0.4)');
   assert.ok(Number.isFinite(x));
   for (const extra of [
     { state: 'walk', odo: 12, faceA: Math.PI / 2 },
@@ -232,7 +241,7 @@ test('local lighting reuses native-size frames across agents and leaves the draw
   ctx.globalAlpha = 0.37; ctx.fillStyle = 'fuchsia'; ctx.globalCompositeOperation = 'destination-over';
   sprites.drawBody(ctx, body(), 1000, appearance);
   const first = ctx.draws.at(-1).image;
-  assert.ok(first instanceof RecordingCanvas); assert.equal(first.width, 92); assert.equal(first.height, 92);
+  assert.ok(first instanceof RecordingCanvas); assert.equal(first.width, 144); assert.equal(first.height, 144);
   assert.equal(sprites.bodyAppearanceStats().builds, 1);
   const second = draw(sprites, body({ id: 'another-crew' }), 1000, {
     light: { color: [97, 169, 239], strength: 0.501, dx: 100, dy: 0.01 }
@@ -277,7 +286,7 @@ test('appearance LRU bounds live bitmaps and rebuilds a lost context instead of 
   assert.equal(first.width, 1); assert.equal(first.height, 1, 'eviction releases the bitmap backing store');
   latest.context.lost = true;
   const rebuilt = draw(sprites, body(), 1000, { light }).frame.image;
-  assert.notEqual(rebuilt, latest); assert.equal(rebuilt.width, 92);
+  assert.notEqual(rebuilt, latest); assert.equal(rebuilt.width, 144);
   assert.equal(latest.width, 1); assert.equal(sprites.bodyAppearanceStats().cachedFrames, 128);
   assert.equal(sprites.bodyAppearanceStats().builds, 151);
 });

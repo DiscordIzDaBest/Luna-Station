@@ -24,7 +24,7 @@ const CDP_PORT = Number(process.env.SKYNET_CDP_PORT || 9386);
 const URL = `http://127.0.0.1:${PORT}/`;
 const ZOOM = Number(process.env.SKYNET_ZOOM || 10);
 
-const savePath = join(process.env.APPDATA, 'ai.skynet.harness', 'workspaces', 'agent.save.json');
+const savePath = join(process.env.APPDATA, 'local.lunastation.desktop', 'workspaces', 'agent.save.json');
 const save = JSON.parse(readFileSync(savePath, 'utf8'));
 const stationDoc = save.doc && save.doc.station;
 if (!stationDoc) { console.error('no .doc.station in save'); process.exit(2); }

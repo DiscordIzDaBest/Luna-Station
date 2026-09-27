@@ -8,7 +8,7 @@ const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'frontend
 const grouped = Plan.groupTracks(manifest.sprites);
 const all = Object.entries(manifest.sprites);
 const planned = Object.values(grouped).flat();
-const initial = Plan.initialTracks(grouped, ['blank', 'ultron', 'blank']);
+const initial = Plan.initialTracks(grouped, ['luna_cadet', 'luna_overseer', 'luna_cadet']);   // default + station-leader sets
 const totalFrames = Plan.frameCount(all);
 const initialFrames = Plan.frameCount(initial);
 const loaderSource = fs.readFileSync(path.join(__dirname, '..', 'frontend', 'js', 'assets.js'), 'utf8');
@@ -16,10 +16,10 @@ const worldSource = fs.readFileSync(path.join(__dirname, '..', 'frontend', 'app'
 const appHtml = fs.readFileSync(path.join(__dirname, '..', 'frontend', 'index.html'), 'utf8');
 
 A.eq(planned.length, all.length, 'every valid manifest track belongs to exactly one set');
-A.ok(grouped.blank && grouped.ultron, 'default skin and station leader have loadable sets');
-A.eq(initial.length, grouped.blank.length + grouped.ultron.length, 'startup plan de-duplicates requested sets');
+A.ok(grouped.luna_cadet && grouped.luna_overseer, 'default skin and station leader have loadable sets');
+A.eq(initial.length, grouped.luna_cadet.length + grouped.luna_overseer.length, 'startup plan de-duplicates requested sets');
 A.ok(initialFrames > 0 && initialFrames < totalFrames * 0.12, 'startup fetches less than twelve percent of sprite frames');
-A.ok(totalFrames > 3000, 'budget assertion covers the expanded production manifest rather than a fixture');
+A.ok(totalFrames > 1500, 'budget assertion covers the full production manifest (24 Luna crew sets) rather than a fixture');
 A.eq(Plan.groupTracks({ broken: 'not-an-array', 'valid.rot.south': ['valid.png'] }),
   { valid: [['valid.rot.south', ['valid.png']]] }, 'malformed tracks cannot crash or pollute a load plan');
 A.ok(/tracksBySet = SpriteLoadPlan\.groupTracks\(man\.sprites\)/.test(loaderSource), 'runtime uses the tested manifest planner');
@@ -28,7 +28,7 @@ A.ok(/primeTrack = defSet \+ '\.rot\.south'/.test(loaderSource) && /await loadTr
 A.ok(/Promise\.all\(\[loadSet\(defSet\), loadSet\(leaderSet\)\]\)/.test(loaderSource), 'full default and selected station-leader sets continue warming in the background');
 A.ok(/SPRITES\.loading/.test(worldSource) && /get loading\(\)/.test(loaderSource),
   'the world suppresses the procedural body only while the real startup skin is actively loading');
-A.ok(/assets\/sprites\/approved_android\/rot_south\.png/.test(appHtml) && /fetchpriority="high"/.test(appHtml),
+A.ok(/assets\/sprites\/luna_cadet\/rot_south\.png/.test(appHtml) && /fetchpriority="high"/.test(appHtml),
   'the default first-paint pose is preloaded at high priority');
 A.ok(/if \(!loadedSets\.has\(set\)\) \{ loadSet\(set\); return null; \}/.test(loaderSource), 'an unseen skin starts one lazy load and renders the honest fallback meanwhile');
 

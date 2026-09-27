@@ -74,7 +74,7 @@ try {
   try {
     put(ordinary, 'src/app.js', 'document.body.textContent = "hello";\n');
     put(ordinary, 'scripts/smoke.mjs', "import puppeteer from 'puppeteer-core';\nawait puppeteer.launch({headless:true});\n");
-    A.ok(inputIsolationRisk('node scripts/smoke.mjs', { cwd: ordinary, fs, pathMod: path }), 'all browser automation routes through StarNet\'s owned synthetic session');
+    A.ok(inputIsolationRisk('node scripts/smoke.mjs', { cwd: ordinary, fs, pathMod: path }), 'all browser automation routes through Luna Station\'s owned synthetic session');
   } finally {
     fs.rmSync(ordinary, { recursive: true, force: true });
   }

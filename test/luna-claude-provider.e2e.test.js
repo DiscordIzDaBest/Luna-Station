@@ -125,6 +125,10 @@ function textReply(text, model) {
     assert.deepEqual(anthRow.ignoredEnvKeys, ['ANTHROPIC_API_KEY'], 'the ignored key is reported by NAME');
     assert.ok(!prov.text.includes(AMBIENT_KEY), 'the key value never leaves the sidecar');
     assert.equal(prov.body.providers.find(p => p.id === 'ollama').billing, 'local');
+    // A private build links to no managed cloud (Luna Station's belongs to the upstream project).
+    const linkable = await fixture.json('GET', '/api/credits/linkable');
+    assert.ok(!(linkable.body && linkable.body.available), 'no managed cloud is offered: ' + linkable.text.slice(0, 200));
+    assert.ok(!/starnetos\.com/.test(linkable.text), 'the upstream cloud is never named');
 
     const blocked = await fixture.json('POST', '/api/run', { provider: 'anthropic', model: 'claude-sonnet-5', agentId: 'solo', messages: [{ role: 'user', content: 'hello' }] });
     assert.equal(calls.length, 0, 'NO request reaches Anthropic when the only key is an ambient one');

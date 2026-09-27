@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// dev/trace-logo.mjs — trace the STARNET wordmark's OWN letterforms out of the master art into SVG.
+// dev/trace-logo.mjs — trace the LUNA STATION wordmark's OWN letterforms out of the master art into SVG.
 //
 // This is NOT a redraw. The redrawn `starnet-mark.svg` (00fca6e8) was REVERTED by Andrew (661ad745)
 // because the brand IS this art — different letterforms are a different brand. Every coordinate this
@@ -222,8 +222,8 @@ const loops = stitch(isolines(field, FW, FH, ISO))
 const n = v => (Math.round(v * 100) / 100).toString();
 const d = loops.map(l => 'M' + l.map(p => `${n(p[0])} ${n(p[1])}`).join('L') + 'Z').join('');
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${FW} ${FH}" role="img" aria-label="STARNET">
-<title>STARNET</title>
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${FW} ${FH}" role="img" aria-label="LUNA STATION">
+<title>LUNA STATION</title>
 <!-- Traced from frontend/assets/brand/starnet-logo.png by dev/trace-logo.mjs, preset ${PRESET_NAME}
      (field ${FW}x${FH}, sigma ${SIGMA100}@100, iso ${ISO}, rdp ${EPS100}@100, smooth ${SMOOTH}).
      These are the master art's OWN forms recovered from its perceived-density field, not a redraw.

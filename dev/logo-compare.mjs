@@ -72,7 +72,7 @@ const page = `<!doctype html><meta charset="utf-8"><title>logo compare</title>
   .grid .rl { font-size: 10px; letter-spacing: 2px; color: #607d8b; }
   canvas { display: block; border: 1px solid #1c2429; border-radius: 3px; image-rendering: pixelated; }
 </style>
-<h1>STARNET WORDMARK — PLACED PNG vs TRACED SVG</h1>
+<h1>LUNA STATION WORDMARK — PLACED PNG vs TRACED SVG</h1>
 <p class="sub">Both drawn by the same engine at the real topbar box (${MARK_H}px tall). Magnifier =
    rasterize at ${MARK_H}px under each devicePixelRatio, then nearest-upscale those real device pixels
    to a constant ${CELL_H}px. Same physical size in every cell; only the pixel budget differs.</p>

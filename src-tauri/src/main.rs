@@ -1,4 +1,4 @@
-// StarNet — native desktop shell (Tauri v2).
+// Luna Station — native desktop shell (Tauri v2).
 //
 // Wraps the existing browser app: spawns the zero-dependency Node sidecar on a
 // private loopback port, waits for it to listen, then opens that URL in a native
@@ -302,7 +302,7 @@ impl KeepAwakeHandle {
         };
 
         let mut reason: Vec<u16> =
-            "StarNet scheduled tasks are allowed to run while the app is open"
+            "Luna Station scheduled tasks are allowed to run while the app is open"
                 .encode_utf16()
                 .chain(std::iter::once(0))
                 .collect();
@@ -501,7 +501,7 @@ fn workspace_path(app: &tauri::AppHandle) -> PathBuf {
                 .or_else(|| std::env::var_os("APPDATA"))
                 .map(PathBuf::from)
                 .unwrap_or_else(|| PathBuf::from("."));
-            base.join("ai.skynet.harness").join("workspaces")
+            base.join("local.lunastation.desktop").join("workspaces")
         })
 }
 
@@ -531,7 +531,7 @@ fn legacy_workspace_paths(root: &Path, current: &Path) -> Vec<PathBuf> {
         .collect::<Vec<_>>();
     if let Some(home) = std::env::var_os("HOME").map(PathBuf::from) {
         // Tauri's live macOS root is ~/Library/Application Support/<bundle-id>, while old/manual Node
-        // sidecars used ~/.local/share/{StarNet,Skynet}. Both are migration sources; the current root is
+        // sidecars used ~/.local/share/{LunaStation,Luna}. Both are migration sources; the current root is
         // filtered below. Linux receives the same POSIX fallback that sidecar/workspace-safety.js protects.
         if cfg!(target_os = "macos") {
             appdata_bases.push(home.join("Library").join("Application Support"));
@@ -539,9 +539,9 @@ fn legacy_workspace_paths(root: &Path, current: &Path) -> Vec<PathBuf> {
         appdata_bases.push(home.join(".local").join("share"));
     }
     for base in appdata_bases {
-        push_unique_path(&mut out, base.join("StarNet").join("workspaces"));
-        push_unique_path(&mut out, base.join("Skynet").join("workspaces"));
-        push_unique_path(&mut out, base.join("ai.skynet.harness").join("workspaces"));
+        push_unique_path(&mut out, base.join("LunaStation").join("workspaces"));
+        push_unique_path(&mut out, base.join("Luna").join("workspaces"));
+        push_unique_path(&mut out, base.join("local.lunastation.desktop").join("workspaces"));
     }
     push_unique_path(
         &mut out,
@@ -644,7 +644,7 @@ fn hash_file(path: &Path) -> std::io::Result<(u64, String)> {
 }
 
 /// A legacy root becomes an automatic station source only when its canonical save is readable and proves the
-/// StarNet save contract. This is intentionally stronger than "some JSON object": migration may carry other
+/// Luna Station save contract. This is intentionally stronger than "some JSON object": migration may carry other
 /// durable stores, but it must never choose between two different stations by directory enumeration order.
 fn valid_station_save_hash(root: &Path) -> Option<String> {
     for name in ["agent.save.json", "agent.save.json.bak"] {
@@ -792,7 +792,7 @@ fn workspace_has_content(current: &Path) -> bool {
 /// One-time import of data from legacy workspace roots into the live one. THIS RUNS ONCE, EVER.
 ///
 /// Bug it fixes (audit 0.1): running unconditionally every boot means `copy_missing_dir` re-copies
-/// any file present in a stale legacy root (e.g. %LOCALAPPDATA%\StarNet\workspaces) but absent in
+/// any file present in a stale legacy root (e.g. %LOCALAPPDATA%\LunaStation\workspaces) but absent in
 /// the live root — so agents/prospects/sessions the user DELETED silently reappear on the next
 /// launch. Guard rails, checked before any copy:
 ///   1. If the `.migrated` marker exists in the live root, skip entirely (the definitive signal).
@@ -1894,7 +1894,7 @@ fn sidecar_command(state: &AppState, entry: &Path, node: &Path) -> Command {
             set_sidecar_branded_env(&mut cmd, "SKYNET_TELEGRAM_BOT_TOKENS", encoded);
         }
     }
-    // StarNet Cloud device token, same path. Because EVERY sidecar spawn goes through this builder,
+    // Luna Station Cloud device token, same path. Because EVERY sidecar spawn goes through this builder,
     // a sidecar restarted after adoption still comes up linked even though the token is no longer
     // in credits.json — the file keeps the non-secret fields and this supplies the secret.
     if let Some(token) = read_credits_token() {
@@ -1995,15 +1995,15 @@ fn show_startup_failure_dialog(startup_log: &Option<PathBuf>) -> bool {
         None => "No startup log path was available.".to_string(),
     };
     let body = format!(
-        "StarNet could not start its local engine.\n\n\
+        "Luna Station could not start its local engine.\n\n\
          The engine exited or did not become ready. Possible causes include unavailable workspace \
          files, a blocked Node runtime, or a port that could not be opened.\n\n\
          {log_line}\n\n\
-         Click Retry to try starting the engine again, or Cancel to close StarNet."
+         Click Retry to try starting the engine again, or Cancel to close Luna Station."
     );
     let to_wide = |s: &str| -> Vec<u16> { s.encode_utf16().chain(std::iter::once(0)).collect() };
     let text = to_wide(&body);
-    let caption = to_wide("StarNet — startup failed");
+    let caption = to_wide("Luna Station — startup failed");
     // SYSTEMMODAL + SETFOREGROUND so the box is seen even though the main window isn't up yet.
     let result = unsafe {
         MessageBoxW(
@@ -2038,9 +2038,9 @@ fn report_window_startup_failure(log: &Option<PathBuf>, detail: &str) {
             .as_ref()
             .map(|p| p.display().to_string())
             .unwrap_or_else(|| "unavailable".into());
-        let text: Vec<u16> = format!("StarNet's window could not finish starting.\n\n{detail}\n\nQuit StarNet from its tray icon and reopen it. If this persists, include startup.log in your bug report:\n{path}")
+        let text: Vec<u16> = format!("Luna Station's window could not finish starting.\n\n{detail}\n\nQuit Luna Station from its tray icon and reopen it. If this persists, include startup.log in your bug report:\n{path}")
             .encode_utf16().chain(std::iter::once(0)).collect();
-        let title: Vec<u16> = "StarNet — window startup"
+        let title: Vec<u16> = "Luna Station — window startup"
             .encode_utf16()
             .chain(std::iter::once(0))
             .collect();
@@ -2215,7 +2215,7 @@ fn spawn_guardian(app: AppHandle) {
                             count = count.saturating_add(1);
                             if count >= GUARDIAN_MAX_CONSECUTIVE_CRASHES {
                                 let reason = format!(
-                                    "crash-loop: the station service exited {count} times in {} minutes (last exit code {code:?}); the guardian stopped restarting it. Use RESTART STATION SERVICE to try again, or quit StarNet fully and reopen it.",
+                                    "crash-loop: the station service exited {count} times in {} minutes (last exit code {code:?}); the guardian stopped restarting it. Use RESTART STATION SERVICE to try again, or quit Luna Station fully and reopen it.",
                                     GUARDIAN_CRASH_WINDOW.as_secs() / 60
                                 );
                                 log_startup(
@@ -2720,26 +2720,26 @@ fn spawn_tray_updater(app: AppHandle) {
                         l.reasons.join(", ")
                     };
                     (
-                        format!("StarNet — {summary}"),
+                        format!("Luna Station — {summary}"),
                         format!("Background: {summary}"),
                     )
                 }
                 LifecycleProbe::Armed(_) if close_to_tray => (
-                    "StarNet — idle in tray".to_string(),
-                    "Background: idle — close keeps StarNet running".to_string(),
+                    "Luna Station — idle in tray".to_string(),
+                    "Background: idle — close keeps Luna Station running".to_string(),
                 ),
                 LifecycleProbe::NotRunning if close_to_tray => (
-                    "StarNet — engine offline (kept in tray)".to_string(),
-                    "Background: engine offline — close keeps StarNet running".to_string(),
+                    "Luna Station — engine offline (kept in tray)".to_string(),
+                    "Background: engine offline — close keeps Luna Station running".to_string(),
                 ),
                 LifecycleProbe::Armed(_) | LifecycleProbe::NotRunning => (
                     // Nothing armed (or no engine at all): closing quits — the same rule the close path applies.
-                    "StarNet — idle (closing quits)".to_string(),
+                    "Luna Station — idle (closing quits)".to_string(),
                     "Background: idle — closing quits".to_string(),
                 ),
                 LifecycleProbe::Ambiguous => (
                     // Alive but the poll failed — honest "unknown", mirroring the close path's fail-open.
-                    "StarNet — status unavailable (close keeps it running)".to_string(),
+                    "Luna Station — status unavailable (close keeps it running)".to_string(),
                     "Background: status unavailable — close keeps it running".to_string(),
                 ),
             };
@@ -3198,7 +3198,7 @@ async fn starnet_open_artifact(
         "Open this file with its system default app?\n\n{}",
         artifact.display()
     );
-    if !confirm_host_launch(&app, "StarNet — open file", &body, "Open") {
+    if !confirm_host_launch(&app, "Luna Station — open file", &body, "Open") {
         return Err(format!("open {HOST_GESTURE_DECLINED}"));
     }
 
@@ -3246,7 +3246,7 @@ async fn starnet_reveal_path(
         },
         artifact.display()
     );
-    if !confirm_host_launch(&app, "StarNet — reveal in folder", &body, "Reveal") {
+    if !confirm_host_launch(&app, "Luna Station — reveal in folder", &body, "Reveal") {
         return Err(format!("reveal {HOST_GESTURE_DECLINED}"));
     }
 
@@ -3389,7 +3389,7 @@ fn open_external_url(url: String) -> Result<(), String> {
 /// exit restores it.
 static FS_RESTORE_MAXIMIZE: AtomicBool = AtomicBool::new(false);
 
-/// Toggle the main StarNet desktop window between windowed and fullscreen mode.
+/// Toggle the main Luna Station desktop window between windowed and fullscreen mode.
 #[tauri::command]
 fn starnet_toggle_fullscreen(app: AppHandle) -> Result<bool, String> {
     let win = app
@@ -3410,7 +3410,7 @@ fn starnet_toggle_fullscreen(app: AppHandle) -> Result<bool, String> {
     Ok(next)
 }
 
-/// Prevent idle system sleep while StarNet is open. This does not force the
+/// Prevent idle system sleep while Luna Station is open. This does not force the
 /// display to stay on; it only keeps scheduled tasks from being paused by OS sleep.
 #[tauri::command]
 fn starnet_set_keep_awake(
@@ -3434,6 +3434,16 @@ fn starnet_keep_awake_status(state: State<AppState>) -> Result<KeepAwakeStatus, 
         .status())
 }
 
+/// LUNA STATION: automatic updates are OFF in this private build. The upstream updater feed belongs to Luna Station
+/// (it would install Luna Station over Luna Station), and a private build has no signed feed of its own. The plugin
+/// stays compiled in so the frontend's Update Center keeps working unchanged, but status reports no native
+/// updater and check/install refuse before an updater is ever built — no network request is made. To ship
+/// updates later: publish your own signed `latest.json`, set `plugins.updater.endpoints` + `pubkey` in
+/// tauri.conf.json, and flip this to true.
+const LUNA_UPDATES_ENABLED: bool = false;
+const LUNA_UPDATES_DISABLED_MSG: &str =
+    "Automatic updates are disabled in this private Luna Station build. Rebuild from source to update.";
+
 /// Desktop updater status without hitting the network. The frontend uses this to
 /// render the Update Center immediately and decide whether native updates exist.
 #[tauri::command]
@@ -3448,7 +3458,7 @@ fn starnet_update_status(
         .as_ref()
         .map(update_metadata);
     Ok(UpdateStatus {
-        desktop: true,
+        desktop: LUNA_UPDATES_ENABLED,
         current_version: app.package_info().version.to_string(),
         target: tauri_plugin_updater::target(),
         pending,
@@ -3462,6 +3472,9 @@ async fn starnet_update_check(
     app: AppHandle,
     pending_update: State<'_, PendingUpdate>,
 ) -> Result<UpdateCheck, String> {
+    if !LUNA_UPDATES_ENABLED {
+        return Err(LUNA_UPDATES_DISABLED_MSG.to_string());
+    }
     // WINDOWS UPDATE-HANG FIX (canary-proven 2026-07-14): the NSIS installer the updater
     // launches must overwrite the bundled node.exe — but our sidecar is STILL RUNNING from
     // that same node runtime, so it holds a write lock and NSIS freezes on an "error opening
@@ -3507,6 +3520,9 @@ async fn starnet_update_install(
     pending_update: State<'_, PendingUpdate>,
     on_event: Channel<UpdateInstallEvent>,
 ) -> Result<(), String> {
+    if !LUNA_UPDATES_ENABLED {
+        return Err(LUNA_UPDATES_DISABLED_MSG.to_string());
+    }
     let update = {
         let mut guard = pending_update
             .0
@@ -3713,7 +3729,7 @@ struct LifecycleView {
 fn starnet_restart_sidecar(state: State<AppState>) -> Result<bool, String> {
     let st: &AppState = state.inner();
     if st.shutting_down.load(Ordering::SeqCst) {
-        return Err("StarNet is shutting down".to_string());
+        return Err("Luna Station is shutting down".to_string());
     }
     let _recovery = begin_recovery(st)?;
     log_startup(
@@ -3772,7 +3788,7 @@ fn starnet_start_fresh(
 ) -> Result<FreshStartView, String> {
     let st: &AppState = state.inner();
     if st.shutting_down.load(Ordering::SeqCst) {
-        return Err("StarNet is shutting down".to_string());
+        return Err("Luna Station is shutting down".to_string());
     }
     let _recovery = begin_recovery(st)?;
     log_startup(
@@ -3805,10 +3821,10 @@ fn starnet_start_fresh(
         }
     };
 
-    // The reset deliberately preserves only the protected StarNet credit-account link record.
+    // The reset deliberately preserves only the protected Luna Station credit-account link record.
     // Adopt a transient plaintext token into the OS keychain before the new sidecar starts, matching boot.
     migrate_credits_token_from_plaintext(&st.workspaces);
-    // The packaged origin belongs only to StarNet. Clearing it natively removes localStorage,
+    // The packaged origin belongs only to Luna Station. Clearing it natively removes localStorage,
     // IndexedDB, cookies, service workers and caches on both WebView2 and WKWebView. JS repeats the
     // namespaced localStorage clear as a fallback, and will refuse to reload if neither layer proves it.
     let browser_data_cleared = match window.clear_all_browsing_data() {
@@ -4040,7 +4056,7 @@ fn main() {
             // the E-STOP (reaches background work even with the window closed); Quit drains + kills the sidecar
             // and exits. Built here so it exists before the window, so a close-to-tray has somewhere to live.
             {
-                let open_item = MenuItem::with_id(app, "lifecycle_open", "Open StarNet", true, None::<&str>)?;
+                let open_item = MenuItem::with_id(app, "lifecycle_open", "Open Luna Station", true, None::<&str>)?;
                 let status_item = MenuItem::with_id(
                     app,
                     "lifecycle_status",
@@ -4051,11 +4067,11 @@ fn main() {
                     None::<&str>,
                 )?;
                 let pause_item = MenuItem::with_id(app, "lifecycle_pause", "Pause Automation (E-STOP)", true, None::<&str>)?;
-                let quit_item = MenuItem::with_id(app, "lifecycle_quit", "Quit StarNet", true, None::<&str>)?;
+                let quit_item = MenuItem::with_id(app, "lifecycle_quit", "Quit Luna Station", true, None::<&str>)?;
                 let sep = PredefinedMenuItem::separator(app)?;
                 let menu = Menu::with_items(app, &[&open_item, &status_item, &sep, &pause_item, &quit_item])?;
                 let mut tray_builder = TrayIconBuilder::with_id("starnet-tray")
-                    .tooltip("StarNet")
+                    .tooltip("Luna Station")
                     .menu(&menu)
                     .show_menu_on_left_click(false)
                     .on_menu_event(|app, event| on_tray_menu(app, event.id.as_ref()))
@@ -4123,7 +4139,7 @@ fn main() {
                 // Let HTML5 file drops reach COMMS and the existing attachment uploader.
                 // Tauri's native handler otherwise intercepts them on Windows.
                 .disable_drag_drop_handler()
-                .title("StarNet")
+                .title("Luna Station")
                 .inner_size(1280.0, 832.0)
                 .min_inner_size(960.0, 600.0)
                 .initialization_script(&init)
@@ -4257,7 +4273,7 @@ fn main() {
             Ok(())
         })
         .build(context)
-        .expect("failed to build the StarNet desktop shell")
+        .expect("failed to build the Luna Station desktop shell")
         .run(|app, event| {
             if let RunEvent::ExitRequested { api, code, .. } = event {
                 // Window close and event-loop exit are separate decisions in Tauri. Hold only the exit paired
@@ -4333,7 +4349,7 @@ mod sidecar_reap_tests {
     #[test]
     fn bundled_absolute_path_is_reapable() {
         assert!(is_reapable_node_path(Path::new(
-            r"C:\Program Files\StarNet\node.exe"
+            r"C:\Program Files\Luna Station\node.exe"
         )));
     }
 
@@ -4405,12 +4421,12 @@ mod sidecar_reap_tests {
         // QueryFullProcessImageNameW may report different casing than our resolved path;
         // same_path must still match — while a DIFFERENT node install must not.
         assert!(same_path(
-            Path::new(r"C:\PROGRAM FILES\StarNet\NODE.EXE"),
-            Path::new(r"C:\Program Files\StarNet\node.exe"),
+            Path::new(r"C:\PROGRAM FILES\Luna Station\NODE.EXE"),
+            Path::new(r"C:\Program Files\Luna Station\node.exe"),
         ));
         assert!(!same_path(
             Path::new(r"C:\Program Files\nodejs\node.exe"),
-            Path::new(r"C:\Program Files\StarNet\node.exe"),
+            Path::new(r"C:\Program Files\Luna Station\node.exe"),
         ));
     }
 }
@@ -4634,7 +4650,7 @@ mod webview_cache_purge_tests {
         let key = "WEBVIEW2_USER_DATA_FOLDER";
         let prev = std::env::var_os(key);
         std::env::set_var(key, r"C:\some\custom\webview");
-        let got = webview2_user_data_dir("ai.skynet.harness");
+        let got = webview2_user_data_dir("local.lunastation.desktop");
         match prev {
             Some(v) => std::env::set_var(key, v),
             None => std::env::remove_var(key),

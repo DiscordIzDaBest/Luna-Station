@@ -124,7 +124,7 @@ jobs:
           "PAGE_URL=$($page.url)" >> $env:GITHUB_ENV
           "PAGE_TITLE=$($page.title)" >> $env:GITHUB_ENV
           # give first-boot a moment to create the workspace, then prove where it lives
-          $ws = "$env:APPDATA\ai.skynet.harness\workspaces"
+          $ws = "$env:APPDATA\local.lunastation.desktop\workspaces"
           foreach ($i in 1..60) { if (Test-Path $ws) { break }; Start-Sleep -Seconds 1 }
           if (-not (Test-Path $ws)) { throw "workspace root not created at $ws" }
           "WORKSPACE_ROOT=$ws" >> $env:GITHUB_ENV
@@ -226,7 +226,7 @@ jobs:
           New-Item -ItemType Directory -Force candidate-evidence | Out-Null
           if (Test-Path candidate-lifecycle.json) { Copy-Item -LiteralPath candidate-lifecycle.json -Destination candidate-evidence/ }
           if (Test-Path candidate-latest.json) { Copy-Item -LiteralPath candidate-latest.json -Destination candidate-evidence/ }
-          $log = Join-Path $env:APPDATA 'ai.skynet.harness/startup.log'
+          $log = Join-Path $env:APPDATA 'local.lunastation.desktop/startup.log'
           if (Test-Path -LiteralPath $log) { Copy-Item -LiteralPath $log -Destination candidate-evidence/startup.log }
 
       - name: Historical public installer to candidate continuity

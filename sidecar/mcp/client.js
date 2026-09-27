@@ -166,7 +166,7 @@
     }
 
     /* RESOURCES AND PROMPTS (2026-07-27). This client spoke `tools/list` and `tools/call` and nothing else,
-       which meant StarNet saw only a THIRD of what a connected MCP server actually offers. A server whose
+       which meant Luna Station saw only a THIRD of what a connected MCP server actually offers. A server whose
        whole point is exposing documents (resources) or reusable prompt templates (prompts) connected fine,
        reported zero tools, and looked broken. These are not extras — they are two of the protocol's three
        primitives, and the reference harness has spoken all three for a long time.

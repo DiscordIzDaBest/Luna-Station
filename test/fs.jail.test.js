@@ -328,7 +328,7 @@ async function rejects(promise, msg) { try { await promise; A.ok(false, msg + ' 
 
   /* ---- a model-supplied regex must never be able to freeze the station ----
      fs.search { regex:true } compiles the MODEL's string and runs it synchronously over every line of every
-     candidate file. StarNet is ONE process — UI, API, SSE bus, every agent run — so a backtracking blow-up
+     candidate file. Luna Station is ONE process — UI, API, SSE bus, every agent run — so a backtracking blow-up
      pegged the event loop indefinitely: measured, `(a|a)+$` against a 41-character line never returned and
      the tool's own timeoutMs could not help (withTimeout rejects the promise; it cannot stop synchronous
      work). Only killing the process recovered. ---- */

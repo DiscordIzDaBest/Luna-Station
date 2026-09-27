@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * release-cut.mjs — one-command desktop release cutter for StarNet.
+ * release-cut.mjs — one-command desktop release cutter for Luna Station.
  *
  * Goes trunk -> signed NSIS installer + updater .sig + latest.json staged in release/,
  * then prints the exact upload checklist for the public GitHub Releases channel.
@@ -106,6 +106,13 @@ function createUpdaterArtifacts() {
 }
 
 async function preflight() {
+  // LUNA STATION: a private build publishes nothing. Luna Station's public release train (its releases repo, updater
+  // feed and signing key) belongs to the upstream project, so with no updater feed configured this tool refuses
+  // up front instead of half-running. Build installers locally with `npm run desktop:build`.
+  if (!updaterEndpoint()) {
+    fail('public release cutting is disabled in this private Luna Station build (no updater feed is configured). '
+      + 'Build a local installer with `npm run desktop:build` instead.');
+  }
   const versions = releaseVersions();
   const version = versions.tauri;
   log('== Preflight ==');
@@ -239,7 +246,7 @@ async function main() {
   const installerUrl = assetBase + installerName;
 
   const notes = existsSync(NOTES_FILE) ? readText(NOTES_FILE).trim()
-    : 'StarNet desktop ' + version + '. See the release page for details.';
+    : 'Luna Station desktop ' + version + '. See the release page for details.';
 
   let signature = 'DRY-RUN-NO-SIG';
   if (!DRY_RUN) {
@@ -284,7 +291,7 @@ async function main() {
   log('      needed for the endpoint — but the installer URL inside latest.json is pinned to');
   log('      the v' + version + ' tag, so the tag MUST be exactly v' + version + '.');
   log('   5. Prove it live:  node scripts/verify-update-host.mjs');
-  log('   6. Unattended update proof: launch an OLDER installed StarNet, open System -> Updates,');
+  log('   6. Unattended update proof: launch an OLDER installed Luna Station, open System -> Updates,');
   log('      confirm it sees v' + version + ', downloads, verifies the signature, and installs.');
   log('============================================================');
 }

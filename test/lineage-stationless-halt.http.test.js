@@ -26,7 +26,7 @@ const INDEX = path.resolve(__dirname, '..', 'sidecar', 'index.js');
 (async () => {
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'sk-lineage-halt-'));
   const appData = path.join(sandbox, 'appdata');
-  const ws = path.join(appData, 'ai.skynet.harness', 'workspaces');
+  const ws = path.join(appData, 'local.lunastation.desktop', 'workspaces');
   fs.mkdirSync(ws, { recursive: true });
   // Sandbox every root the lineage inspector can look sideways into — the dev machine's REAL profile must
   // never supply evidence to this test (same isolation as workspace-lineage.http.test.js).

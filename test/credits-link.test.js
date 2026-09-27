@@ -12,7 +12,7 @@ const { makeCreditsLink } = require('../sidecar/credits-link.js');
 
 const flush = () => new Promise(r => setTimeout(r, 0));
 
-// a fake StarNet Cloud: link/start mints a code+pollSecret; link/poll flips to confirmed once `confirm()` is called.
+// a fake Luna Station Cloud: link/start mints a code+pollSecret; link/poll flips to confirmed once `confirm()` is called.
 function fakeCloud(opts) {
   opts = opts || {};
   const state = { code: opts.code || 'STAR-7F3K', pollSecret: 'ps_secret_' + Math.random().toString(36).slice(2), confirmed: false, released: false };

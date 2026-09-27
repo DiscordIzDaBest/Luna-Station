@@ -1,4 +1,4 @@
-/* STARNET — stationui.js : the station-management HUD.
+/* LUNA STATION — stationui.js : the station-management HUD.
    Ports the v7 pip-boy chrome (floating terminal windows, crew manifest,
    bottom-bar panels) but wires every readout to REAL harness data — the
    present agent, the current measured context window, the real tool
@@ -997,7 +997,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
       screen.appendChild(head); screen.appendChild(body);
       w.appendChild(screen);
       w.appendChild(mkEl('div', 'term-plate',
-        '<span>STARNET DYNAMICS</span><span class="term-knobs"><i class="knob"></i><i class="knob"></i></span>'));
+        '<span>LUNA STATION DYNAMICS</span><span class="term-knobs"><i class="knob"></i><i class="knob"></i></span>'));
     } else {
       w.appendChild(head); w.appendChild(body);
       // Phase-2 chrome (generic, plain windows only — feature windows carry their own casing):
@@ -3252,7 +3252,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
       '<p class="sk-note sk-lib-intro">Reusable procedures this agent created or learned. These appear as a compact index in future runs; the agent loads the full body only when a task matches.</p>' +
       '<div id="sk-agent" class="sk-lib"><div class="sk-loading">loading agent skills…</div></div>';
     const secExchange =
-      '<p class="sk-note sk-lib-intro">Install a complete open skill package from a public HTTPS or GitHub <b>SKILL.md</b>. StarNet freezes the instructions and support files under one SHA-256 before review. Missing, oversized, unsafe, or partial packages are refused.</p>' +
+      '<p class="sk-note sk-lib-intro">Install a complete open skill package from a public HTTPS or GitHub <b>SKILL.md</b>. Luna Station freezes the instructions and support files under one SHA-256 before review. Missing, oversized, unsafe, or partial packages are refused.</p>' +
       '<div class="sk-exchange-form"><label for="sk-exchange-url">SKILL.MD SOURCE</label>' +
         '<div class="sk-exchange-row"><input id="sk-exchange-url" type="url" autocomplete="off" spellcheck="false" placeholder="https://github.com/owner/repo/blob/main/SKILL.md">' +
         '<button id="sk-exchange-inspect" class="consent-btn" type="button">INSPECT</button></div>' +
@@ -4108,7 +4108,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     { id: 'claude-subscription', name: 'CLAUDE SUBSCRIPTION', endpoint: 'Claude Pro / Max plan', blurb: 'sign in with Claude', live: false, notice: true },
     { id: 'anthropic',     name: 'CLAUDE API',        endpoint: 'api.anthropic.com/v1',       blurb: 'Anthropic API key · pay-per-token', live: true },
     { id: 'ollama',        name: 'LOCAL OLLAMA',      endpoint: '127.0.0.1:11434/v1',         blurb: 'models on this machine · no key', live: true },
-    // STARNET MANAGED is the one provider with no credential to paste and no account to sign into here: it
+    // LUNA STATION MANAGED is the one provider with no credential to paste and no account to sign into here: it
     // runs on the credits balance a linked station already has. It is also the one provider that must be able
     // to DISAPPEAR — see creditsProviderState() — because offering it on a station with no cloud configured
     // would advertise an account the user cannot create. (Luna Station ships with no managed cloud configured.)
@@ -4156,7 +4156,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
   const H = () => (typeof Harness === 'object' && Harness) ? Harness : null;
   function provName(id) { const p = PROVIDERS.find(x => x.id === id); return p ? p.name : String(id || '').toUpperCase(); }
 
-  /* ---- STARNET MANAGED, the credits provider -------------------------------------------------
+  /* ---- LUNA STATION MANAGED, the credits provider -------------------------------------------------
      Three states, and the first one is the reason this is not a static row:
        absent   — no cloud is configured on this station, so the card DOES NOT RENDER. The honesty
                   law the STORE already follows: never offer an account we cannot create. A shipped
@@ -4425,7 +4425,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
   }
 
   function providerLogoHtml(id) {
-    const asset = id === 'starnet' ? 'starnet-wordmark.svg' : 'providers/' + (id === 'codex' ? 'openai' : id) + '.svg';
+    const asset = id === 'starnet' ? 'luna-emblem.png' : 'providers/' + (id === 'codex' ? 'openai' : id) + '.svg';
     return '<span class="prov-logo' + (id === 'starnet' ? ' prov-logo-starnet' : '') + '" aria-hidden="true" style="--provider-icon:url(&quot;' + esc(new URL('assets/brand/' + asset, document.baseURI).href) + '&quot;)"></span>';
   }
 
@@ -4530,7 +4530,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
         (sources.length ? '<p class="prov-note dim">Source: ' + sources.map(u => '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer">' + esc(u.replace(/^https:\/\//, '')) + '</a>').join(' · ') + '</p>' : '') +
       '</div>';
   }
-  // The STARNET MANAGED card. Same shape as every other provider row so it reads as one of them, but its
+  // The LUNA STATION MANAGED card. Same shape as every other provider row so it reads as one of them, but its
   // action routes to the STORE rather than owning a second copy of the pairing flow.
   function creditsProviderCard(p, pi, active) {
     const linked = creditsProv.state === 'linked';
@@ -4551,8 +4551,8 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
       '</button>' +
         '<span class="prov-stat"><span class="prov-stat-t">' + stat + '</span></span>' +
       '<button class="bb sm prov-addkey" data-act="credits-store" data-provider="' + esc(p.id) + '" ' +
-      'aria-label="' + ((linked || saved) ? 'Open the STORE' : 'Link this station to a StarNet account') + '" ' +
-      'title="' + ((linked || saved) ? 'balance, plan and history live in the STORE' : 'link this station to a StarNet account') + '">' +
+      'aria-label="' + ((linked || saved) ? 'Open the STORE' : 'Link this station to a Luna Station account') + '" ' +
+      'title="' + ((linked || saved) ? 'balance, plan and history live in the STORE' : 'link this station to a Luna Station account') + '">' +
       ((linked || saved) ? '◆ STORE' : '↗ LINK STATION') + '</button>' +
       '</div>';
   }
@@ -5034,7 +5034,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
         sfx('click');
       });
       if (inlineSave) inlineSave.addEventListener('click', ev => { ev.stopPropagation(); saveInline(card.dataset.provider); });
-      // STARNET MANAGED: both LINK STATION and STORE land in the same place — the STORE section owns the
+      // LUNA STATION MANAGED: both LINK STATION and STORE land in the same place — the STORE section owns the
       // pairing flow, and duplicating it on this card would be a second implementation to keep in step.
       const toStore = card.querySelector('[data-act="credits-store"]');
       if (toStore) toStore.addEventListener('click', ev => {
@@ -5218,7 +5218,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     // Same balance, completely different sentence — describing a subscriber's own account as something "the
     // operator tops up" is just wrong on the surface that is supposed to be the truthful one.
     const about = j.linkSaved
-      ? 'This station runs on <b>your StarNet credits</b> — agents work without you bringing a provider key. Each run reserves up to your <b>PER RUN</b> budget and refunds whatever it doesn’t spend. You can always switch to your own key under API KEYS above.'
+      ? 'This station runs on <b>your Luna Station credits</b> — agents work without you bringing a provider key. Each run reserves up to your <b>PER RUN</b> budget and refunds whatever it doesn’t spend. You can always switch to your own key under API KEYS above.'
       : 'This station runs on <b>managed credits</b> — a prepaid balance the operator tops up, so your agents can work without you bringing your own provider key. Each run reserves up to your <b>PER RUN</b> budget and refunds whatever it doesn’t spend. You can always switch to your own key under API KEYS above.';
     host.innerHTML =
       '<h4 class="ms-h">STORE <span class="dim">— managed credits</span></h4>' +
@@ -5233,7 +5233,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
         (j.subscription ? '<button class="bb xs" id="credits-manage" title="change or cancel your plan in the browser">MANAGE PLAN ↗</button>' : '') +
         '<button class="bb xs" id="credits-refresh" title="re-read the balance">↻ REFRESH</button>' +
       '</div>' +
-      '<div class="mc-hint">Adding credits opens your browser — StarNet never handles your payment details.</div>' +
+      '<div class="mc-hint">Adding credits opens your browser — Luna Station never handles your payment details.</div>' +
       '<div class="set-row"><span class="dim">RECENT ACTIVITY</span></div>' +
       '<div class="mc-list">' + rows + '</div>' +
       (j.linkSaved ? '<div class="set-row" style="margin-top:.6em"><span class="dim" style="font-size:.85em">' +
@@ -5276,14 +5276,14 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
           stage = 'refresh';
         })
         // Symmetric to the link path: a station that just gave up its credential must stop reporting
-        // that it can run on credits, or STARNET stays selectable and every run fails at admission.
+        // that it can run on credits, or LUNA STATION stays selectable and every run fails at admission.
         .then(() => (H() && H().refreshCreditsConfigured) ? H().refreshCreditsConfigured() : null)
         .then(() => refreshCreditsProvider())
         .then(() => { _creditsUnlinkPending = false; scheduleSettingsRepaint(); wireCredits(body); })
         .catch(() => {
           _creditsUnlinkPending = false;
           _creditsUnlinkError = stage === 'keychain'
-            ? 'Could not clear the saved account credential. Unlink was not completed. Try UNLINK again; if it still fails, fully quit and reopen StarNet.'
+            ? 'Could not clear the saved account credential. Unlink was not completed. Try UNLINK again; if it still fails, fully quit and reopen Luna Station.'
             : stage === 'station'
               ? 'Could not confirm that unlink completed. Refresh the account connection, then retry UNLINK if it is still linked.'
               : 'Unlink completed, but the account display could not refresh. Retry to load the linking options.';
@@ -5322,10 +5322,10 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     host.innerHTML =
       '<h4 class="ms-h">STORE <span class="dim">— managed credits</span></h4>' +
       creditsUnlinkErrorMarkup() +
-      '<p class="set-about">Link this station to your <b>StarNet account</b> to run agents on managed credits — no provider key needed. You will confirm a short code in your browser.</p>' +
+      '<p class="set-about">Link this station to your <b>Luna Station account</b> to run agents on managed credits — no provider key needed. You will confirm a short code in your browser.</p>' +
       (note ? '<div class="set-row" style="color:var(--gold,#e8c15a)">' + esc(note) + '</div>' : '') +
       '<div class="mc-acts"><button class="bb sm" id="credits-link">🔗 LINK STATION</button></div>' +
-      '<div class="mc-hint">Linking opens your browser to confirm — StarNet never handles your payment details.</div>' +
+      '<div class="mc-hint">Linking opens your browser to confirm — Luna Station never handles your payment details.</div>' +
       '<div id="credits-link-state"></div>';
     const btn = host.querySelector('#credits-link');
     if (btn) btn.addEventListener('click', () => { sfx('click'); startCreditsLink(body, host); });
@@ -5340,7 +5340,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     const btn = host.querySelector('#credits-link');
     if (btn) btn.disabled = true;
     if (state) state.innerHTML = '<div class="set-row dim">Requesting a link code…</div>';
-    Harness.api.post('/api/credits/link/start', { deviceName: 'StarNet Station' })
+    Harness.api.post('/api/credits/link/start', { deviceName: 'Luna Station Station' })
       .then(r => { if (generation !== _creditsLinkGeneration) return null; if (!r.ok) throw new Error('start failed'); return r.j; })
       .then(j => { if (generation !== _creditsLinkGeneration) return; if (!j || !j.code) throw new Error('no code'); showCreditsLinkCode(body, host, j); })
       .catch(() => { if (generation === _creditsLinkGeneration) renderCreditsLinkCard(body, host, 'Could not reach the link service — try again.'); });
@@ -5450,7 +5450,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
       const anySaved = BG_KEYS.some(k => Object.prototype.hasOwnProperty.call(saved, k));
       if (resetBtn) resetBtn.style.display = anySaved ? '' : 'none';
       if (spendEl && st.accounting && (!st.accounting.complete || !st.accounting.durable)) {
-        spendEl.textContent = 'Spend history unavailable — spending limits cannot be verified. Restore the ledger and restart StarNet.';
+        spendEl.textContent = 'Spend history unavailable — spending limits cannot be verified. Restore the ledger and restart Luna Station.';
       } else if (spendEl) {
         const today = fmtUsd(st && st.spentToday), life = fmtUsd(st && st.lifetime);
         const runs = (st && typeof st.runs === 'number') ? st.runs : 0;
@@ -5884,7 +5884,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
         const f = fileIn.files && fileIn.files[0]; if (!f) return;
         const reader = new FileReader();
         reader.onload = () => {
-          let env; try { env = JSON.parse(String(reader.result || '')); } catch (_) { setMsg('that is not a valid StarNet backup file'); sfx('bad'); fileIn.value = ''; return; }
+          let env; try { env = JSON.parse(String(reader.result || '')); } catch (_) { setMsg('that is not a valid Luna Station backup file'); sfx('bad'); fileIn.value = ''; return; }
           setMsg('importing…');
           Harness.api.post('/api/config/import', { envelope: env })
             .then(({ ok, j }) => {
@@ -6143,7 +6143,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
       // sets what the loop tries NEXT if that model fails mid-run. Persisted server-side + applied live to every run
       // path (browser, cron, channels); env SKYNET_FALLBACK_MODELS is the default until you save one here.
       '<h4 class="ms-h">Backup models <span class="dim">— tried in order if your primary model fails</span></h4>' +
-      '<p class="set-about">Choose your primary model in COMMS. If it fails mid-run because of availability, authentication, billing, or rate limits, StarNet tries this list from top to bottom. Saved models use your OpenRouter connection, or your StarNet connection when StarNet is the primary provider. <b>An empty list disables fallback.</b> Model changes appear in COMMS and the logbook.</p>' +
+      '<p class="set-about">Choose your primary model in COMMS. If it fails mid-run because of availability, authentication, billing, or rate limits, Luna Station tries this list from top to bottom. Saved models use your OpenRouter connection, or your Luna Station connection when Luna Station is the primary provider. <b>An empty list disables fallback.</b> Model changes appear in COMMS and the logbook.</p>' +
       '<div class="mc-form" id="fbc-form">' +
         '<div id="fbc-list" class="mc-list-fb"><div class="dim">reading chain…</div></div>' +
         '<div class="set-row"><select id="fbc-add" class="fbc-sel"><option value="">＋ add a model from the catalog…</option></select></div>' +
@@ -6272,18 +6272,18 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     const secSystem =
       // "POWER" — this header held only KEEP COMPUTER AWAKE, so "SCHEDULED TASKS" mislabelled it.
       '<h4 class="ms-h">POWER</h4>' +
-      '<label class="set-row"><input type="checkbox" id="set-awake" ' + (awakeChecked ? 'checked' : '') + (awakeDesktop ? '' : ' disabled') + '> KEEP COMPUTER AWAKE <span class="dim">— ' + (awakeDesktop ? 'prevent idle sleep while StarNet is open' : 'desktop app only') + '</span></label>' +
+      '<label class="set-row"><input type="checkbox" id="set-awake" ' + (awakeChecked ? 'checked' : '') + (awakeDesktop ? '' : ' disabled') + '> KEEP COMPUTER AWAKE <span class="dim">— ' + (awakeDesktop ? 'prevent idle sleep while Luna Station is open' : 'desktop app only') + '</span></label>' +
       // Lane 4D — native startup/tray choices + the honest background-lifecycle explainer. All controls are
       // desktop-only; they stay disabled and the line names the browser reality otherwise. The explainer
       // is filled live from the tray supervisor's REAL armed state (wireLifecycle) so it never over-claims.
-      '<label class="set-row"><input type="checkbox" id="set-autostart" disabled> LAUNCH AT LOGIN <span class="dim">— ' + (lifecycleDesktop ? 'start StarNet automatically when you sign in' : 'desktop app only') + '</span></label>' +
+      '<label class="set-row"><input type="checkbox" id="set-autostart" disabled> LAUNCH AT LOGIN <span class="dim">— ' + (lifecycleDesktop ? 'start Luna Station automatically when you sign in' : 'desktop app only') + '</span></label>' +
       '<label class="set-row"><input type="checkbox" id="set-start-minimized" disabled> START MINIMIZED TO TRAY <span class="dim">— ' + (lifecycleDesktop ? 'begin each launch hidden; open from the tray icon' : 'desktop app only') + '</span></label>' +
-      '<label class="set-row"><input type="checkbox" id="set-close-to-tray" disabled> CLOSE WINDOW TO TRAY <span class="dim">— ' + (lifecycleDesktop ? 'X hides StarNet; tray Quit stops it' : 'desktop app only') + '</span></label>' +
+      '<label class="set-row"><input type="checkbox" id="set-close-to-tray" disabled> CLOSE WINDOW TO TRAY <span class="dim">— ' + (lifecycleDesktop ? 'X hides Luna Station; tray Quit stops it' : 'desktop app only') + '</span></label>' +
       '<p class="set-about" id="lifecycle-desc">' + (lifecycleDesktop ? 'Checking what runs in the background…' : 'The desktop app can stay supervised in the system tray. This browser tab has no background process.') + '</p>' +
       // ADVANCED — env-only runtime knobs, now editable + persisted server-side (P1-9). PRECEDENCE is spelled out
       // in the card: an explicit environment variable ALWAYS wins over a value saved here (a deploy stays in control).
       '<h4 class="ms-h">Runtime limits <span class="dim">— optional ceilings and timeouts</span></h4>' +
-      '<p class="set-about">StarNet does not limit agent concurrency or run iterations by default. Set a positive value only when you want a ceiling. Saved here on this machine and read by the sidecar at boot. <b>An environment variable always overrides a value saved here</b>. Blank a field to clear the override.</p>' +
+      '<p class="set-about">Luna Station does not limit agent concurrency or run iterations by default. Set a positive value only when you want a ceiling. Saved here on this machine and read by the sidecar at boot. <b>An environment variable always overrides a value saved here</b>. Blank a field to clear the override.</p>' +
       '<div class="mc-form" id="adv-form"><div class="dim" id="adv-loading">reading runtime settings…</div></div>' +
       '<div id="adv-msg" class="msg"></div>' +
       // DATA / STATION BACKUP — export the whole station config to one JSON file, import it back, reset a section.
@@ -6327,7 +6327,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
       '<div id="diag-build" class="dim" style="margin-top:6px;font-size:11px" hidden></div>' +
       // CLEAR NOTIFICATIONS moved to the NOTIFICATIONS section (where it belongs); this is now just the about note.
       '<h4 class="ms-h">ABOUT</h4>' +
-      '<p class="set-about">STARNET — gamified AI-agent harness.<br>Theme, display & audio preferences are saved locally on this machine. Manage planned tasks on the TASK BOARD and saved conversations under SESSIONS in COMMS.</p>';
+      '<p class="set-about">LUNA STATION — gamified AI-agent harness.<br>Theme, display & audio preferences are saved locally on this machine. Manage planned tasks on the TASK BOARD and saved conversations under SESSIONS in COMMS.</p>';
 
     // Keep every control mounted and reachable; group existing nodes without replacing their IDs.
     function arrangeSettingsPane(el) {
@@ -6451,7 +6451,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     wireProviderActions(host);
     wireKeyActions(host);
     queueProviderHealthRefresh();
-    // The STARNET MANAGED card is drawn from a cached credits state, so the FIRST paint of a fresh session
+    // The LUNA STATION MANAGED card is drawn from a cached credits state, so the FIRST paint of a fresh session
     // has nothing to go on. Re-read, and repaint only if the answer changed the card's existence or its
     // balance — an unconditional rerender here would wipe an open key editor on every settings open.
     (() => {
@@ -6642,12 +6642,12 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
           if (startMinimizedToggle) { startMinimizedToggle.disabled = false; startMinimizedToggle.checked = !!v.startMinimized; }
           if (closeToTrayToggle) { closeToTrayToggle.disabled = false; closeToTrayToggle.checked = !!v.closeToTray; }
           if (v.closeToTray) {
-            lifeDesc.textContent = 'Closing the window hides StarNet in the tray and keeps the station running. Use Quit StarNet in the tray menu to stop it.';
+            lifeDesc.textContent = 'Closing the window hides Luna Station in the tray and keeps the station running. Use Quit Luna Station in the tray menu to stop it.';
           } else if (v.armed) {
             const why = (v.reasons && v.reasons.length) ? v.reasons.join(', ') : 'armed background work';
             lifeDesc.textContent = 'Right now, closing the window KEEPS the station running in the background (' + why + '). Quit fully from the tray icon. Otherwise closing would fully quit.';
           } else {
-            lifeDesc.textContent = 'Right now, nothing is armed — closing the window fully quits StarNet (no background process). Arm a routine, connect a channel, or turn on the night shift to keep it running while closed.';
+            lifeDesc.textContent = 'Right now, nothing is armed — closing the window fully quits Luna Station (no background process). Arm a routine, connect a channel, or turn on the night shift to keep it running while closed.';
           }
         }).catch(() => { lifeDesc.textContent = 'Closing the window keeps the station running only when armed work needs it — otherwise it fully quits.'; });
       };
@@ -7346,7 +7346,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
             '<div class="set-row"><label>USER</label><input class="key-input" data-ssh-user value="' + esc(String(target.user || '')) + '" placeholder="optional"></div>' +
             '<div class="set-row"><label>PORT</label><input class="key-input" data-ssh-port type="number" min="1" max="65535" value="' + esc(String(target.port || 22)) + '"></div>' +
             '<div class="set-row"><label>REMOTE ROOT</label><input class="key-input" data-ssh-root value="' + esc(String(target.remoteRoot || '/workspace')) + '" placeholder="/workspace"></div>' +
-            '<div class="mc-hint">Uses the OS OpenSSH agent/config with batch authentication and strict known_hosts. StarNet stores no password or private key. Files push before each command and pull back afterward; sync never deletes either side.</div>' +
+            '<div class="mc-hint">Uses the OS OpenSSH agent/config with batch authentication and strict known_hosts. Luna Station stores no password or private key. Files push before each command and pull back afterward; sync never deletes either side.</div>' +
             '<div class="mc-hint" data-ssh-status>' + esc(sshStatus) + '</div>' +
             '<div class="mc-acts"><button class="bb sm" data-ssh-save>SAVE &amp; PROBE</button>' +
               (sshConfigured ? '<button class="bb sm" data-ssh-sync="push">PUSH NOW</button><button class="bb sm" data-ssh-sync="pull">PULL NOW</button><button class="bb xs danger" data-ssh-clear>CLEAR TARGET</button>' : '') +
@@ -8029,13 +8029,13 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
       return;
     }
     if (h && h.degraded) {
-      // EL-11 FIX 1: the sidecar is REFUSING writes — this workspace was written by a NEWER StarNet. Persistent
+      // EL-11 FIX 1: the sidecar is REFUSING writes — this workspace was written by a NEWER Luna Station. Persistent
       // red dot + a one-time visible line; never lets a refused write read as a healthy backup.
       d.classList.add('degraded');
-      d.title = 'this station’s data was written by a newer StarNet — update the app. Until then, changes are NOT being backed up.';
+      d.title = 'this station’s data was written by a newer Luna Station — update the app. Until then, changes are NOT being backed up.';
       if (!degradedNotified) {
         degradedNotified = true;
-        try { notify('This station’s data was written by a newer StarNet — update the app. Until you do, your changes are NOT being backed up.', 'bad'); } catch (_) {}
+        try { notify('This station’s data was written by a newer Luna Station — update the app. Until you do, your changes are NOT being backed up.', 'bad'); } catch (_) {}
       }
     } else if (h && h.stale) {
       d.classList.add('stale');
@@ -8205,7 +8205,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
         el.appendChild(mkEl('p', 'cd-privacy', 'Your profile is stored locally. Its briefing is sent to each agent’s configured model when it works; relevant summaries may also be used for suggestions.'));
         el.appendChild(cdBriefing(ds));
       } },
-      { id: 'sources', label: 'SOURCES', glyph: '⌁', desc: 'Manage the notes StarNet can study for useful work.', build: el => {
+      { id: 'sources', label: 'SOURCES', glyph: '⌁', desc: 'Manage the notes Luna Station can study for useful work.', build: el => {
         if (typeof WorkHub !== 'undefined') WorkHub.mountSources(el);
         else el.appendChild(mkEl('p', 'cd-empty', 'Source settings are unavailable. Reopen the dossier to try again.'));
       }, onShow: el => { const detail = el.querySelector('.wh-source-settings'); if (detail) detail.open = true; } },
@@ -8529,7 +8529,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
      you are on, and the steps ahead.
 
      WHERE IT DEPARTS FROM A BATTLE PASS, DELIBERATELY: nothing here is locked, and no node is a tier you
-     buy or unlock. StarNet's standing law is that the log reveals ORDER and never withholds — so upcoming
+     buy or unlock. Luna Station's standing law is that the log reveals ORDER and never withholds — so upcoming
      nodes read as "coming up", never as locked loot, and there is no padlock, no tier number, and no
      fake currency. The reward each node names is the real outcome the milestone produces.
 
@@ -8644,7 +8644,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     const next = steps.find(s => s.isNext && s.status !== 'done');
     const accept = (next && !next.inFlight)
       ? '<button class="consent-btn q-arc-accept q-track-accept" data-gid="' + esc(next.arcGoalId) + '" data-mid="' + esc(next.milestoneId) + '">▶ START THIS STEP</button><p class="sub dim">Starts work with your crew using your current model and permissions.</p>'
-        + '<details class="q-life-report"><summary>I DID THIS STEP</summary><label>What did you do?<textarea class="q-step-evidence" maxlength="1000" placeholder="Describe the action you completed outside StarNet"></textarea></label>'
+        + '<details class="q-life-report"><summary>I DID THIS STEP</summary><label>What did you do?<textarea class="q-step-evidence" maxlength="1000" placeholder="Describe the action you completed outside Luna Station"></textarea></label>'
         + '<button class="consent-btn q-step-report" data-gid="' + esc(next.arcGoalId) + '" data-mid="' + esc(next.milestoneId) + '">RECORD MY ACTION</button></details>'
       : (next && next.inFlight ? '<span class="sub q-track-running">the build for this step is running — finishing it completes the step.</span>' : '');
     const alternatives = steps.filter(s => s.status !== 'done' && !s.isNext);
@@ -8856,7 +8856,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     const recent = (Array.isArray(j.outcomes) ? j.outcomes : []).slice(-3).reverse();
     const progression = j.progression;
     const achievements = progression && Array.isArray(progression.achievements) ? progression.achievements.slice(-5).reverse() : [];
-    const proofLabel = (kind, authority) => authority === 'commander-confirmed' ? 'You confirmed' : kind === 'metric' ? 'You recorded' : 'StarNet recorded';
+    const proofLabel = (kind, authority) => authority === 'commander-confirmed' ? 'You confirmed' : kind === 'metric' ? 'You recorded' : 'Luna Station recorded';
     const growthHtml = progression ? '<div class="q-commander-growth"><div class="q-journey-title">COMMANDER LEVEL ' + progression.level + '</div>'
       + '<div class="sub">' + progression.points + ' achievement points · ' + progression.pointsToNextLevel + ' to the next level</div>'
       + '<div class="sub dim">Confirmed goal activity and recorded metric checkpoints earn points across your goals. Confirming a completed goal earns 100 points. Setbacks never erase your history.</div>'
@@ -8920,7 +8920,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
           + '<button class="consent-btn q-goal-reflect">SAVE REFLECTION</button></details></details>';
       }).join('') + '</div>' : '';
     return '<details class="q-life-goal q-life-manage"' + (goals.length ? '' : ' open') + '><summary>Start a goal</summary>'
-      + '<p class="sub">A rough idea is enough. Shape it with StarNet or write your own plan.</p>'
+      + '<p class="sub">A rough idea is enough. Shape it with Luna Station or write your own plan.</p>'
       + '<label>I want to…<input class="q-new-goal" maxlength="280" placeholder="Learn to play a song, change careers, build a business…"></label>'
       + '<button class="consent-btn q-goal-suggest">HELP SHAPE MY PLAN</button><p class="sub dim">Uses your current AI model to suggest an editable plan. Saving and starting work are separate actions.</p>'
       + '<div class="q-plan-feedback" role="status" aria-live="polite"></div><div class="q-plan-proposal"></div>'
@@ -9104,7 +9104,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
       const rewardHtml = q.reward ? '<div class="sub q-reward"><span class="q-field-label">REWARD</span>&#9670; ' + esc(q.reward) + '</div>' : '';
       const actionRow = (goBtn || queueBtn) ? '<div class="q-actions">' + goBtn + queueBtn + '</div>' : '';
       const lifeActions = q.kind === 'ledger' && q.status !== 'done' ? '<div class="q-life-quest" data-qid="' + esc(q.id) + '">'
-        + '<div class="sub q-owner">' + esc(q.executionMode === 'commander' ? 'YOUR ACTION' : q.executionMode === 'together' ? 'YOU + STARNET' : 'STARNET CAN HELP') + '</div>'
+        + '<div class="sub q-owner">' + esc(q.executionMode === 'commander' ? 'YOUR ACTION' : q.executionMode === 'together' ? 'YOU + LUNA STATION' : 'LUNA STATION CAN HELP') + '</div>'
         + (q.whyNow ? '<div class="sub">Why now: ' + esc(q.whyNow) + '</div>' : '')
         + (isPaused(q) ? '<div class="sub">' + esc(q.disposition.type === 'later' ? 'Saved for tomorrow' : q.disposition.type === 'too_big' ? 'Needs a smaller step' : 'Blocked') + (q.disposition.reason ? ': ' + esc(q.disposition.reason) : '') + '</div><button class="consent-btn q-quest-disposition" data-action="resume">RESUME</button>'
           : '<details><summary>CHANGE THIS RECOMMENDATION</summary><label>What needs to change?<input id="q-reason-' + esc(q.id) + '" class="q-disposition-reason" value="' + esc(questDrafts.get(q.id)?.reason || '') + '" maxlength="240" placeholder="For example: waiting for a reply, or only 15 minutes available"></label>'
@@ -9334,7 +9334,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     if (suggest) suggest.addEventListener('click', async () => {
       if (body._journeyPlanning) return;
       const form = body.querySelector('.q-life-manage'), title = form.querySelector('.q-new-goal').value.trim();
-      if (title.length < 4) { body._journeyPlanMessage = 'Tell StarNet a little about what you want to do first.'; planFeedback.textContent = body._journeyPlanMessage; form.querySelector('.q-new-goal').focus(); return; }
+      if (title.length < 4) { body._journeyPlanMessage = 'Tell Luna Station a little about what you want to do first.'; planFeedback.textContent = body._journeyPlanMessage; form.querySelector('.q-new-goal').focus(); return; }
       const options = { motivation: form.querySelector('.q-new-motivation').value, constraints: form.querySelector('.q-new-constraints').value,
         successCondition: form.querySelector('.q-new-success').value, steps: form.querySelector('.q-new-steps').value };
       body._journeyPlanning = true; body._journeyPlan = null; rerender('quests', false);

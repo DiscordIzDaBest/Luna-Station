@@ -58,7 +58,7 @@ function stubBridge(impl) {
     A.ok(/^REFUSED:/.test(out.content), tool.name + ' without a bridge refuses explicitly');
     A.ok(/do not report this action as done/.test(out.content), 'and tells the model not to claim it');
   }
-  const down = makeStationTools({ station: stubBridge(() => ({ ok: false, error: 'no station page answered — open StarNet to run station commands', unattended: true })) });
+  const down = makeStationTools({ station: stubBridge(() => ({ ok: false, error: 'no station page answered — open Luna Station to run station commands', unattended: true })) });
   const out = await down.createTool.run({ title: 'research' });
   A.ok(/REFUSED: no station page answered/.test(out.content), 'an unattended station (cron/Night Shift) is named, not papered over');
   const refused = makeStationTools({ station: stubBridge(() => ({ ok: false, error: 'a session called "research" already exists — delegate into it, focus it, or pick another name' })) });

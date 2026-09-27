@@ -124,7 +124,7 @@ const cyan=d=>{let n=0;for(let i=0;i<d.length;i+=4)if(d[i+3]>200)n+=Math.max(0,M
  for(let i=3;i<md.length;i+=4)if(md[i]>50)foot=Math.max(foot,Math.floor(i/4/cadet.width)+1);
  const ids=Object.keys(manifest.props);
  for(let page=0;page<Math.ceil(ids.length/20);page++){
-   const cv=createCanvas(1344,1240),cg=cv.getContext('2d');cg.fillStyle='#0b1214';cg.fillRect(0,0,cv.width,cv.height);cg.fillStyle='#c0b69a';cg.font='16px monospace';cg.fillText('STARNET · SAME WORLD SCALE · AUTHORING PREVIEW',16,25);
+   const cv=createCanvas(1344,1240),cg=cv.getContext('2d');cg.fillStyle='#0b1214';cg.fillRect(0,0,cv.width,cv.height);cg.fillStyle='#c0b69a';cg.font='16px monospace';cg.fillText('LUNA STATION · SAME WORLD SCALE · AUTHORING PREVIEW',16,25);
    for(const [index,id]of ids.slice(page*20,page*20+20).entries()){
      const col=index%4,row=Math.floor(index/4),spec=props.spec(id),x=col*336,y=40+row*240;cg.save();cg.translate(x+10,y+8);cg.scale(2.55,2.55);
      for(let fy=0;fy<7;fy++)for(let fx=0;fx<10;fx++)industrial.floor(cg,fx*12,fy*12,12,fx,fy,'plate');

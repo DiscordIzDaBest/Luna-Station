@@ -2,7 +2,7 @@
    2026-07-17).
 
    THE BUG: /api/run stamped the away clock ONCE at run start. A long "watch the model work" session (the
-   Commander commissioning real work and watching it stream) had no pointer/keyboard input in the StarNet window,
+   Commander commissioning real work and watching it stream) had no pointer/keyboard input in the Luna Station window,
    so 15 minutes into their OWN run the sidecar flipped away:true and night-shift beats started firing WHILE the
    Commander sat there working — "starnet constantly thinks I'm idle when clearly I'm working".
 

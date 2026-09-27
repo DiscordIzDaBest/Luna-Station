@@ -1,7 +1,7 @@
 /* sidecar/providers/codex-auth.js — the ONLY module that knows the OpenAI Codex OAuth wire.
 
    Replicates the device-code login OpenAI's own Codex CLI uses (faithful port of the reference
-   CLI's auth flow `_codex_device_code_login` / `refresh_codex_oauth_pure`), so a STARNET user can
+   CLI's auth flow `_codex_device_code_login` / `refresh_codex_oauth_pure`), so a LUNA STATION user can
    run agents off a personal ChatGPT subscription instead of paying per-token API. No client secret —
    the Codex CLI's PUBLIC client_id + a PKCE code_verifier minted server-side by the device-auth flow.
 

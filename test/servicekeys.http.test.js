@@ -67,7 +67,7 @@ const SECRET = 'rk-live-verySECRET-9876';
     A.eq((await j('POST', '/api/servicekeys/toggle', { id: 'nope', enabled: false })).status, 404, 'toggle unknown id -> 404');
     A.eq((await j('POST', '/api/servicekeys/remove', { id: 'nope' })).status, 404, 'remove unknown id -> 404');
 
-    // ---- Etsy is honest: manual/watched OAuth only until StarNet owns token refresh ----
+    // ---- Etsy is honest: manual/watched OAuth only until Luna Station owns token refresh ----
     const etsy = await j('POST', '/api/servicekeys', { name: 'Etsy', key: 'etsy-manual-token' });
     A.eq(etsy.status, 200, 'Etsy manual credential can be saved for a watched session');
     A.eq(etsy.body.key.unattendedSupported, false, 'Etsy response truthfully marks unattended mode unsupported');

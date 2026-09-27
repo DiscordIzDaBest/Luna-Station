@@ -161,9 +161,9 @@ function jwt(claims) {
   {
     const pathMod = require('node:path');
     const roamingBase = pathMod.join('C:\\', 'Users', 'u', 'AppData', 'Roaming');
-    const currentRoot = pathMod.join('C:\\', 'Users', 'u', 'AppData', 'Roaming', 'ai.skynet.harness', 'workspaces');
-    const legacyRoot = pathMod.join('C:\\', 'Users', 'u', 'AppData', 'Local', 'StarNet', 'workspaces');
-    const sidecarDir = pathMod.join('C:\\', 'Users', 'u', 'AppData', 'Local', 'StarNet', 'sidecar');
+    const currentRoot = pathMod.join('C:\\', 'Users', 'u', 'AppData', 'Roaming', 'local.lunastation.desktop', 'workspaces');
+    const legacyRoot = pathMod.join('C:\\', 'Users', 'u', 'AppData', 'Local', 'LunaStation', 'workspaces');
+    const sidecarDir = pathMod.join('C:\\', 'Users', 'u', 'AppData', 'Local', 'LunaStation', 'sidecar');
     const localBase = pathMod.join('C:\\', 'Users', 'u', 'AppData', 'Local');
     const migrationOpts = {
       pathMod, currentWorkspaces: currentRoot, defaultWorkspaces: () => legacyRoot, sidecarDir,
@@ -174,7 +174,7 @@ function jwt(claims) {
       env: { LOCALAPPDATA: localBase, APPDATA: roamingBase }
     });
     A.eq(files[0], pathMod.join(currentRoot, 'codex', 'tokens.json'), 'current workspace is checked first');
-    A.ok(files.indexOf(pathMod.join(legacyRoot, 'codex', 'tokens.json')) >= 0, 'legacy StarNet workspace token is a candidate');
+    A.ok(files.indexOf(pathMod.join(legacyRoot, 'codex', 'tokens.json')) >= 0, 'legacy Luna Station workspace token is a candidate');
     A.ok(files.indexOf(pathMod.join(sidecarDir, 'workspaces', 'codex', 'tokens.json')) >= 0, 'old install-sidecar workspace token is a candidate');
 
     const currentFile = files[0];
@@ -207,7 +207,7 @@ function jwt(claims) {
     A.ok(tokenStore.isRecognizedWorkspaceRoot(currentRoot, migrationOpts),
       'the real Roaming app-data home is recognized, so version-rename migration still runs');
 
-    const brandedTempRoot = pathMod.join(pathMod.sep === '\\' ? 'C:\\' : '/', 'tmp', 'attacker', 'StarNet', 'workspaces');
+    const brandedTempRoot = pathMod.join(pathMod.sep === '\\' ? 'C:\\' : '/', 'tmp', 'attacker', 'LunaStation', 'workspaces');
     const brandedTempFiles = tokenStore.candidateCodexTokenFiles({
       pathMod, currentWorkspaces: brandedTempRoot, defaultWorkspaces: () => legacyRoot, sidecarDir,
       env: { LOCALAPPDATA: localBase, APPDATA: roamingBase }

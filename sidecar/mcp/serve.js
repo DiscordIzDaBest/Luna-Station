@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-/* sidecar/mcp/serve.js — the StarNet MCP messaging-bridge server (stdio composition root).
+/* sidecar/mcp/serve.js — the Luna Station MCP messaging-bridge server (stdio composition root).
 
-   Launched by an MCP client to OBSERVE and MESSAGE a running StarNet station:
+   Launched by an MCP client to OBSERVE and MESSAGE a running Luna Station station:
      { "mcpServers": { "starnet": { "command": "npm", "args": ["run", "-s", "mcp:serve"] } } }
 
    This is the ambient I/O edge for the pure core in bridge-core.js. It:
@@ -15,7 +15,7 @@
      - subscribes to the sidecar's SSE feed (GET /api/channels/events?token=) to fill the event queue.
 
    The server itself always boots and lists tools even when the sidecar is down; tools then return a
-   structured "start StarNet" error (truthful telemetry). */
+   structured "start Luna Station" error (truthful telemetry). */
 'use strict';
 
 const http = require('http');
@@ -44,7 +44,7 @@ const BASE_LABEL = 'http://' + CFG.host + ':' + CFG.port;
 function log() { try { process.stderr.write('[mcp:serve] ' + Array.prototype.join.call(arguments, ' ') + '\n'); } catch (_) {} }
 
 // ---- token discovery: explicit wins; else scrape the served page once (browser-identical) ------
-// ⛔ THE STATION'S API TOKEN IS PER-LAUNCH, SO A SCRAPED ONE GOES STALE. StarNet is a desktop app: the
+// ⛔ THE STATION'S API TOKEN IS PER-LAUNCH, SO A SCRAPED ONE GOES STALE. Luna Station is a desktop app: the
 // Commander closes and reopens it constantly, and every launch mints a NEW token. This bridge is started once
 // by the MCP client and lives for that client's whole session, so a token cached for the process lifetime meant
 // the FIRST station restart killed every tool ("/api/... returned HTTP 401") and the SSE feed (a silent
@@ -202,6 +202,6 @@ process.stdin.on('data', chunk => {
 process.stdin.on('end', () => { process.exit(0); });
 process.stdin.on('close', () => { process.exit(0); });
 
-log('StarNet MCP bridge ready on stdio → proxying ' + BASE_LABEL + (cachedToken ? ' (token from env/flag)' : ' (token via page scrape)'));
+log('Luna Station MCP bridge ready on stdio → proxying ' + BASE_LABEL + (cachedToken ? ' (token from env/flag)' : ' (token via page scrape)'));
 
 module.exports = { readConfig, _internals: { discoverToken, callSidecar, queue } };

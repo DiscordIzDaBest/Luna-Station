@@ -1,4 +1,4 @@
-# Dev seed — boot a pre-onboarded StarNet in one command
+# Dev seed — boot a pre-onboarded Luna Station in one command
 
 **Problem this solves:** every fresh sidecar launch (a new `SKYNET_WORKSPACES` dir, or just a new
 browser port — each worktree runs on a different port, and `localStorage` is per-origin) drops you at

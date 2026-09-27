@@ -1,6 +1,6 @@
 /* Pure admission + completion policy for explicit image-generation tasks.
 
-   STUDIO uses either the linked StarNet cloud (which owns upstream credentials and
+   STUDIO uses either the linked Luna Station cloud (which owns upstream credentials and
    credit metering) or a separately configured OpenAI/OpenRouter BYOK route. Credentials and
    endpoints travel together; an ordinary model key cannot authorize another service.
    Completion still depends on the artifact ledger, not the model's prose. */
@@ -25,7 +25,7 @@
     return { kind: 'image-generation' };
   }
 
-  // OpenAI's /v1/models catalog mixes text agents with specialized media models. StarNet's
+  // OpenAI's /v1/models catalog mixes text agents with specialized media models. Luna Station's
   // primary provider seam is a streaming, tool-calling text conversation, so an image-output
   // model cannot be offered or admitted there. It remains available through STUDIO's dedicated
   // image-generation route below.
@@ -38,12 +38,12 @@
   function agentModelBlocker(providerId, model) {
     if (!isImageModel(providerId, model)) return null;
     return 'Model unavailable for agent chat: "' + String(model || '').trim()
-      + '" generates images and does not support StarNet\'s streaming, tool-calling agent wire. '
+      + '" generates images and does not support Luna Station\'s streaming, tool-calling agent wire. '
       + 'Choose a text model in COMMS; for image requests that agent will use the placed STUDIO with your OpenAI API key. No provider request was sent.';
   }
 
   // Managed credentials come from the host's linked-account resolver, never from tool
-  // arguments or the conversation provider's endpoint override. A StarNet run cannot
+  // arguments or the conversation provider's endpoint override. A Luna Station run cannot
   // silently fall back to spending a separate BYOK key when its link is unavailable.
   function resolveRoute(input) {
     input = input || {};
@@ -88,10 +88,10 @@
     }
     if (!(input.route && input.route.ok)) {
       const managed = ['starnet', 'starnet-cloud', 'managed'].includes(String(input.providerId || '').toLowerCase());
-      return 'Image task blocked: ' + (managed ? 'the StarNet credits connection is unavailable for ' : 'no media connection is configured for ')
+      return 'Image task blocked: ' + (managed ? 'the Luna Station credits connection is unavailable for ' : 'no media connection is configured for ')
         + label(input.providerId, input.model) + '. Open SETTINGS and ' + (managed
-          ? 'relink this station to your StarNet account'
-          : 'connect an OpenAI or OpenRouter API key for image generation, or link this station to your StarNet account')
+          ? 'relink this station to your Luna Station account'
+          : 'connect an OpenAI or OpenRouter API key for image generation, or link this station to your Luna Station account')
         + ', then retry. No image artifact was produced.';
     }
     return null;

@@ -173,9 +173,9 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force evidence | Out-Null
           if (Test-Path packaged-lifecycle-receipt.json) { Copy-Item packaged-lifecycle-receipt.json evidence/ }
-          $log = "$env:APPDATA\ai.skynet.harness\startup.log"
+          $log = "$env:APPDATA\local.lunastation.desktop\startup.log"
           if (Test-Path $log) { Copy-Item $log evidence/startup.log }
-          $prefs = "$env:APPDATA\ai.skynet.harness\lifecycle.json"
+          $prefs = "$env:APPDATA\local.lunastation.desktop\lifecycle.json"
           if (Test-Path $prefs) { Copy-Item $prefs evidence/lifecycle.json }
           Get-CimInstance Win32_Process -Filter "Name='skynet-desktop.exe' OR Name='node.exe'" |
             Select-Object ProcessId, Name, ParentProcessId, ExecutablePath |

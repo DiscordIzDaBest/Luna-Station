@@ -35,7 +35,7 @@ export function runList(options) {
     const step = steps[index];
     // HERMETIC PROFILE (2026-08-20): the sidecar's boot-time station auto-recovery scans the real
     // per-user app-data roots for a lost station, and a test's fresh temp workspace looks exactly
-    // like one — so on a machine with an installed StarNet station, test-booted sidecars ingested
+    // like one — so on a machine with an installed Luna Station station, test-booted sidecars ingested
     // the user's REAL station into their temp workspaces (schema-stamp and sidecar.http broke the
     // day the desktop app was first installed on the dev box). Every step gets its own empty
     // scratch profile so no spawned sidecar can see, or touch, real user data — and no step can

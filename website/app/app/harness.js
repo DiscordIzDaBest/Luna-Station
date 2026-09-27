@@ -1,4 +1,4 @@
-/* STARNET — harness.js : the REAL agent harness (BYOK).
+/* LUNA STATION — harness.js : the REAL agent harness (BYOK).
    Owns the model connection + streaming + token/cost accounting.
 
    For this prototype the call goes browser -> OpenRouter directly (CORS-friendly,
@@ -276,7 +276,7 @@ const Harness = (() => {
   // who linked an account and never pasted a key has neither — so every boot would bounce them to the
   // connect screen demanding an API key they deliberately do not have.
   //
-  // Called again after a link/unlink so selecting STARNET does not wait for a page reload.
+  // Called again after a link/unlink so selecting LUNA STATION does not wait for a page reload.
   async function refreshCreditsConfigured() {
     selectionRevision++;
     try {
@@ -344,7 +344,7 @@ const Harness = (() => {
     const p = normalizeProviderId(provider);
     if (p === 'ollama') return true;
     if (p === 'custom' && getBaseUrl(p)) return true;
-    // STARNET MANAGED is configured IFF the sidecar reports live credits — in BOTH modes. It must not fall
+    // LUNA STATION MANAGED is configured IFF the sidecar reports live credits — in BOTH modes. It must not fall
     // through to the keyless branch below, which would answer "configured" for every station simply because
     // there is no key to look for, and claim a station can run on credits it has never been linked to.
     if (p === 'starnet') return !!_configuredByProvider.starnet;
@@ -749,7 +749,7 @@ const Harness = (() => {
         body: JSON.stringify(reqBody)
       });
     } catch (e) {
-      throw new Error('cannot reach the STARNET sidecar — start it with `npm start` (node sidecar/index.js)');
+      throw new Error('cannot reach the LUNA STATION sidecar — start it with `npm start` (node sidecar/index.js)');
     }
     // A pre-stream failure's TRUE reason lives in the response body — runRouteFailure's {"error":"sidecar
     // failure: Not signed in to ChatGPT …"} JSON, handleRun's "missing key/model", the token gate's "forbidden
@@ -1178,7 +1178,7 @@ const Harness = (() => {
     try { U.bus.on('agent.run.error', endContextRun); } catch (_) {}
   }
 
-  /* IS THE LOCAL ENGINE ACTUALLY UP? (2026-07-29 — the "Can't reach StarNet's local service" misdiagnosis.)
+  /* IS THE LOCAL ENGINE ACTUALLY UP? (2026-07-29 — the "Can't reach Luna Station's local service" misdiagnosis.)
      A dead response stream and a dead sidecar are INDISTINGUISHABLE from the thrown fetch error alone (see the
      long note on isTransportLoss in friendlyerror.js), and the app used to assert the sidecar was gone and tell
      people to restart — sending users chasing a phantom for days when the real drop was the model's stream.
@@ -1197,7 +1197,7 @@ const Harness = (() => {
      (Chromium appears to retry a dead keep-alive socket with a ~2s backoff before surfacing "Failed to fetch").
      Samples: 249,250,251,251,268,1754,1771,1773,1794,2015 + 251,1778,2030. A 2000ms budget therefore lands
      exactly ON the slow mode and half of all genuinely-dead engines time out into `null` — which is the ONE case
-     where "restart StarNet" is the correct advice, so it must not be lost to an impatient probe. 4000ms clears
+     where "restart Luna Station" is the correct advice, so it must not be lost to an impatient probe. 4000ms clears
      the observed tail ~2x. Cost is bounded and rare: the common in-band failure path proves liveness by receipt
      and never calls this at all, and a healthy engine answers /api/health in ~1ms.
      Resolves true | false | null. Never throws, never rejects. */

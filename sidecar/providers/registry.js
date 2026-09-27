@@ -174,8 +174,8 @@
     {
       id: 'starnet',
       aliases: ['starnet-cloud', 'managed'],
-      name: 'StarNet Managed',
-      label: 'STARNET',
+      name: 'Luna Station Managed',
+      label: 'LUNA STATION',
       endpoint: 'managed inference (credits)',
       blurb: 'run on credits, no API key — link a station',
       live: true,

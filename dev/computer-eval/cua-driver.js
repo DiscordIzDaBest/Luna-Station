@@ -1,7 +1,7 @@
 'use strict';
 
 // Evaluation-only adapter. Not registered in the shipping sidecar. The caller must
-// already hold StarNet's Full Power authority; production consent is not replaced.
+// already hold Luna Station's Full Power authority; production consent is not replaced.
 const { spawn, execFile } = require('node:child_process');
 const { randomUUID } = require('node:crypto');
 const { makeMcpClient } = require('../../sidecar/mcp/client.js');
