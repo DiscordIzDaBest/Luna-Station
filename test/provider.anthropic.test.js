@@ -173,6 +173,19 @@ async function collect(provider, req) { const out = []; for await (const e of pr
     A.eq(models[0].id, 'claude-x', 'catalog id parsed');
     A.eq(models[0].supportsTools, true, 'Anthropic native models are marked tool-capable');
   }
+  // D2. the model's REPORTED limits are used: /v1/models carries max_input_tokens (window) + max_tokens (output cap).
+  {
+    const fetchImpl = async () => new Response(JSON.stringify({ data: [
+      { id: 'claude-sonnet-5', display_name: 'Claude Sonnet 5', max_input_tokens: 1000000, max_tokens: 128000 },
+      { id: 'claude-haiku-4-5', display_name: 'Claude Haiku 4.5', max_input_tokens: 200000, max_tokens: 64000 }
+    ] }), { status: 200 });
+    const p = makeAnthropicProvider({ fetch: fetchImpl, key: 'KEY' });
+    const models = await p.listModels();
+    A.eq(models[0].context_length, 1000000, 'context window comes from max_input_tokens');
+    A.eq(models[0].max_completion_tokens, 128000, 'output ceiling comes from max_tokens');
+    A.eq(models[1].context_length, 200000, 'a smaller reported window is honored too');
+    A.eq(p.contextLimit('claude-sonnet-5'), 1000000, 'the run context limit follows the reported window');
+  }
 
   // E. max_tokens default is bumped high (no silent 4096 truncation); explicit + catalog ceilings honored.
   {

@@ -320,8 +320,11 @@
     return {
       id,
       name: m.display_name || m.name || id,
-      context_length: Number(m.context_length || m.input_token_limit || DEFAULT_CONTEXT) || DEFAULT_CONTEXT,
-      max_completion_tokens: m.max_output_tokens || m.output_token_limit || null,
+      // Anthropic's Models API reports the context window as max_input_tokens and the output cap as max_tokens
+      // (there is no context_window field). Reading only the older/foreign names made every Claude model look
+      // like a 200k window with an unknown ceiling, so a 1M-context model compacted at 65% of 200k.
+      context_length: Number(m.max_input_tokens || m.context_length || m.input_token_limit || DEFAULT_CONTEXT) || DEFAULT_CONTEXT,
+      max_completion_tokens: Number(m.max_tokens || m.max_output_tokens || m.output_token_limit) || null,
       // /v1/models reports no pricing, so this comes from the dated list-rate table (prices.js) rather than
       // the wire. Same {prompt, completion} per-token shape every other adapter publishes, so listModels()
       // and priceOf() can never disagree. Unknown model -> null -> honestly 'unpriced'.

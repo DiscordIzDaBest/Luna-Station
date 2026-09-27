@@ -319,7 +319,9 @@ jobs:
           path: intel-macos-installed-acceptance.json
 
   publish-test:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish-test == 'true'
+    # LUNA STATION: never publish. This job targeted StarNet's public releases repository (androoAGI/starnet-releases);
+    # a private build has no release channel. Use luna-windows-build.yml for a Windows installer artifact.
+    if: false
     needs: [build, notarize-macos, intel-macos-installed-acceptance]
     runs-on: ubuntu-latest
     steps:

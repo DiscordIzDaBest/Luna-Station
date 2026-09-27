@@ -28,10 +28,12 @@ assert.doesNotMatch(buildMatrix[0], /target: linux/,
 
 assert.match(install, /Linux is not[\s\S]{0,80}supported release target/i,
   'install guide says Linux is not a supported public target');
-assert.match(readme, /pipeline requirements, not proof/i,
-  'README distinguishes workflow requirements from installed evidence');
-assert.match(install, /release-pipeline requirements[\s\S]{0,180}not installed proof/i,
-  'install guide does not turn release workflow code into installed proof');
+// LUNA STATION: a private build has no public release train. README/INSTALL must say the installer is self-built
+// and unsigned (so SmartScreen warns) instead of repeating the upstream signed-release contract.
+assert.match(readme, /private, personal build/i, 'README states this is a private build');
+assert.match(install, /no public download and no auto-updater/i, 'install guide states there is no public release channel');
+assert.match(install, /\*\*unsigned\*\*/i, 'install guide says the self-built installer is unsigned');
+assert.doesNotMatch(readme + install, /starnet-releases/i, 'Luna docs never send the user to the upstream releases');
 assert.match(download, /pipeline contract, not installed proof/i,
   'download copy preserves the evidence boundary');
 assert.match(hostVerifier,
@@ -54,8 +56,8 @@ for (const [name, source] of [
   assert.doesNotMatch(source, stale, name + ' does not restore the pre-signing/pre-platform-contract copy');
 }
 
-assert.match(install, /Do \*\*not\*\* clear quarantine with[\s\S]{0,40}`xattr`/i,
-  'public Mac instructions do not normalize bypassing a missing notarization verdict');
+assert.match(install, /Do not do this for an installer from\s+anywhere else/i,
+  'the SmartScreen bypass is scoped to an installer the user built themselves');
 assert.match(website, /Do not clear quarantine/i,
   'website treats a public Mac Gatekeeper failure as reportable, not expected');
 

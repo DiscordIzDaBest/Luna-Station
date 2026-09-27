@@ -1,101 +1,108 @@
-# Installing StarNet (Desktop)
+# Installing Luna Station (Windows first)
 
-StarNet's public release train supports **Windows and macOS**:
+Luna Station is a private build, so there is no public download and no auto-updater. You build the
+Windows installer yourself, either on GitHub Actions (no tools needed on your PC) or locally.
+Linux is not a supported release target for this build. macOS builds are possible from the same
+workflow but have had less use.
 
-| Platform | Download this asset |
-| --- | --- |
-| **Windows** (10/11, 64-bit) | `StarNet_<version>_x64-setup.exe` |
-| **macOS — Apple Silicon** (M1/M2/M3/M4) | `StarNet_<version>_aarch64.dmg` |
-| **macOS — Intel** | `StarNet_<version>_x64.dmg` |
+## Option A — build the installer on GitHub Actions (easiest)
 
-Linux packages may be produced by the manual/internal desktop-build workflow, but Linux is not
-part of the public release train and is not a supported release target.
+1. On GitHub, open this repository → **Actions** → **luna-windows-build** → **Run workflow**. (The
+   manual button appears once the workflow is on the default branch. Before that, it runs by
+   itself whenever `.github/workflows/luna-windows-build.yml` changes on a branch, and on any
+   `luna-v*` tag.) The job first runs the Luna provider tests on Windows, then builds.
+2. When it finishes, download the **luna-station-windows-x64** artifact from the run page. It
+   contains `Luna Station_<version>_x64-setup.exe`.
+3. Run the installer. The build is **unsigned** (no code-signing certificate is configured), so
+   Windows SmartScreen will say *"Windows protected your PC"*. Because you built it yourself from
+   your own repository, choose **More info → Run anyway**. Do not do this for an installer from
+   anywhere else.
+4. Launch **Luna Station** from the Start menu.
 
-Download from the [StarNet releases page](https://github.com/androoAGI/starnet-releases/releases/latest).
-Use only an asset attached to the release you intend to install.
+The older multi-platform `desktop-build` workflow (inherited from StarNet) still builds Windows,
+Linux and macOS test bundles. Its StarNet publishing step is disabled.
 
-## What the public release train guarantees
+## Option B — build locally on Windows 11
 
-The tagged public workflow is configured to fail closed unless all of these checks pass:
+Requirements: [Node.js 22](https://nodejs.org), Git, and the
+[Tauri prerequisites for Windows](https://v2.tauri.app/start/prerequisites/) (Rust via rustup,
+Microsoft C++ Build Tools, WebView2, which Windows 11 already has).
 
-- The Windows app and installer have valid Authenticode signatures, the expected publisher,
-  and a trusted timestamp.
-- Both macOS architectures have Developer ID signatures. Their bundled native dependencies
-  are signed and timestamped, and the DMGs are accepted and stapled by Apple notarization.
-- Every platform updater artifact has a valid updater signature and is included in the one
-  Windows/macOS update manifest.
+```powershell
+git clone <your Luna-Station repo URL>
+cd Luna-Station
+npm ci
+npm run desktop:build
+```
 
-These are **release-pipeline requirements**, not installed proof for a particular download.
-This repository does not contain evidence that the asset you downloaded was installed and
-launched on your exact OS. If your OS reports an unknown publisher, a missing Developer ID,
-or a notarization failure, stop and report the release and asset name rather than bypassing the
-warning.
+The installer lands in `src-tauri\target\release\bundle\nsis\`. `npm run desktop:dev` runs the
+desktop shell against your working tree without installing.
 
-Manual/local and shareable test builds are a different tier. They can be intentionally unsigned
-when signing credentials are unavailable and are for internal testing only. Do not infer public
-release trust from a successful local build.
+## Run from source without the desktop shell
 
-## Windows
+```bash
+npm ci
+npm start      # http://127.0.0.1:8787
+```
 
-1. Run `StarNet_<version>_x64-setup.exe`.
-2. Confirm Windows identifies the publisher expected by the release notes before approving the
-   installer.
-3. Complete the installer, then launch StarNet from the Start menu.
-
-An Authenticode signature does not guarantee that SmartScreen is silent. A new certificate can
-still have limited reputation. If SmartScreen shows **Windows protected your PC**, inspect the
-publisher under **More info** before choosing **Run anyway**. Do not proceed when the publisher is
-unknown or different from the release notes.
-
-Windows 11 Smart App Control can apply additional policy even to signed software. Its verdict is
-machine policy, not proof that an installation was exercised by this repository's test suite.
-
-To uninstall, use **Settings → Apps → Installed apps**.
-
-## macOS
-
-1. Choose `aarch64.dmg` for Apple Silicon or `x64.dmg` for an Intel Mac. Check **Apple menu →
-   About This Mac** if you are unsure.
-2. Open the DMG and drag **StarNet** into **Applications**.
-3. Launch StarNet from Applications.
-
-The public release train requires a Developer ID signature and a stapled Apple notarization
-ticket. A public DMG should therefore pass Gatekeeper normally. Do **not** clear quarantine with
-`xattr` or use an unsigned-app override for a purported public release. If macOS says the app is
-damaged, from an unidentified developer, or cannot be checked for malicious software, stop and
-report the release tag, asset name, Mac architecture, and macOS version.
-
-To uninstall, quit StarNet and drag it from **Applications** to the Trash.
+In this mode, keys you save are kept in that browser's local storage (there is no OS keychain).
 
 ## Run free with a local model
 
-StarNet does not require an API key or a StarNet account. Install [Ollama](https://ollama.com),
-pull a model (`ollama pull llama3.1`), and choose **OLLAMA** as the provider — on the first-run
-brain screen, or later under **SETTINGS → PROVIDERS**. StarNet reaches Ollama at `127.0.0.1:11434`
-and shows it as ready only after it has listed your local models. Local models are smaller than
-cloud models: expect slower, rougher results on long tasks.
+Install [Ollama](https://ollama.com), pull a model (`ollama pull llama3.1`), and pick **LOCAL
+OLLAMA**, either on the first-run brain screen or later in **SETTINGS → PROVIDERS**. Luna Station
+reaches Ollama at `127.0.0.1:11434` and shows it ready only after it has listed your local models.
+Local models are smaller than cloud models, so expect slower, rougher results on long tasks.
 
-## Updates
+## First-run checklist
 
-The public release train produces signed updater artifacts for Windows and both Mac
-architectures. StarNet's Update Center checks the public manifest and verifies a downloaded
-update against the updater public key embedded in the app before installation. Updater signing
-is separate from Authenticode, Developer ID signing, and Apple notarization; the public train
-requires all applicable layers.
+These are the things the automated tests cannot do for you, because they need your own accounts:
 
-On Windows, current manual installers detect an older StarNet installation and use the same
-in-place update mode as Update Center. They do not depend on the older installation's
-`uninstall.exe`, and the user's station data remains outside the application directory. If an
-older installer still shows an **Already Installed** page, quit StarNet from its tray icon,
-choose **Do not uninstall**, and continue. Do not delete `%APPDATA%\ai.skynet.harness` as an
-update workaround.
+1. **Claude API:** create a key at <https://platform.claude.com/>, paste it in **SETTINGS →
+   PROVIDERS → CLAUDE API → ＋ ADD KEY**, and confirm the card says **KEY SAVED · VERIFIED**. Pick a
+   model (for example `claude-sonnet-5`) and send a message. Then check the run and its cost under
+   the ledger. Usage is billed to that Console account.
+2. **Claude Subscription card:** it should read **NOT AVAILABLE TO THIRD-PARTY APPS**. That is
+   expected; see [AUTHENTICATION.md](AUTHENTICATION.md).
+3. **Ollama:** with Ollama running, the LOCAL OLLAMA card should read **REACHABLE**. Select it and
+   send a message.
+4. **Tools:** give an agent a task that needs a tool (for example "list the files in your
+   workspace"). Approve the consent prompt and confirm the result.
+5. **Two agents at once:** recruit a second agent, give both a task, and watch both work at the
+   same time on the station.
+6. **Restart:** quit from the tray and relaunch. Your crew, transcripts and ledger should still be
+   there.
+7. **Connectors / MCP / schedules / Night Shift:** set up whichever you use. Schedules need
+   `STARNET_CRON_ENABLED=1` in the environment Luna Station starts with (see ARCHITECTURE.md).
 
-This describes the supported update path. It does not claim that an update was exercised on an
-installed copy from this candidate. If the Update Center cannot complete an update, download the
-matching current installer/DMG from the releases page and report the failure before relying on
-automatic update behavior.
+## Where your data is
 
-## Support
+- App data: `%APPDATA%\local.lunastation.desktop\` (workspaces, logs, startup log).
+- Secrets: Windows Credential Manager, service **local.lunastation.desktop**.
+- Deliverables you export: `Desktop\Luna Station deliverables\`.
 
-Report installer, Gatekeeper, SmartScreen, or updater problems to **androo.agi@gmail.com**. Include
-the release tag, exact asset name, OS version, CPU architecture, and the complete warning text.
+Luna Station never reads or writes StarNet's folders or keychain entries, so both can be installed
+side by side.
+
+## Updating
+
+Pull the latest code and rebuild (Option A or B), then run the new installer over the old one. The
+installer upgrades in place and your data stays in `%APPDATA%`. The in-app **UPDATES** panel reports
+that automatic updates are disabled in this private build.
+
+## Uninstalling
+
+**Settings → Apps → Installed apps → Luna Station → Uninstall.** Your data folder is left in place;
+delete `%APPDATA%\local.lunastation.desktop` yourself if you want it gone.
+
+## Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| CLAUDE API says **NO KEY** although `ANTHROPIC_API_KEY` is set | Intended; environment keys are ignored. Save the key in the card, or set `LUNA_ALLOW_ENV_ANTHROPIC_KEY=1`. |
+| "Anthropic rejected the Claude API key" | The key is wrong, revoked, or its Console org is disabled. Replace it. |
+| "Anthropic API rate limit reached" | Your API account's rate limit. Wait, or raise it in the Console. |
+| LOCAL OLLAMA **OFFLINE** | Start Ollama (`ollama serve`) and pull at least one model; a first load can take minutes. |
+| SmartScreen blocks the installer | Expected for an unsigned self-built installer; see Option A step 3. |
+| The window never appears | Quit from the tray, relaunch; check `%APPDATA%\local.lunastation.desktop\startup.log`. |
+| Schedules never fire | Set `STARNET_CRON_ENABLED=1` before starting Luna Station. |

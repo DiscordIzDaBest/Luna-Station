@@ -1,26 +1,24 @@
-# Security policy
+# Security
 
-## Supported versions
+Luna Station is a private, single-user build. There is no public release and no bug-bounty program.
 
-Security fixes are made against the latest published StarNet release and the current default
-branch. Older versions may be asked to update before a fix can be applied.
+## If you find a problem
 
-## Reporting a vulnerability
+Fix it in your own copy and add a test. The suites that guard the security model are worth
+re-running after any change:
 
-Please do not open a public issue, discussion, or pull request for a suspected vulnerability.
-Use one of these private channels:
+- `test/luna-claude-provider.e2e.test.js`: ambient-key guard, key never leaks into responses or
+  transcripts, no billable fallback without consent, no Claude subscription credential handling.
+- `test/servicekeys.env.test.js`: a pasted service key can never override internal `STARNET_*` controls.
+- `test/tauri.hardening.test.js`, `test/workspace-safety.test.js`, and the permission/consent suites
+  in `test/fast.list`.
+- `npm run security:secrets`: full-history secret scan (needs Gitleaks in `PATH`).
 
-1. GitHub's **Report a vulnerability** button on the repository Security tab, when available.
-2. Email **androo.agi@gmail.com** with the subject `StarNet security report`.
+A vulnerability in code inherited unchanged from StarNet should also be reported upstream, privately,
+following the policy at <https://github.com/androoAGI/starnet/blob/main/SECURITY.md>.
 
-Include the affected version or commit, reproduction steps, impact, and any suggested mitigation.
-Remove real credentials and personal data from screenshots, logs, and proof-of-concept files.
+## Scope that matters most
 
-You should receive an acknowledgement within three business days. We will investigate, coordinate
-remediation and disclosure with you, and credit you unless you prefer to remain anonymous.
-
-## Scope
-
-Reports about secret handling, filesystem or network containment, permission/consent bypasses,
-update verification, cross-user data exposure, and unintended remote access are especially useful.
-Please test only against systems and data you own or are authorized to use.
+Secret handling (OS keychain, never in the frontend, transcripts or logs), filesystem and network
+containment, permission/consent bypasses, and unintended remote access. The sidecar listens on
+loopback only and every route requires the per-launch token.

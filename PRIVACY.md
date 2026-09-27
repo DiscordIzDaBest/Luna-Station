@@ -1,46 +1,36 @@
-# StarNet Privacy
+# Luna Station Privacy
 
-_Last reviewed: 2026-07-25, against the shipping code._
+_Last reviewed: 2026-09-27, against this build's code._
 
-StarNet is a **local-first desktop app**. It runs a small server (the "sidecar") on your own
-machine (`localhost`) and does the agent work there. Out of the box there is **no StarNet
-account and nothing of yours on a StarNet server** — the app talks only to the providers you
-choose, with your own keys. There is exactly one opt-in exception: if you choose to buy
-**StarNet Credits**, that creates an account on our billing service. It is described in full
-under *StarNet Credits* below, and nothing in this document changes for you unless you buy
-them. This document is written in plain English and is grounded in an audit of the actual
-code — not aspirations.
-
-Support questions: androo.agi@gmail.com.
+Luna Station is a **private, local-first desktop app** derived from StarNet. It runs a small server
+(the "sidecar") on your own machine (`localhost`) and does the agent work there. There is **no Luna
+Station account and no Luna Station server**. The app talks only to the providers and services you
+choose, with your own keys. StarNet's managed-credits cloud is switched off in this build, and the
+app never contacts StarNet's servers.
 
 ## The short version
 
-- **The app does not track you.** There is no telemetry, no analytics, no crash reporting, or ad
-  SDK. We verified this by searching the whole codebase for the
-  usual suspects (Sentry, PostHog, Mixpanel, Segment, Google Analytics, Amplitude, Datadog):
-  none are present. The desktop app does make the automatic update-manifest request described
-  below; that request carries no user data or app identifier. This stays true whether or not you
-  buy credits — buying credits adds a billing account, not tracking.
-- **Your data stays on your machine**, under your OS user's app-data directory —
-  Windows: `%APPDATA%\ai.skynet.harness\workspaces\`; macOS:
-  `~/Library/Application Support/ai.skynet.harness/workspaces/`; Linux:
-  `~/.local/share/ai.skynet.harness/workspaces/`. (The developer-mode sidecar uses
-  `%LOCALAPPDATA%\StarNet\` on Windows.) The `ai.skynet.harness` folder name is an intentional
-  back-compatibility alias kept from before the app was renamed to StarNet on 2026-06-22 — it
-  holds your StarNet data.
-- The app talks to the network for the configured or requested work described below, plus the
-  desktop app's automatic update-manifest check. These are the only outbound cases.
+- **The app does not track you.** There is no telemetry, no analytics, no crash reporting, and no ad
+  SDK. The upstream code was audited for the usual suspects (Sentry, PostHog, Mixpanel, Segment,
+  Google Analytics, Amplitude, Datadog); none are present. **Automatic update checks are disabled**
+  in this private build, so the app makes no update request at all.
+- **Your data stays on your machine**, under your OS user's app-data directory:
+  Windows `%APPDATA%\local.lunastation.desktop\workspaces\`; macOS
+  `~/Library/Application Support/local.lunastation.desktop/workspaces/`. (Running the sidecar alone
+  with `npm start` uses `%LOCALAPPDATA%\LunaStation\workspaces\` on Windows.)
+- The app uses the network only for the configured or requested work described below. These are the
+  only outbound cases.
 
 ## What leaves your machine — and only these
 
-StarNet makes outbound network requests in exactly these situations. Nothing else.
+Luna Station makes outbound network requests in exactly these situations. Nothing else.
 
 ### 1. Your chosen AI model provider (using your key)
 
-When an agent runs, StarNet calls the model provider **you** configured, authenticated with
+When an agent runs, Luna Station calls the model provider **you** configured, authenticated with
 **your** API key (or your ChatGPT sign-in). Your prompts, conversation, and any content the
 agent works with are sent to that provider so it can generate a response — the same as any app
-that uses that provider. StarNet is a pass-through here; it does not sit in the middle.
+that uses that provider. Luna Station is a pass-through here; it does not sit in the middle.
 
 Depending on what you set up, that provider is one of:
 
@@ -52,35 +42,35 @@ Depending on what you set up, that provider is one of:
 - or another OpenAI-compatible provider you point it at (xAI, Groq, Mistral, DeepSeek,
   Together, Fireworks, Perplexity, Cerebras).
 
-**Your key, your data, your account.** StarNet never sees a StarNet-owned copy — the key is
+**Your key, your data, your account.** Luna Station never keeps a copy anywhere but your machine — the key is
 yours and the request goes straight to the provider you picked.
 
 ### 2. Chat channels — only if you connect them
 
-If you connect a chat channel, StarNet talks to that platform to send and receive messages on the
+If you connect a chat channel, Luna Station talks to that platform to send and receive messages on the
 channel you set up, authenticated with the token (or endpoint) **you** provide. Nothing is
 contacted unless you connect it:
 
-- **Discord / Telegram** — StarNet calls that platform's API (`discord.com`, `api.telegram.org`)
+- **Discord / Telegram** — Luna Station calls that platform's API (`discord.com`, `api.telegram.org`)
   with your bot token.
-- **Slack** — StarNet calls the Slack API (`slack.com`) with your bot token.
-- **Matrix** — StarNet talks to **the homeserver you point it at** — whatever URL you configure,
-  whether `matrix.org` or a server you run yourself — using your access token. StarNet does not
+- **Slack** — Luna Station calls the Slack API (`slack.com`) with your bot token.
+- **Matrix** — Luna Station talks to **the homeserver you point it at** — whatever URL you configure,
+  whether `matrix.org` or a server you run yourself — using your access token. Luna Station does not
   pick a server; you do.
-- **Signal** — StarNet talks to **the signal-cli REST endpoint you run** (the URL you configure for
+- **Signal** — Luna Station talks to **the signal-cli REST endpoint you run** (the URL you configure for
   your own signal-cli bridge), using the account you registered there.
 
-If you never connect a channel, StarNet never contacts any of these services.
+If you never connect a channel, Luna Station never contacts any of these services.
 
 ### 3. Spotify — only if you enable it
 
-If you enable the Spotify integration and authorize it, StarNet calls the Spotify API
+If you enable the Spotify integration and authorize it, Luna Station calls the Spotify API
 (`api.spotify.com`, `accounts.spotify.com`) to read what's playing and control playback, using
 the token you granted. If you don't enable Spotify, no Spotify requests are made.
 
 ### 4. Web search / web fetch — only when an agent uses that tool
 
-If an agent uses its web tools, StarNet fetches results through independent, keyless services
+If an agent uses its web tools, Luna Station fetches results through independent, keyless services
 — web search via Mojeek (`mojeek.com`, with DuckDuckGo as a fallback) and page reading via
 Jina Reader (`r.jina.ai`) — or, if you have an OpenRouter key, OpenRouter's web plugin. If the
 Jina reader is unavailable or rate-limits, the page is fetched **directly from its own host**
@@ -95,28 +85,18 @@ Agent voices are synthesized through your model provider (OpenRouter) by default
 configure an **ElevenLabs** voice with your own ElevenLabs key, the line to be spoken is sent
 to `api.elevenlabs.io` instead. No voices, no TTS requests.
 
-### 6. A version check for updates (no personal data)
+### 6. No update checks
 
-Automatic update checks are on by default. On first run and at the configured interval, the
-desktop app fetches a single public manifest file from GitHub Releases:
+Automatic updates are disabled in this private build (there is no update feed), so no update
+manifest is ever requested. You update by rebuilding from source; see INSTALL.md.
 
-```
-https://github.com/androoAGI/starnet-releases/releases/latest/download/latest.json
-```
-
-This is a plain `GET` for a static file. **No user data, no identifier, and no telemetry are
-sent** — it's the same request your browser would make to view that file. Each update's
-integrity is cryptographically verified against a key baked into the app before anything is
-installed. You can stop automatic checks by turning off **AUTO-CHECK FOR UPDATES** in
-**SYSTEM > SETTINGS > UPDATES**; the Update Center still lets you check manually.
-
-## What StarNet stores on your machine (and how)
+## What Luna Station stores on your machine (and how)
 
 Everything below lives under your per-user app-data directory (see the paths in "The short
 version" above for Windows/macOS/Linux). It never leaves your machine except as described
 above. Where this document says "OS keychain," that means Windows Credential Manager, the
 macOS Keychain, or the Linux Secret Service (e.g. GNOME Keyring), depending on your platform —
-always under the service name `ai.skynet.harness`.
+always under the service name `local.lunastation.desktop`.
 
 | What | Where | How it's stored |
 | --- | --- | --- |
@@ -139,14 +119,14 @@ always under the service name `ai.skynet.harness`.
 ### Secrets: keychain vs. plaintext — the honest picture
 
 On the **desktop build**, your provider API keys and your Discord/Telegram bot tokens are held
-in the **OS keychain** (Windows Credential Manager, under service `ai.skynet.harness`), not in
+in the **OS keychain** (Windows Credential Manager, under service `local.lunastation.desktop`), not in
 a plaintext file. When you upgrade from an older build, any bot token found in the old
 plaintext `channels/secrets.json` is migrated into the keychain and stripped from that file.
 
 Connector credentials use a separate encryption key under the same keychain service,
 account `connectors:encryption:v1`. Desktop startup encrypts and verifies both active
 and recovery copies before removing legacy connector credential files. If the keychain
-is locked or the original key is missing, StarNet preserves the encrypted files and
+is locked or the original key is missing, Luna Station preserves the encrypted files and
 reports that saved connections are unavailable; it does not replace them with empty data.
 Copies of those files alone cannot unlock connections on another OS account or computer.
 Protect and retain your OS credential store when restoring backups. This protects
@@ -155,7 +135,7 @@ Google content; their storage is listed separately above. Google Workspace publi
 activation remains deferred pending the remaining verification and data-handling work.
 The selected-file candidate requests only `drive.file` through Google's file picker,
 without email/profile, Gmail, Calendar or whole-Drive scopes. It can access files granted
-to StarNet and files it creates. This restriction does not mean file contents remain
+to Luna Station and files it creates. This restriction does not mean file contents remain
 local: the model-provider, transcript, memory and artifact disclosures above still apply.
 
 If you instead run the bare sidecar directly (developer mode / `node sidecar/index.js` /
@@ -175,46 +155,26 @@ Windows user account can read it. Protect your machine account accordingly.
 
 - We do **not** run analytics or telemetry of any kind.
 - We do **not** collect crash reports.
-- We do **not** require a StarNet account. Unless you buy credits, no account exists, and no
-  StarNet backend holds anything of yours.
-- We do **not** sell, share, or transmit your conversations, keys, or files to anyone —
-  the only outbound traffic is the specific, purpose-built requests listed above.
-- We do **not** store your prompts or your agents' replies on our servers, even on the credits
-  path — see below.
+- We do **not** have an account system. There is no Luna Station account and no Luna Station
+  server.
+- We do **not** sell, share, or transmit your conversations, keys, or files to anyone. The only
+  outbound traffic is the specific, purpose-built requests listed above.
 
-## StarNet Credits — only if you buy them
+## Managed credits
 
-Credits are optional and off by default. If you never buy them, skip this section: nothing in
-it applies to you, and the app behaves exactly as described above.
-
-If you do buy credits, you create an account on StarNet's billing service, and these things
-become true:
-
-- **What we hold.** Your email address, your credit balance and the ledger of grants and
-  charges behind it, an identifier for each station you link, and the customer/subscription
-  identifiers our payment processor gives us. That's the list.
-- **Card details never reach us.** Checkout runs on **Stripe**, in your browser. StarNet never
-  sees, receives, or stores a card number — the app has no payment form at all.
-- **How you sign in.** By emailed one-time link. There is no StarNet password to steal.
-- **Model runs go through our gateway.** This is the part worth being blunt about: on the
-  credits path your prompts and your agents' replies are relayed through StarNet's servers to
-  the model provider, because that is the only way we can pay for the call on your behalf. We
-  relay them; we do **not** store their contents, and we do **not** train on them. What we
-  keep is the metering — model name, token counts, cost, timestamp — which is what your balance
-  is computed from. **If you use your own key instead, none of this traffic touches us at all.**
-- **Deleting it.** Email androo.agi@gmail.com and we'll delete the account and its data. We
-  keep the minimum transaction records that tax and payment rules require us to keep.
+StarNet's optional managed-credits service is switched off in Luna Station (`CLOUD_LIVE = false`). No
+billing account exists, and no prompt is ever relayed through a third-party gateway. Every model
+call goes directly from your machine to the provider you chose, with your key.
 
 ## Deleting your data
 
-Your data is just files. To wipe it, uninstall StarNet and delete the `ai.skynet.harness`
-app-data folder for your OS — Windows: `%APPDATA%\ai.skynet.harness\`
-(`C:\Users\<you>\AppData\Roaming\ai.skynet.harness\`); macOS:
-`~/Library/Application Support/ai.skynet.harness/`; Linux: `~/.local/share/ai.skynet.harness/`.
-If you ever ran the developer-mode sidecar on Windows, also delete `%LOCALAPPDATA%\StarNet\`.
-Provider API keys and channel tokens held in the OS keychain can be removed there too (search
-your credential manager / keychain for `ai.skynet.harness`).
+Your data is just files. To wipe it, uninstall Luna Station and delete its app-data folder:
+Windows `%APPDATA%\local.lunastation.desktop\`; macOS
+`~/Library/Application Support/local.lunastation.desktop/`. If you ran the sidecar alone with
+`npm start` on Windows, also delete `%LOCALAPPDATA%\LunaStation\`. Provider API keys and channel
+tokens held in the OS keychain can be removed there too (search your credential manager / keychain
+for `local.lunastation.desktop`).
 
 ## Changes
 
-If this changes, we'll update this document. Questions: androo.agi@gmail.com.
+This is a private build; update this document whenever the code's network or storage behavior changes.

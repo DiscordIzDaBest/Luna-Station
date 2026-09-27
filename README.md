@@ -1,175 +1,100 @@
 <div align="center">
 
-<img src=".github/media/starnet-logo-glow.png" alt="StarNet" width="560">
+<img src=".github/media/luna-logo.png" alt="Luna Station" width="560">
 
-**A living pixel-art station where real AI agents do real work.**
-
-[![Download](https://img.shields.io/github/v/release/androoAGI/starnet-releases?label=download&color=f5a623)](https://github.com/androoAGI/starnet-releases/releases/latest)
-[![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-4a90d9)](INSTALL.md)
-[![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f)](LICENSE)
-[![Local-first](https://img.shields.io/badge/local--first-your%20machine%2C%20your%20data-8250df)](PRIVACY.md)
-
-[Download](https://github.com/androoAGI/starnet-releases/releases/latest) ·
-[Install guide](INSTALL.md) ·
-[Run from source](#run-from-source) ·
-[Docs](docs/INDEX.md) ·
-[Contributing](CONTRIBUTING.md)
-
-<img src=".github/media/station-iso.png" alt="The StarNet station — rooms, crew, and workstations rendered from live harness state" width="540">
+**A private, local-first pixel-art station where real AI agents do real work.**
 
 </div>
 
-StarNet is a local-first desktop harness where you create AI agents, organize them into a
-pixel-art space station, and watch them perform real work with real models and tools. The
-station is not decoration — it is a projection of live runtime state, and the product contract
-is literal: **A room is a capability-scoped team**, **a hallway is** an authorized handoff
-lane, and **a placed object is a real capability grant**.
-The layout you draw *is* the workflow the agents run.
+Luna Station is a **private, personal build** derived from the open-source
+[StarNet](https://github.com/androoAGI/starnet) harness (MIT). It keeps StarNet's runtime (agents,
+tools, MCP, schedules, Night Shift, connectors, voice, ledgers) and its core rule: **the interface
+never claims something happened unless the runtime can prove it.** It changes three things:
 
-Start with one agent, then place bays or summon specialists to run **more, concurrently** —
-each a **genuinely distinct, bounded agent run** with its own workspace and permissions.
-The harness performs **real model calls, real tools, real cost** rather than animating a
-simulation.
+1. **Identity and art:** its own name, logo, icons, installer art and an original crew of 24
+   procedurally drawn pixel characters (`scripts/luna-art/`).
+2. **Claude first:** Claude through the Anthropic API is the default provider. Every provider
+   card is labelled with how it is paid for, and API billing never happens silently.
+3. **Private-build safety:** its own app identifier, data folder and keychain namespace, no
+   auto-updater, no managed cloud, and no public release tooling.
 
-## Features
+Luna Station is not an official StarNet product and not an Anthropic product.
+
+## Claude and your Claude Pro plan
+
+**Claude Pro/Max subscription sign-in is not available in Luna Station.** Anthropic's current
+documentation does not allow third-party apps (including Agent SDK apps) to offer claude.ai login
+or use subscription rate limits without Anthropic's approval. So this app does not build one, and
+it does not borrow Claude Code's credentials. Claude runs through an **Anthropic API key** (billed
+per token to your Claude Console account, separate from Pro), or you can use **Local Ollama** for
+free. Details and sources: [AUTHENTICATION.md](AUTHENTICATION.md). Provider internals:
+[CLAUDE_PROVIDER.md](CLAUDE_PROVIDER.md).
+
+## Features (inherited from StarNet)
 
 | | |
 | --- | --- |
-| **A crew, not a chatbot** | Create agents with distinct classes, personas, and loadouts. Run several at once — each gets its own workspace, transcript, memory, and bounded permissions. |
-| **Bring your own models** | Paste an OpenRouter key, or sign in with supported provider accounts (Anthropic, OpenAI, Google) — keys live in the OS keychain, never in the frontend. |
-| **Message it from anywhere** | Wire agents to Telegram, Discord, Slack, Signal, or Matrix and talk to your station away from the desk. |
-| **Night Shift** | Leave the station running and agents keep working inside an explicit, adjustable leash — every away-action is logged and reviewable. |
-| **Recipes, skills, schedules** | Launch proven multi-step recipes, grant reusable skills, and put work on cron schedules with visible output. |
-| **Asks before it guesses** | Task Briefs turn ambiguity into one concrete question with options — over any connected channel — instead of a silent wrong guess. |
-| **Finished work has a front door** | Deliverables land in the OUTBOX as real files you open, not chat scrollback you archaeology. |
-| **MCP connectors** | Attach Model Context Protocol servers and paste-a-key/OAuth connectors to extend what agents can touch. |
-| **Voice** | Push-to-talk dictation in, one consistent station voice out. |
-| **Real ledgers** | Spend, budgets, and run history persist on disk and are shown as-is. |
+| **A crew, not a chatbot** | Agents with classes, personas and loadouts, each with its own workspace, transcript, memory and bounded permissions. Several run at once. |
+| **Delegation** | Agents summon specialists and hand off work as real, bounded child runs. |
+| **Tools with consent** | Filesystem, shell, web, browser, desktop, notebook, skills and image tools, all behind a capability gate and a consent broker. |
+| **MCP** | Attach MCP servers and OAuth connectors to extend what agents can touch. |
+| **Tasks and briefs** | Tasks, Task Briefs (one concrete clarifying question), and deliverables in the OUTBOX as real files. |
+| **Recipes, skills, schedules** | Multi-step recipes, reusable skills, cron schedules (opt-in). |
+| **Night Shift** | Unattended work inside an explicit leash; every away-action is logged and reviewable. |
+| **Connectors** | Telegram, Discord, Slack, Signal and Matrix. |
+| **Voice** | Push-to-talk dictation and a station voice. |
+| **Real ledgers** | Run history, tokens, list-price spend and budgets, persisted on disk. |
 
-## What is real
+## Run it
 
-- Model calls stream through the local Node sidecar.
-- Tools operate through explicit capability and consent checks.
-- Agent memory, transcripts, spend records, tasks, and schedules persist on disk.
-- Multiple agents run concurrently with separate workspaces and bounded permissions.
-- The visual station projects the same runtime state the harness can prove.
+- **Windows desktop:** see [INSTALL.md](INSTALL.md), which covers building the installer on
+  GitHub Actions or on your PC.
+- **From source (any OS):** Node.js 18+ (22 recommended), then
+  ```bash
+  npm ci
+  npm start            # sidecar + UI on http://127.0.0.1:8787
+  ```
+  Open the page, then pick a provider in **SETTINGS → PROVIDERS**.
 
-StarNet does not simulate revenue, completed work, model activity, or spend. Its core product
-law is that **the interface must never assert state the harness cannot prove.**
-
-## Download
-
-Desktop builds are published on the
-[StarNet releases page](https://github.com/androoAGI/starnet-releases/releases/latest).
-
-| Platform | Asset |
-| --- | --- |
-| **Windows** (10/11, 64-bit) | `StarNet_<version>_x64-setup.exe` |
-| **macOS — Apple Silicon** (M1–M4) | `StarNet_<version>_aarch64.dmg` |
-| **macOS — Intel** | `StarNet_<version>_x64.dmg` |
-
-> **Apple Silicon note:** use the native `aarch64` DMG. Avoid the `x64` DMG on Apple Silicon:
-> it runs under Rosetta 2 rather than using the native architecture.
-
-The public release train supports Windows and macOS. It refuses to stage a release unless the
-Windows installer passes Authenticode and timestamp verification, both Mac builds pass
-Developer ID checks and Apple notarization, and every updater artifact has a valid updater
-signature. Those are pipeline requirements, not proof that a particular downloaded or installed
-copy was tested on your machine; [INSTALL.md](INSTALL.md) explains what to verify and when to stop.
-Linux packages are internal build artifacts only and are not a supported public release target.
-
-> **Early release:** Windows is the most-tested desktop target. macOS has less real-world
-> coverage. Broken? Tell us:
-> **androo.agi@gmail.com**.
-
-## Run from source
-
-Requirements: Node.js 18+ (Node.js 22 matches CI), Git. Rust and the
-[Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) only for the desktop shell.
-
-The sidecar uses Node core modules only, so it runs without installing anything:
-
-```bash
-git clone https://github.com/androoAGI/starnet.git
-cd starnet
-node sidecar/index.js
-```
-
-Open <http://localhost:8787>, then connect a provider —
-**bring your own OpenRouter API key (BYOK)** or use a supported OAuth sign-in. Provider requests leave your machine when you run an agent;
-station state, transcripts, memory, and ledgers stay in the local StarNet workspace unless you
-explicitly use a network tool or connector. See [PRIVACY.md](PRIVACY.md) for the full data map.
-
-### Run free with a local model
+## Run free with a local model
 
 No key, no account, no bill: install [Ollama](https://ollama.com), pull a model
-(`ollama pull llama3.1`), and pick **OLLAMA** as the provider — on the first-run brain screen, or
-later in **SETTINGS → PROVIDERS**. StarNet talks to Ollama on `127.0.0.1:11434` and only reports
-it ready once it can list your local models. Honest caveat: local models are smaller than the
-cloud ones, so expect slower and rougher work on long tasks.
+(`ollama pull llama3.1`), and pick **LOCAL OLLAMA**, either on the first-run brain screen or later in
+**SETTINGS → PROVIDERS**. Luna Station talks to Ollama on `127.0.0.1:11434` and reports it ready only
+once it can list your local models. Local models are smaller than the cloud ones, so expect slower
+and rougher work on long tasks.
 
-For desktop development:
+## Documentation
 
-```bash
-npm ci
-npm run desktop:dev     # dev shell
-npm run desktop:build   # build installers locally
-```
-
-## Coming from OpenClaw or Hermes?
-
-StarNet can import an existing agent: point it at your on-disk OpenClaw or Hermes home and it
-mints a StarNet agent from the persona, instructions, memory, and model it finds. API keys
-never transfer — you re-enter those in the KEYS tab.
-
-## Architecture
-
-| Path | Responsibility |
+| | |
 | --- | --- |
-| `frontend/` | Vanilla JavaScript station world and desktop UI. |
-| `sidecar/` | Local Node agent runtime: providers, tools, persistence, budgets, consent. |
-| `shared/` | Additive cross-boundary event and schema contracts. |
-| `src-tauri/` | Rust/Tauri desktop shell and bundled runtime. |
-| `test/` | Unit, contract, integration, and release gates. |
-| `qa/` | Live QA receipts, journeys, findings ledger, and release-readiness authority. |
+| [INSTALL.md](INSTALL.md) | Build/install on Windows, first-run checklist, troubleshooting |
+| [AUTHENTICATION.md](AUTHENTICATION.md) | Exactly how each provider authenticates and who pays |
+| [CLAUDE_PROVIDER.md](CLAUDE_PROVIDER.md) | The Claude adapter: models, streaming, tools, thinking, limits |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Processes, run lifecycle, providers, data on disk, subsystems |
+| [PRIVACY.md](PRIVACY.md) | What leaves your machine and when |
+| [CODE_MAP.md](CODE_MAP.md) | Upstream file-level map |
 
-The frontend consumes real sidecar events over localhost HTTP/NDJSON and SSE. Secrets belong
-to the local authority:
-**Secrets are held by the sidecar / OS keychain, never in the frontend**.
-
-Start with [docs/INDEX.md](docs/INDEX.md) for the living documentation. Older planning
-documents remain in the repository as design history and are labeled accordingly.
+Most files in `docs/`, `qa/` and `website/` are StarNet's own design history, QA records and public
+site. They are kept for reference and are not Luna Station documentation.
 
 ## Testing
 
 ```bash
-npm run test:fast          # required merge gate
-npm run test:http          # live sidecar HTTP/E2E suite
-npm test                   # validation + world + fast + HTTP suites
-npm run security:secrets   # full-history secret scan; requires Gitleaks in PATH
+npm run test:fast          # unit/contract gate
+npm run test:http          # live sidecar HTTP/E2E suite (includes test/luna-claude-provider.e2e.test.js)
+npm test                   # both
 ```
 
-The release aggregate is `npm run qa:ready`. It is candidate-bound: any new commit invalidates
-the prior READY receipt until the affected live gates are rerun.
+Browser-driven tests need Chrome/Chromium; set `SKYNET_CHROME` to its path if it isn't found.
 
-## Contributing and security
+## License and attribution
 
-Contributions are welcome — read [CONTRIBUTING.md](CONTRIBUTING.md) and follow the
-[Code of Conduct](CODE_OF_CONDUCT.md).
+The code is MIT-licensed; see [LICENSE](LICENSE) (Copyright © 2026 Andrew Sims, the StarNet
+author). Third-party notices are in [NOTICE.md](NOTICE.md).
 
-Do not report vulnerabilities in a public issue. Follow [SECURITY.md](SECURITY.md) for private
-reporting instructions.
-
-## License
-
-StarNet is open source under the [MIT License](LICENSE). Third-party components remain
-under their original licenses — see [NOTICE.md](NOTICE.md).
-
-**The MIT License covers the code only.** The **StarNet** name, the logo, the station artwork
-and sprites, and the rest of the project's brand identity are owned by Andrew Sims and are
-**not** licensed with it — no trademark or other brand rights are granted, expressly or by
-implication.
-
-MIT means you may fork, modify, and redistribute the code, including commercially. What you
-may not do is ship it as StarNet: forks and derivatives must use their own name, logo, and
-artwork, and must not present themselves as this project or as endorsed by it.
+StarNet's name, logo, crew sprites and brand are not licensed with the code. Luna Station replaces
+the name, logo, icons, installer art and every crew sprite with original work. **Still upstream
+art:** the station environment itself (room shells, floors, furniture and machine props in
+`frontend/assets/industrial/` and `frontend/assets/furniture/`). Replace these before sharing this
+build with anyone. See NOTICE.md.

@@ -368,7 +368,13 @@ const Updates = (() => {
     emit();
   }
 
+  // LUNA STATION: a private build ships no update feed (see LUNA_UPDATES_ENABLED in src-tauri/src/main.rs). The
+  // shell reports desktop:false, so nothing is ever checked; say so instead of offering a check that must fail.
+  const LUNA_UPDATES_DISABLED = true;
+  const DISABLED_HTML = '<div class="fb-empty">AUTOMATIC UPDATES ARE DISABLED IN THIS PRIVATE LUNA STATION BUILD.<br>'
+    + '<span>To update, pull the latest source and rebuild the installer (see INSTALL.md). Your data is kept.</span></div>';
   function phaseLabel() {
+    if (LUNA_UPDATES_DISABLED && !state.desktop) return 'automatic updates disabled';
     if (state.phase === 'unsupported') return 'desktop updater unavailable';
     if (state.phase === 'checking') return 'checking for updates';
     if (state.phase === 'preparing') return 'verifying state and creating recovery point';
@@ -408,6 +414,7 @@ const Updates = (() => {
   }
 
   function html() {
+    if (LUNA_UPDATES_DISABLED && !state.desktop) return DISABLED_HTML;
     if (!TAURI) {
       return '<div class="fb-empty">DESKTOP UPDATES ARE AVAILABLE IN THE PACKAGED LUNA STATION APP.<br><span>This browser preview cannot install native releases.</span></div>';
     }

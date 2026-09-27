@@ -1,0 +1,70 @@
+# Luna Station — Windows installer build (private build, unsigned).
+#
+# Produces `Luna Station_<version>_x64-setup.exe` as a workflow artifact. Nothing is published: there is no
+# release repository and no updater feed for this private build. The installer is unsigned (no code-signing
+# certificate is configured), so SmartScreen will warn on first run — see INSTALL.md.
+#
+# Triggers: run it by hand (Actions → luna-windows-build → Run workflow; needs this file on the default branch),
+# on a `luna-v*` tag, or automatically once when this workflow file changes on a branch.
+name: luna-windows-build
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['luna-v*']
+    branches: ['**']
+    paths: ['.github/workflows/luna-windows-build.yml']
+
+concurrency:
+  group: luna-windows-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: luna-win-x64
+
+      - run: npm ci
+
+      # Prove the Luna-specific provider rules on real Windows (paths, env handling, the sidecar) before building.
+      - name: Luna provider + identity tests on Windows
+        shell: bash
+        run: |
+          set -euo pipefail
+          for t in provider.registry provider.anthropic provider-connections-ui friendlyerror workspace-safety \
+                   tauri.hardening update-state-parity servicekeys.env sprite-loading world-setskin; do
+            node "test/$t.test.js"
+          done
+          node test/luna-claude-provider.e2e.test.js
+          node test/saved-provider-fallback.e2e.test.js
+
+      - name: Stage bundled Node sidecar runtime + frontend
+        shell: bash
+        run: |
+          node scripts/prepare-node.mjs win-x64
+          node scripts/stage-voice-deps.mjs --target win-x64
+          node scripts/stage-frontend-dist.mjs
+
+      - name: Build NSIS installer
+        shell: bash
+        run: npm run tauri -- build --bundles nsis --config '{"bundle":{"createUpdaterArtifacts":false}}'
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: luna-station-windows-x64
+          if-no-files-found: error
+          path: src-tauri/target/release/bundle/nsis/*.exe
