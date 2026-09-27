@@ -9,8 +9,8 @@ const ModelDock = (() => {
   const CODEX_MODELS = ['gpt-5.5', 'gpt-5.4', 'gpt-5.4-mini', 'gpt-5.3-codex-spark'];
   // Fallback seed only (used when the live /api/models fetch fails) — real, current model ids only.
   // A missing fallback id is honest; an invented one is a lie. claude-3-5-haiku retired 2026-02-19,
-  // so it's dropped here; opus-4-8 / sonnet-5 / haiku-4-5 are the current confirmed-real set.
-  const ANTHROPIC_MODELS = ['claude-opus-4-8', 'claude-sonnet-5', 'claude-haiku-4-5'];
+  // so it's dropped here; opus-5 / sonnet-5 / haiku-4-5 are the current confirmed-real set (2026-09).
+  const ANTHROPIC_MODELS = ['claude-opus-5', 'claude-sonnet-5', 'claude-haiku-4-5'];
   const GEMINI_MODELS = ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash'];
   const HOSTED_FALLBACKS = {
     xai: ['grok-4.3', 'grok-4-fast', 'grok-4'],

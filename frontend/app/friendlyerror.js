@@ -414,6 +414,19 @@
     if (kind === 'network') {
       return { userMessage: transportMessage(engineAlive), kind: kind, retryable: k.retryable, action: k.action, raw: raw, engineAlive: engineAlive };
     }
+    // The sidecar's pre-flight refusal carries an exact, secret-free sentence after the classifier prefix
+    // ("missing key/model — Anthropic API key is not configured. …"). Say THAT instead of the generic copy.
+    if (kind === 'auth') {
+      const detail = raw.match(/missing key\/model\s*[—-]\s*(.+)$/i);
+      if (detail && detail[1].trim()) return { userMessage: detail[1].trim(), kind: kind, retryable: k.retryable, action: k.action, raw: raw };
+      if (/anthropic http 40[13]/i.test(raw)) {
+        return { userMessage: 'Anthropic rejected the Claude API key — replace it in Settings → Providers, or select another provider.', kind: kind, retryable: false, action: k.action, raw: raw };
+      }
+    }
+    // An Anthropic 429 is the rate limit of the API account that owns the key — never a Claude subscription limit.
+    if (kind === 'rate_limit' && /anthropic http 429/i.test(raw)) {
+      return { userMessage: 'Anthropic API rate limit reached for your API key — wait a moment and try again.', kind: kind, retryable: k.retryable, action: k.action, raw: raw };
+    }
     return { userMessage: k.msg, kind: kind, retryable: k.retryable, action: k.action, raw: raw };
   }
 

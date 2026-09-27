@@ -292,7 +292,7 @@ const Harness = (() => {
     const p = String(provider || getProv() || 'openrouter').trim().toLowerCase();
     if (p === 'codex' || p === 'openai-codex') return 'codex';
     if (p === 'openai' || p === 'openai-api') return 'openai';
-    if (p === 'anthropic' || p === 'claude') return 'anthropic';
+    if (p === 'anthropic' || p === 'claude' || p === 'claude-api' || p === 'anthropic-api') return 'anthropic';
     if (p === 'gemini' || p === 'google' || p === 'google-ai' || p === 'google-gemini') return 'gemini';
     // grok/kimi are their OWN keyless OAuth (subscription) providers — NOT aliases for the API-key
     // providers. Folding 'grok' into 'xai' here silently rewrote every GROK OAUTH selection into the
@@ -453,8 +453,11 @@ const Harness = (() => {
     // calibration that model already earned instead of going blind again.
     if ((m || '') !== prev) { contextByKey = {}; runConv = {}; }
   };
-  const getProv = () => normalizeProviderId(localStorage.getItem(LS.prov) || 'openrouter');
-  const setProv = p => { selectionRevision++; localStorage.setItem(LS.prov, normalizeProviderId(p || 'openrouter')); };
+  // Luna Station: a station with no saved choice defaults to Claude via the Anthropic API (mirrors the sidecar
+  // registry's DEFAULT_PROVIDER_ID). Defaulting spends nothing — a run still needs a key the Commander saved.
+  const DEFAULT_PROV = 'anthropic';
+  const getProv = () => normalizeProviderId(localStorage.getItem(LS.prov) || DEFAULT_PROV);
+  const setProv = p => { selectionRevision++; localStorage.setItem(LS.prov, normalizeProviderId(p || DEFAULT_PROV)); };
   const getBaseUrl = provider => readScoped(LS.baseUrl, provider);
   const setBaseUrl = (u, provider) => {
     selectionRevision++;

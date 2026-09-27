@@ -33,7 +33,9 @@ const { SidecarFixture } = require('./helpers/sidecar-fixture.js');
   fs.writeFileSync(path.join(fixture.workspace, 'codex/tokens.json'), JSON.stringify({ access_token: jwt, refresh_token: 'synthetic-refresh', auth_mode: 'device' }));
   async function run(extra = {}) {
     calls = [];
-    const r = await fixture.json('POST', '/api/run', { provider: 'codex', model: 'gpt-5.5', baseUrl: base + '/codex', agentId: 'agent', internal: true, isTask: true, messages: [{ role: 'user', content: 'Return a short fixture acknowledgement.' }], ...extra });
+    // allowBillableFallback: a subscription (codex) run may only fail over onto pay-per-token OpenRouter billing with
+    // explicit consent (Luna Station billing guard). The no-consent path is proven in luna-claude-provider.e2e.
+    const r = await fixture.json('POST', '/api/run', { provider: 'codex', model: 'gpt-5.5', baseUrl: base + '/codex', agentId: 'agent', internal: true, isTask: true, allowBillableFallback: true, messages: [{ role: 'user', content: 'Return a short fixture acknowledgement.' }], ...extra });
     assert.equal(r.status, 200, r.text);
     return r.text.trim().split('\n').map(x => JSON.parse(x));
   }

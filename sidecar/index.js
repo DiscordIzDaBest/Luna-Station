@@ -117,7 +117,10 @@ const {
   defaultReasoningEffortForProvider: registryDefaultReasoningEffort,
   providerRequiresKey,
   providerRequiresBaseUrl,
-  attachRateLimits
+  attachRateLimits,
+  DEFAULT_PROVIDER_ID,
+  CLAUDE_SUBSCRIPTION,
+  billingFor: registryBillingFor
 } = require('./providers/factory.js');
 /* PROACTIVE QUOTA. One tracker for the whole process, attached to the factory so every provider adapter's
    injected fetch is instrumented at a single seam (see providers/ratelimits.js). Quota used to be learned only
@@ -2092,6 +2095,37 @@ function envFirst(names) {
   }
   return '';
 }
+/* The provider API key found in the environment, honoring a profile's ambient-key opt-in.
+   Two kinds of env credential exist and they are NOT equally trustworthy:
+     · SCOPED  (STARNET_/SKYNET_<NAME>) — what the desktop shell injects from the OS keychain after the Commander
+                saved a key in Settings, or what an operator set deliberately for this app. Always honored.
+     · AMBIENT (<NAME> bare, e.g. ANTHROPIC_API_KEY) — whatever happens to be exported in the user's shell or
+                system environment, often for some other tool. For a profile with `ambientKeyOptInEnv`, an
+                ambient key is IGNORED unless that opt-in is set to 1, so a stray key can never quietly turn agent
+                runs into billable API usage. The ignored name is reported (never the value) so the UI can say so. */
+function providerAmbientKeyAllowed(profile) {
+  const optIn = profile && profile.ambientKeyOptInEnv;
+  if (!optIn) return true;
+  return String(process.env[optIn] || '').trim() === '1';
+}
+function providerEnvKey(profile) {
+  const names = (profile && Array.isArray(profile.keyEnv)) ? profile.keyEnv : [];
+  const ambientOk = providerAmbientKeyAllowed(profile);
+  for (const name of names) {
+    const scoped = ENV(name);
+    if (scoped != null && String(scoped).trim()) return String(scoped).trim();
+    if (!ambientOk) continue;
+    const direct = process.env[name];
+    if (direct != null && String(direct).trim()) return String(direct).trim();
+  }
+  return '';
+}
+// Ambient env keys present but deliberately ignored, as NAMES only (never values) — for truthful Settings copy.
+function providerIgnoredAmbientKeys(profile) {
+  if (providerAmbientKeyAllowed(profile)) return [];
+  const names = (profile && Array.isArray(profile.keyEnv)) ? profile.keyEnv : [];
+  return names.filter(n => String(process.env[n] || '').trim());
+}
 function providerRuntimeKey(provider, explicitKey) {
   const id = normalizeProvider(provider);
   if (registryProviderUsesCodex(id)) return '';
@@ -2104,8 +2138,8 @@ function providerRuntimeKey(provider, explicitKey) {
   const runtime = String(runtimeKeys[id] || '').trim();
   if (runtime) return runtime;
   const profile = getProviderProfile(id);
-  if (id === 'openrouter') return runtimeKey || envFirst(profile && profile.keyEnv);
-  return envFirst(profile && profile.keyEnv);
+  if (id === 'openrouter') return runtimeKey || providerEnvKey(profile);
+  return providerEnvKey(profile);
 }
 function providerRuntimeKeyPool(provider, explicitPool) {
   const id = normalizeProvider(provider);
@@ -2141,6 +2175,22 @@ function providerHasCredential(provider, key, baseUrl) {
   if (providerRequiresBaseUrl(id) && !String(baseUrl || '').trim()) return false;
   if (providerRequiresKey(id) && !String(key || '').trim()) return false;
   return true;
+}
+
+// Human sentence for a run refused before it starts. Names the provider and, when an environment key was found
+// but deliberately ignored (see providerEnvKey), names THAT variable too — the value itself is never included.
+function missingCredentialDetail(provider, model, baseUrl) {
+  const id = normalizeProvider(provider);
+  const profile = getProviderProfile(id);
+  const name = (profile && profile.name) || id;
+  if (!model) return 'no model selected for ' + name + '.';
+  if (providerRequiresBaseUrl(id) && !String(baseUrl || '').trim()) return name + ' endpoint URL is not configured.';
+  if (registryProviderUsesCodex(id) || registryProviderUsesDeviceOAuth(id)) return 'not signed in to ' + name + '. Sign in again or select another provider.';
+  const who = id === 'anthropic' ? 'Anthropic API key' : name + ' API key';
+  const ignored = providerIgnoredAmbientKeys(profile);
+  return who + ' is not configured.' + (ignored.length
+    ? ' (' + ignored.join(', ') + ' is set in your environment but ignored; save the key in Settings → Providers, or set ' + profile.ambientKeyOptInEnv + '=1 to allow it.)'
+    : ' Add it in Settings → Providers, or select another provider.');
 }
 
 /* ONE BEARER RESOLVER FOR EVERY PROVIDER. Whatever the Commander connected IS the credential — an API key,
@@ -8181,7 +8231,7 @@ let discordStatus = { connected: false, state: 'down', detail: '' };
 const channelRegistry = makeChannelRegistry();          // H6.2: telegram + discord descriptors
 
 function normalizeProvider(provider) {
-  return normalizeProviderIdFromRegistry(provider, 'openrouter');
+  return normalizeProviderIdFromRegistry(provider, DEFAULT_PROVIDER_ID);
 }
 function providerUsesCodex(provider) { return registryProviderUsesCodex(normalizeProvider(provider)); }
 function providerUsesDeviceOAuth(provider) { return registryProviderUsesDeviceOAuth(normalizeProvider(provider)); }
@@ -14966,7 +15016,12 @@ async function handleRun(req, res) {
   // via /api/key). The browser build still sends body.key, which wins.
   const baseUrl = providerRuntimeBaseUrl(runProvider, body && (body.baseUrl || body.base_url));
   const key = providerRuntimeKey(runProvider, body && body.key);
-  if (!model || !providerHasCredential(runProvider, key, baseUrl)) { res.writeHead(400); return res.end('missing key/model'); }
+  if (!model || !providerHasCredential(runProvider, key, baseUrl)) {
+    // The 'missing key/model' prefix is the contract the browser's error classifier keys on; the rest says exactly
+    // what is missing, by provider name, so a Commander never has to guess (and never sees a key value).
+    res.writeHead(400);
+    return res.end('missing key/model — ' + missingCredentialDetail(runProvider, model, baseUrl));
+  }
 
   // Consume a continuation before opening the response stream or doing provider/tool work. The durable start
   // record is intentionally one-way: losing this response may require another review, but retrying cannot run
@@ -15114,7 +15169,7 @@ async function handleRun(req, res) {
     // The browser is WATCHED, so an ungranted mutation asks live (interactive surface + promptConsent) instead
     // of default-denying. The SAME run host (runOnce) is reused by the messaging hub with surface:'autonomous'.
     const continuedResult = await runOnce({
-      key, keyPool: body && body.keyPool, model, system: (projectLine || projectRules) ? (String(system || '') + projectLine + projectRules) : system, messages: runMessages, agentId, isTask, provider: runProvider, baseUrl, reasoningEffort, fallbackModels, fallbackProviders,
+      key, keyPool: body && body.keyPool, model, system: (projectLine || projectRules) ? (String(system || '') + projectLine + projectRules) : system, messages: runMessages, agentId, isTask, provider: runProvider, baseUrl, reasoningEffort, fallbackModels, fallbackProviders, allowBillableFallback: !!(body && body.allowBillableFallback === true),
       emit, signal: ac.signal, runId, trigger: 'directive', internal, evidence,
       initialTaint: hasUserAttachments ? 'user attachment' : null,
       retryUserRunId: body && body.retryUserRunId,
@@ -16475,12 +16530,21 @@ async function runOnceCore(o) {
     }));
   }
   const providerFallbacks = [];
+  const blockedBillableFallbacks = [];
   const rawProviderFallbacks = savedProviderFallbacks.concat(Array.isArray(o.fallbackProviders) ? o.fallbackProviders : []);
   for (const fb of rawProviderFallbacks) {
     if (!fb || typeof fb !== 'object') continue;
     const fbProviderId = normalizeProvider(fb.provider || providerId);
     const fbModel = String(fb.model || '').trim();
     if (!fbModel || (fbProviderId === providerId && fbModel === model)) continue;
+    // LUNA STATION BILLING GUARD: a run that started on a non-billed provider (local Ollama, a subscription
+    // sign-in) must never fail over onto pay-per-token API billing on its own. Crossing into 'api' billing needs
+    // explicit consent: per run (allowBillableFallback:true) or station-wide (LUNA_ALLOW_BILLABLE_FALLBACK=1).
+    if (registryBillingFor(getProviderProfile(fbProviderId)) === 'api' && registryBillingFor(primaryProfile) !== 'api'
+        && !(o.allowBillableFallback === true || String(process.env.LUNA_ALLOW_BILLABLE_FALLBACK || '').trim() === '1')) {
+      blockedBillableFallbacks.push(fbProviderId + ':' + fbModel);
+      continue;
+    }
     const fbBaseUrl = providerRuntimeBaseUrl(fbProviderId, fb.baseUrl || fb.base_url || '');
     const fbKey = providerRuntimeKey(fbProviderId, fb.key || fb.apiKey || fb.api_key || '');
     if (!providerHasCredential(fbProviderId, fbKey, fbBaseUrl)) continue;
@@ -16504,6 +16568,10 @@ async function runOnceCore(o) {
   const fallbacks = rotationFallbacks
     .concat(fallbackModels.map(m => ({ provider, providerId, model: m })))
     .concat(providerFallbacks);
+  if (blockedBillableFallbacks.length) {
+    console.warn('[billing] skipped ' + blockedBillableFallbacks.length + ' billable fallback(s) for a ' + registryBillingFor(primaryProfile)
+      + ' run (' + blockedBillableFallbacks.join(', ') + ') — set LUNA_ALLOW_BILLABLE_FALLBACK=1 to allow');
+  }
 
   // ---- context auto-compaction: fold older turns into a summary once the live prompt passes 65% of the model's
   //      window, so a long run shrinks instead of overflowing. The summarizer is ONE model call over the older
@@ -19726,14 +19794,21 @@ function handleProviders(req, res) {
   const providers = listProviderProfiles().map(p => {
     const key = providerRuntimeKey(p.id, '');
     const baseUrl = providerRuntimeBaseUrl(p.id, '');
-    return Object.assign({}, p, { configured: providerHasCredential(p.id, key, baseUrl), currentBaseUrl: baseUrl || '' });
+    return Object.assign({}, p, {
+      configured: providerHasCredential(p.id, key, baseUrl),
+      currentBaseUrl: baseUrl || '',
+      // names of environment keys that exist but are ignored (see providerEnvKey) — names only, never values
+      ignoredEnvKeys: providerIgnoredAmbientKeys(getProviderProfile(p.id))
+    });
   });
   res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
   // keychainMode: TRUE only under the real desktop shell, where BYOK keys live in the OS keychain (seeded via env
   // at spawn, updated live through /api/key) rather than the browser's local store. The Settings key-save
   // confirmation reads this so it names the ACTUAL store honestly (keychain vs this browser) — never claims
   // keychain when the key is in fact held in the browser (truthful-telemetry law).
-  res.end(JSON.stringify({ providers, keychainMode: DESKTOP_SHELL }));
+  // claudeSubscription: the (static, policy-derived) availability of Claude Pro/Max sign-in for this app — see
+  // providers/registry.js CLAUDE_SUBSCRIPTION. defaultProvider: what a station with no saved choice resolves to.
+  res.end(JSON.stringify({ providers, keychainMode: DESKTOP_SHELL, defaultProvider: DEFAULT_PROVIDER_ID, claudeSubscription: CLAUDE_SUBSCRIPTION }));
 }
 
 // POST /api/providers/probe — a no-generation provider round-trip for truthful Settings telemetry. The supplied

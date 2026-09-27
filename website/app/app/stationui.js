@@ -4101,17 +4101,23 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
      the real Harness store; nothing here is simulated. Secrets are shown MASKED only — the
      full key is never written into the DOM (truthful-telemetry + don't-leak-the-key). */
   const PROVIDERS = [
+    // LUNA STATION — the three providers the station is built around come first, and each says plainly how it is
+    // paid for (see billingTag). CLAUDE SUBSCRIPTION is not a runnable provider: it is a status card that states
+    // the real availability of Claude Pro/Max sign-in for this app (it is not available to third-party apps; see
+    // sidecar/providers/registry.js CLAUDE_SUBSCRIPTION). It can never be selected and never asks for a key.
+    { id: 'claude-subscription', name: 'CLAUDE SUBSCRIPTION', endpoint: 'Claude Pro / Max plan', blurb: 'sign in with Claude', live: false, notice: true },
+    { id: 'anthropic',     name: 'CLAUDE API',        endpoint: 'api.anthropic.com/v1',       blurb: 'Anthropic API key · pay-per-token', live: true },
+    { id: 'ollama',        name: 'LOCAL OLLAMA',      endpoint: '127.0.0.1:11434/v1',         blurb: 'models on this machine · no key', live: true },
     // STARNET MANAGED is the one provider with no credential to paste and no account to sign into here: it
     // runs on the credits balance a linked station already has. It is also the one provider that must be able
     // to DISAPPEAR — see creditsProviderState() — because offering it on a station with no cloud configured
-    // would advertise an account the user cannot create.
-    { id: 'starnet',       name: 'STARNET MANAGED',   endpoint: 'managed inference · credits', blurb: 'no API key — runs on your balance', live: true, credits: true },
+    // would advertise an account the user cannot create. (Luna Station ships with no managed cloud configured.)
+    { id: 'starnet',       name: 'MANAGED CREDITS',   endpoint: 'managed inference · credits', blurb: 'no API key — runs on your balance', live: true, credits: true },
     { id: 'openrouter',    name: 'OPENROUTER',        endpoint: 'openrouter.ai/api/v1',      blurb: 'one key · 300+ models',  live: true },
     { id: 'codex',         name: 'CHATGPT (CODEX)',   endpoint: 'OAuth · ChatGPT subscription', blurb: 'sign-in, no API key',  live: true },
     { id: 'grok',          name: 'GROK (XAI)',        endpoint: 'OAuth · SuperGrok / X Premium+', blurb: 'sign-in, no API key', live: true },
     { id: 'kimi',          name: 'KIMI FOR CODING',   endpoint: 'OAuth · Moonshot subscription', blurb: 'sign-in, no API key', live: true },
     { id: 'openai',        name: 'OPENAI API',        endpoint: 'api.openai.com/v1',          blurb: 'OpenAI-compatible', live: true },
-    { id: 'anthropic',     name: 'ANTHROPIC',         endpoint: 'api.anthropic.com/v1',       blurb: 'Claude native API', live: true },
     { id: 'gemini',        name: 'GEMINI',            endpoint: 'generativelanguage.googleapis.com/v1beta', blurb: 'Google native API', live: true },
     { id: 'xai',           name: 'XAI',               endpoint: 'api.x.ai/v1',                blurb: 'Grok API', live: true },
     { id: 'groq',          name: 'GROQ',              endpoint: 'api.groq.com/openai/v1',     blurb: 'fast inference', live: true },
@@ -4121,9 +4127,32 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     { id: 'fireworks',     name: 'FIREWORKS',         endpoint: 'api.fireworks.ai/inference/v1', blurb: 'Fireworks API', live: true },
     { id: 'perplexity',    name: 'PERPLEXITY',        endpoint: 'api.perplexity.ai',          blurb: 'Sonar API', live: true },
     { id: 'cerebras',      name: 'CEREBRAS',          endpoint: 'api.cerebras.ai/v1',         blurb: 'Cerebras API', live: true },
-    { id: 'ollama',        name: 'OLLAMA',            endpoint: '127.0.0.1:11434/v1',         blurb: 'local models', live: true },
     { id: 'custom',        name: 'CUSTOM',            endpoint: 'any /v1 base URL',           blurb: 'bring your endpoint', live: true }
   ];
+  // The policy record the sidecar serves on GET /api/providers (registry.js CLAUDE_SUBSCRIPTION). This copy is only
+  // the offline fallback so the card never renders empty; test/luna-claude-provider.test.js pins the two together.
+  const CLAUDE_SUBSCRIPTION_FALLBACK = {
+    available: false,
+    reason: 'Claude Pro/Max sign-in is not available to third-party apps. Anthropic does not permit applications '
+      + 'other than its own (including Agent SDK apps) to offer claude.ai login or use subscription rate limits '
+      + 'without prior approval. Use the Claude API (billed per token to your Anthropic Console account) or a '
+      + 'local Ollama model instead.',
+    sources: ['https://code.claude.com/docs/en/agent-sdk/overview', 'https://code.claude.com/docs/en/legal-and-compliance']
+  };
+  // How each provider is paid for — shown on every card so API (billable) usage can never be mistaken for plan
+  // usage. Keyless local endpoints are FREE; device-code sign-ins bill the subscription they belong to.
+  function billingTag(id) {
+    if (id === 'claude-subscription') return { cls: 'sub', text: 'SUBSCRIPTION · UNAVAILABLE' };
+    if (id === 'ollama') return { cls: 'local', text: 'LOCAL · FREE' };
+    if (id === 'custom') return { cls: 'api', text: 'YOUR ENDPOINT' };
+    if (id === 'starnet') return { cls: 'api', text: 'CREDITS' };
+    if (isOAuthProvider(id)) return { cls: 'sub', text: 'THEIR SUBSCRIPTION' };
+    return { cls: 'api', text: '$ API BILLING' };
+  }
+  function billingTagHtml(id) {
+    const b = billingTag(id);
+    return '<span class="prov-bill prov-bill-' + b.cls + '" title="how usage on this provider is paid for">' + esc(b.text) + '</span>';
+  }
   const H = () => (typeof Harness === 'object' && Harness) ? Harness : null;
   function provName(id) { const p = PROVIDERS.find(x => x.id === id); return p ? p.name : String(id || '').toUpperCase(); }
 
@@ -4181,7 +4210,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
   function visibleProviders() {
     return PROVIDERS.filter(p => !p.credits || creditsProv.state !== 'absent');
   }
-  function activeProv() { const h = H(); return (h && h.getProv && h.getProv()) || 'openrouter'; }
+  function activeProv() { const h = H(); return (h && h.getProv && h.getProv()) || 'anthropic'; }
   let codexStatusKnown = null;        // last /api/auth/codex/status truth: { connected, expired, reason }
   let codexConnectionChecking = false;
   // mask a secret to a provider-recognisable prefix + last 4 — the middle is NEVER emitted.
@@ -4290,12 +4319,22 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
   // the REAL store — never claim keychain when the key is in the browser (truthful-telemetry law).
   let keychainModeKnown = null;
   let keychainModeChecking = false;
+  // Same /api/providers answer: the sidecar's Claude-subscription policy record and, per provider, the NAMES of
+  // environment keys it found but deliberately ignores (an ANTHROPIC_API_KEY exported for some other tool).
+  let claudeSubscriptionKnown = null;
+  const ignoredEnvKeys = Object.create(null);
   function refreshKeychainMode() {
     if (keychainModeKnown !== null || keychainModeChecking || typeof fetch !== 'function') return;
     keychainModeChecking = true;
     fetch('/api/providers', { cache: 'no-store' })
       .then(r => r.ok ? r.json() : {})
-      .then(j => { keychainModeKnown = !!(j && j.keychainMode); })
+      .then(j => {
+        keychainModeKnown = !!(j && j.keychainMode);
+        if (j && j.claudeSubscription && typeof j.claudeSubscription === 'object') claudeSubscriptionKnown = j.claudeSubscription;
+        for (const p of ((j && Array.isArray(j.providers)) ? j.providers : [])) {
+          if (p && p.id) ignoredEnvKeys[p.id] = Array.isArray(p.ignoredEnvKeys) ? p.ignoredEnvKeys.filter(n => typeof n === 'string') : [];
+        }
+      })
       .catch(() => {})
       .finally(() => { keychainModeChecking = false; });
   }
@@ -4325,6 +4364,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
   function queueProviderHealthRefresh() {
     const h = H(); if (!h) return;
     for (const p of PROVIDERS) {
+      if (p.notice) continue;   // a status card, not a provider: never probed
       const credentialSaved = !!(h.hasStoredCredential && h.hasStoredCredential(p.id));
       const endpointConfigured = p.id === 'ollama' || (p.id === 'custom' && !!(h.getBaseUrl && h.getBaseUrl(p.id)));
       if ((credentialSaved || endpointConfigured || p.id === activeProv()) && providerHealth[p.id] === undefined) refreshProviderHealth(p.id);
@@ -4364,7 +4404,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
     }
     addProvider(active);
     if (active !== 'openrouter') addProvider('openrouter');
-    PROVIDERS.forEach(p => addProvider(p.id));
+    PROVIDERS.forEach(p => { if (!p.notice) addProvider(p.id); });
     return out;
   }
   function keysFor(id) { return connectedKeys().filter(x => x.provider === id); }
@@ -4396,6 +4436,7 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
       // states the BALANCE, because a paid provider reading "connected" at $0.00 would be a lie of
       // exactly the kind this panel exists to avoid.
       if (p.credits) return creditsProviderCard(p, pi, active);
+      if (p.notice) return claudeSubscriptionCard(p, pi);
       const ks = keysFor(p.id);
       // a keyless device-code sign-in (codex/grok/kimi) can be KNOWN-dead (sidecar recorded a consumed/invalid
       // refresh token) — that must never render as SIGNED IN. The row still exists (ks has the expired entry) so
@@ -4437,11 +4478,12 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
         '<button class="prov-select" data-act="prov-select" aria-label="Select ' + esc(p.name) + ' provider">' +
           providerLogoHtml(p.id) +
           '<span class="prov-main">' +
-            '<span class="prov-name">' + esc(p.name) + (runnable ? '<span class="prov-badge">ACTIVE</span>' : '') + '</span>' +
+            '<span class="prov-name">' + esc(p.name) + (runnable ? '<span class="prov-badge">ACTIVE</span>' : '') + billingTagHtml(p.id) + '</span>' +
             '<span class="prov-ep">' + esc(p.endpoint) + ' · ' + esc(p.blurb) + '</span>' +
           '</span>' +
         '</button>' +
           '<span class="prov-stat"><span class="prov-stat-t">' + stat + (credentialSaved && !isOAuthProvider(p.id) ? '<i>' + n + (n === 1 ? ' key' : ' keys') + '</i>' : '') + '</span></span>' +
+        ignoredEnvKeyNote(p.id) +
         (wantsInline ? '<button class="bb sm prov-addkey" data-act="prov-add-toggle" data-provider="' + esc(p.id) + '" aria-label="Add a ' + esc(p.name) + ' key" title="paste a ' + esc(p.name) + ' key without leaving this card">＋ ADD KEY</button>' : '') +
         (wantsOAuthSignin ? '<button class="bb sm prov-addkey" data-act="prov-oauth-signin" data-provider="' + esc(p.id) + '" aria-label="Sign in to ' + esc(p.name) + '" title="device-code sign-in — no API key needed">⏼ SIGN IN</button>' : '') +
         (wantsInline
@@ -4459,6 +4501,34 @@ const StationUI = typeof document === 'undefined' ? {} : (() => {
           : '') +
         '</div>';
     }).join('');
+  }
+  // An environment key the sidecar found but IGNORES (names only — the value never reaches the browser). Said out
+  // loud so a Commander with ANTHROPIC_API_KEY exported for another tool knows exactly why this card reads NO KEY.
+  function ignoredEnvKeyNote(id) {
+    const names = ignoredEnvKeys[id] || [];
+    if (!names.length) return '';
+    return '<p class="prov-note warn">⚠ ' + esc(names.join(', ')) + ' is set in your environment and is <b>ignored</b>. '
+      + 'Luna Station only bills a Claude API key you save here (or set LUNA_ALLOW_ENV_ANTHROPIC_KEY=1 to allow it).</p>';
+  }
+  // CLAUDE SUBSCRIPTION — a status card, never a provider. It reports what the sidecar says (registry.js), shows no
+  // sign-in button and no key field, and cannot be selected: offering a login Anthropic does not permit for
+  // third-party apps would be both a policy violation and a lie about what this station can do.
+  function claudeSubscriptionCard(p, pi) {
+    const rec = claudeSubscriptionKnown || CLAUDE_SUBSCRIPTION_FALLBACK;
+    const available = rec.available === true;
+    const sources = (Array.isArray(rec.sources) ? rec.sources : []).filter(u => /^https:\/\//.test(String(u)));
+    return '<div class="prov-card soon prov-notice" data-provider="' + esc(p.id) + '" role="group" aria-label="' + esc(p.name) + ' status" style="--ci:' + pi + '">' +
+        '<div class="prov-select" aria-disabled="true">' +
+          providerLogoHtml('anthropic') +
+          '<span class="prov-main">' +
+            '<span class="prov-name">' + esc(p.name) + billingTagHtml(p.id) + '</span>' +
+            '<span class="prov-ep">' + esc(p.endpoint) + ' · ' + esc(p.blurb) + '</span>' +
+          '</span>' +
+        '</div>' +
+        '<span class="prov-stat"><span class="prov-stat-t">' + (available ? '○ NOT SIGNED IN' : '○ NOT AVAILABLE TO THIRD-PARTY APPS') + '</span></span>' +
+        '<p class="prov-note">' + esc(String(rec.reason || '')) + '</p>' +
+        (sources.length ? '<p class="prov-note dim">Source: ' + sources.map(u => '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer">' + esc(u.replace(/^https:\/\//, '')) + '</a>').join(' · ') + '</p>' : '') +
+      '</div>';
   }
   // The STARNET MANAGED card. Same shape as every other provider row so it reads as one of them, but its
   // action routes to the STORE rather than owning a second copy of the pairing flow.

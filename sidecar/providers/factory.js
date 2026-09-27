@@ -190,6 +190,9 @@
   return {
     selectProvider,
     PROVIDER_IDS,
+    DEFAULT_PROVIDER_ID: registry.DEFAULT_PROVIDER_ID,
+    CLAUDE_SUBSCRIPTION: registry.CLAUDE_SUBSCRIPTION,
+    billingFor: registry.billingFor,
     getProviderProfile: registry.getProviderProfile,
     listProviderProfiles: registry.listProviderProfiles,
     normalizeProviderId: registry.normalizeProviderId,

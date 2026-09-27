@@ -10,7 +10,34 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  const DEFAULT_PROVIDER_ID = 'openrouter';
+  // Luna Station: Claude (via the Anthropic API) is the primary provider. A fresh station with no saved choice
+  // resolves here; an explicit saved provider always wins. Selecting it never spends anything by itself — a run
+  // needs an Anthropic API key the Commander saved (or explicitly opted into from the environment, see below).
+  const DEFAULT_PROVIDER_ID = 'anthropic';
+
+  /* CLAUDE SUBSCRIPTION (Pro/Max) SIGN-IN — deliberately NOT a provider profile.
+     Anthropic's current documentation (checked 2026-09-27) states that third-party applications, including
+     agents built on the Claude Agent SDK, may not offer claude.ai login or use Free/Pro/Max plan rate limits,
+     and may not collect, store, or intermediate Claude.ai credentials or session tokens, unless Anthropic has
+     approved it. Luna Station has no such approval, so there is no subscription code path at all: no login
+     button, no token import, no reuse of Claude Code's credentials. This record exists only so the UI can show
+     the limitation honestly instead of silently omitting it. If Anthropic publishes a supported third-party
+     subscription flow, it becomes a real profile here and this record flips to available:true. */
+  const CLAUDE_SUBSCRIPTION = Object.freeze({
+    id: 'claude-subscription',
+    name: 'Claude Subscription',
+    label: 'CLAUDE SUBSCRIPTION',
+    available: false,
+    checked: '2026-09-27',
+    reason: 'Claude Pro/Max sign-in is not available to third-party apps. Anthropic does not permit applications '
+      + 'other than its own (including Agent SDK apps) to offer claude.ai login or use subscription rate limits '
+      + 'without prior approval. Use the Claude API (billed per token to your Anthropic Console account) or a '
+      + 'local Ollama model instead.',
+    sources: Object.freeze([
+      'https://code.claude.com/docs/en/agent-sdk/overview',
+      'https://code.claude.com/docs/en/legal-and-compliance'
+    ])
+  });
 
   // Wire-hint fields on openai-compatible profiles (all sourced from the provider's official API docs,
   // verified 2026-07; the adapter also self-heals by dropping any optional param a provider 400s on):
@@ -209,17 +236,25 @@
     },
     {
       id: 'anthropic',
-      aliases: ['claude'],
-      name: 'Anthropic',
-      label: 'ANTHROPIC',
+      aliases: ['claude', 'claude-api', 'anthropic-api'],
+      name: 'Claude API (Anthropic)',
+      label: 'CLAUDE API',
       endpoint: 'api.anthropic.com/v1',
-      blurb: 'Claude native Messages API',
+      blurb: 'billed per token to your Anthropic Console account, not a Claude Pro/Max plan',
       live: true,
       adapter: 'anthropic',
       apiMode: 'anthropic_messages',
       authType: 'api_key',
+      // billing: how usage on this provider is paid for. 'api' = metered pay-as-you-go API billing on the
+      // key owner's account. Surfaced verbatim in the UI so API usage can never be mistaken for plan usage.
+      billing: 'api',
       keyRequired: true,
       keyEnv: ['ANTHROPIC_API_KEY'],
+      // An ANTHROPIC_API_KEY that merely happens to exist in the user's shell/system environment is IGNORED
+      // unless this opt-in variable is set to 1. Keys the Commander saves in Luna Station (the OS keychain on
+      // desktop, injected as STARNET_/SKYNET_ANTHROPIC_API_KEY) are unaffected. This stops a stray
+      // environment key from silently turning agent runs into billable API usage.
+      ambientKeyOptInEnv: 'LUNA_ALLOW_ENV_ANTHROPIC_KEY',
       modelsRequireAuth: true,
       baseUrl: 'https://api.anthropic.com/v1',
       baseUrlEnv: ['ANTHROPIC_BASE_URL'],
@@ -229,7 +264,7 @@
       credentialPool: true,
       supportsTools: true,
       supportsReasoning: null,
-      order: 35
+      order: 5
     },
     {
       id: 'gemini',
@@ -485,14 +520,15 @@
     {
       id: 'ollama',
       aliases: ['ollama-local'],
-      name: 'Ollama',
-      label: 'OLLAMA',
+      name: 'Ollama (local)',
+      label: 'LOCAL OLLAMA',
       endpoint: '127.0.0.1:11434/v1',
-      blurb: 'local OpenAI-compatible endpoint',
+      blurb: 'runs on this machine, no key, no bill',
       live: true,
       adapter: 'openai-compatible',
       apiMode: 'chat_completions',
       authType: 'none',
+      billing: 'local',
       keyRequired: false,
       modelsRequireAuth: false,
       baseUrl: 'http://127.0.0.1:11434/v1',
@@ -588,6 +624,18 @@
     const profile = getProviderProfile(value);
     return !!(profile && profile.requiresBaseUrl);
   }
+  // How usage on a provider is paid for, for the UI's billing label. Explicit profile.billing wins; otherwise
+  // derived: keyless local endpoints are 'local', subscription sign-ins are 'subscription', everything that
+  // needs a key is metered 'api'. 'managed' is the linked-credits provider.
+  function billingFor(profile) {
+    if (!profile) return 'unknown';
+    if (profile.billing) return profile.billing;
+    if (profile.id === 'starnet') return 'managed';
+    if (profile.authType === 'oauth_device_code') return 'subscription';
+    if (profile.authType === 'none') return 'local';
+    if (profile.authType === 'api_key_optional') return 'endpoint';
+    return 'api';
+  }
   function toPublicProfile(profile) {
     return {
       id: profile.id,
@@ -607,6 +655,8 @@
       requiresBaseUrl: !!profile.requiresBaseUrl,
       defaultReasoningEffort: profile.defaultReasoningEffort || 'medium',
       unmetered: !!profile.unmetered,
+      billing: billingFor(profile),
+      ambientKeyOptInEnv: profile.ambientKeyOptInEnv || '',
       supportsTools: profile.supportsTools,
       supportsReasoning: profile.supportsReasoning,
       credentialPool: !!profile.credentialPool
@@ -626,6 +676,8 @@
 
   return {
     DEFAULT_PROVIDER_ID,
+    CLAUDE_SUBSCRIPTION,
+    billingFor,
     getProviderProfile,
     listProviderProfiles,
     normalizeProviderId,

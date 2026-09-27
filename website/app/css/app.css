@@ -5826,3 +5826,15 @@ body:has(#screen-game.active)::before {
 .consent-payload summary { cursor: pointer; }
 .consent-payload pre { max-height: 320px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
 .work-rate-reference { margin: 4px 0; overflow-wrap: anywhere; user-select: text; }
+
+/* Luna Station — provider billing labels + the Claude Subscription status card. Every provider card states how its
+   usage is paid for so pay-per-token API usage can never be mistaken for a subscription plan. */
+.prov-bill { display: inline-block; margin-left: 8px; padding: 0 5px; font-size: 10px; letter-spacing: 0.06em; border: 1px solid currentColor; border-radius: 2px; vertical-align: middle; }
+.prov-bill-api { color: #ffb86b; }
+.prov-bill-local { color: var(--ok, #7bc88a); }
+.prov-bill-sub { color: #b98cff; }
+.prov-note { grid-column: 1 / -1; margin: 6px 0 0; font-size: 11px; line-height: 1.45; color: var(--ph-dim); white-space: normal; }
+.prov-note.warn { color: #ffb86b; }
+.prov-note a { color: inherit; }
+.prov-card.prov-notice { opacity: 0.9; }
+.prov-card.prov-notice .prov-select { cursor: default; }

@@ -33,7 +33,7 @@ for (const id of hostedProviders) {
   ok(station.includes("id: '" + id + "'"), id + ' appears in Settings provider cards');
   ok(tauri.includes('"' + id + '"'), id + ' appears in desktop keychain provider status');
 }
-ok(/PROVIDERS\.forEach\(p\s*=>\s*addProvider\(p\.id\)\)/.test(station), 'Settings lists any configured provider, not only the active provider');
+ok(/PROVIDERS\.forEach\(p\s*=>\s*(?:\{\s*if \(!p\.notice\)\s*)?addProvider\(p\.id\)/.test(station), 'Settings lists any configured provider, not only the active provider');
 
 // Provider cards contain their own ADD KEY / SIGN IN / SAVE controls. The selectable card surface must therefore
 // be a separate native button, not a role=button ancestor that creates nested interactive controls in the a11y tree.
