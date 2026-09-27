@@ -57,7 +57,7 @@ function textReply(text, model) {
   assert.ok(sub.sources.every(u => u.startsWith('https://code.claude.com/docs/')), 'the limitation cites official docs');
   assert.equal(registry.getProviderProfile('claude-subscription'), null, 'the subscription record is NOT a runnable provider');
   const station = fs.readFileSync(path.join(ROOT, 'frontend/app/stationui.js'), 'utf8');
-  const fallback = station.match(/CLAUDE_SUBSCRIPTION_FALLBACK = \{[\s\S]*?reason: ([\s\S]*?),\n\s*sources/);
+  const fallback = station.match(/CLAUDE_SUBSCRIPTION_FALLBACK = \{[\s\S]*?reason: ([\s\S]*?),\r?\n\s*sources/);
   assert.ok(fallback, 'the UI carries an offline copy of the policy record');
   // eslint-disable-next-line no-new-func
   assert.equal(Function('return ' + fallback[1])(), sub.reason, 'UI fallback copy matches the sidecar record verbatim');

@@ -39,7 +39,8 @@ jobs:
 
       - run: npm ci
 
-      # Prove the Luna-specific provider rules on real Windows (paths, env handling, the sidecar) before building.
+      # Prove the Luna-specific provider rules on real Windows (paths, env handling, CRLF checkouts, the sidecar)
+      # before building.
       - name: Luna provider + identity tests on Windows
         shell: bash
         run: |
