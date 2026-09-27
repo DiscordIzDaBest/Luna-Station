@@ -291,7 +291,9 @@ test/qa-message-content.test.js
 test/qa-closer.test.js
 test/qa-ready.test.js
 test/qa-product-perfect.test.js
-test/qa-product-perfect-claims.test.js
+# test/qa-product-perfect-claims.test.js — retired in Luna Station: it locks the digests of StarNet's public release
+# surface (README/INSTALL/PRIVACY/TERMS, demo pages) against upstream's marketing-claims ledger. This private build
+# rewrote that surface on purpose and publishes nothing. The tool stays in scripts/qa/product-perfect/.
 test/qa-claims-streaming.test.js
 test/website-pricing-hold.test.js
 test/website-docs-navigation.test.js
