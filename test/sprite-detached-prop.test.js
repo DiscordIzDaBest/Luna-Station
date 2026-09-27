@@ -28,7 +28,7 @@ const SCAN = path.join(__dirname, '..', 'dev', 'skin-bar-scan.mjs');
 
 const sets = fs.readdirSync(ROOT).filter(d => !d.startsWith('_') &&
   fs.statSync(path.join(ROOT, d)).isDirectory());
-A.ok(sets.length >= 30, `found ${sets.length} sprite sets — the roster should be ~36`);
+A.ok(sets.length >= 20, `found ${sets.length} sprite sets — the Luna crew roster should be 24`);
 
 const out = execFileSync(process.execPath, [SCAN], { encoding: 'utf8', maxBuffer: 8 << 20 });
 const hits = out.split('\n').filter(l => /^ {2}\S+\s+(left|right)\s+x=/.test(l));

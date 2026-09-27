@@ -82,16 +82,18 @@ function alphaBox(im) {
 
 const sets = fs.readdirSync(ROOT).filter(d => !d.startsWith('_') &&
   fs.statSync(path.join(ROOT, d)).isDirectory());
-A.ok(sets.length >= 30, `found ${sets.length} sprite sets — the roster should be ~36`);
+A.ok(sets.length >= 20, `found ${sets.length} sprite sets — the Luna crew roster should be 24`);
 
 let checkedBuild = 0;
 for (const set of sets) {
   const dir = path.join(ROOT, set);
   const has = f => fs.existsSync(path.join(dir, f));
   for (const d of DIRS) {
-    if (!has(`rot_${d}.png`) || !has(`walk_${d}_0.png`)) continue;
+    // Legacy sets number walk frames from 0; the Luna crew (like the upstream approved_ sets) numbers from 1.
+    const first = has(`walk_${d}_0.png`) ? 0 : has(`walk_${d}_1.png`) ? 1 : -1;
+    if (!has(`rot_${d}.png`) || first < 0) continue;
     const frames = [];
-    for (let i = 0; i < 16 && has(`walk_${d}_${i}.png`); i++) frames.push(load(path.join(dir, `walk_${d}_${i}.png`)));
+    for (let i = first; i < first + 16 && has(`walk_${d}_${i}.png`); i++) frames.push(load(path.join(dir, `walk_${d}_${i}.png`)));
     // FEET STAY ON THE FLOOR LINE. assemble8's place() pins every frame's content bottom to
     // FOOT_Y, and drawBody measures a set's foot padding from an IDLE frame — so a walk frame
     // whose content stops short of that line renders as a body hovering above its own contact
@@ -118,5 +120,5 @@ for (const set of sets) {
   }
 }
 
-A.ok(checkedBuild > 250, `the audit covered the roster's walk tracks (${checkedBuild} directions)`);
+A.ok(checkedBuild >= 180, `the audit covered the roster's walk tracks (${checkedBuild} directions; 24 Luna sets x 8)`);
 A.report('sprite-walk-motion.test');

@@ -31,7 +31,7 @@ cta.refresh();
 assert.equal(lines[0].removed, true, 'obsolete key text retired');
 assert.equal(rows[0].removed, true, 'obsolete key buttons retired');
 assert.equal(cta.gapOf().kind, 'nomodel');
-assert.match(lines[1].text, /no model is selected for LUNA STATION/);
+assert.match(lines[1].text, /no model is selected for STARNET/);
 rows[1].pick({ value: 'primary' });
 assert.equal(opened, 1, 'model recovery opens the actual picker');
 model = 'anthropic/test';

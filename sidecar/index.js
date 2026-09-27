@@ -8233,8 +8233,13 @@ let discord = null;                                     // H6.2: { adapter, hub 
 let discordStatus = { connected: false, state: 'down', detail: '' };
 const channelRegistry = makeChannelRegistry();          // H6.2: telegram + discord descriptors
 
+// A request that names NO provider keeps the long-standing HTTP contract: it means OpenRouter (the original BYOK
+// transport; older clients and scripts send an OpenRouter key without a provider field). Luna Station's Claude
+// default lives where a provider is CHOSEN — the UI's saved selection (harness.js) and the registry's
+// DEFAULT_PROVIDER_ID, reported on GET /api/providers — never in guessing at this boundary, which would send an
+// OpenRouter key to Anthropic.
 function normalizeProvider(provider) {
-  return normalizeProviderIdFromRegistry(provider, DEFAULT_PROVIDER_ID);
+  return normalizeProviderIdFromRegistry(provider, 'openrouter');
 }
 function providerUsesCodex(provider) { return registryProviderUsesCodex(normalizeProvider(provider)); }
 function providerUsesDeviceOAuth(provider) { return registryProviderUsesDeviceOAuth(normalizeProvider(provider)); }

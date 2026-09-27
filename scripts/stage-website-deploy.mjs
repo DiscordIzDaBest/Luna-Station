@@ -122,11 +122,13 @@ console.log(PRICING_LIVE
   : 'PRICING_LIVE=false in website/site.js — holding pricing back and substituting the no-credits legal pages.');
 
 if (CHECK) {
-  console.log('would publish ' + (shipping.length + 2) + ' files; holding back ' + held.length + ':');
-  for (const f of held) console.log('  - ' + f);
-  for (const [target, source] of Object.entries(SUBSTITUTIONS)) console.log('  ~ ' + target + ' <- ' + source);
-  process.exit(0);
-}
+  // ONE write, then let the process end on its own: process.exit() right after many console.log calls can cut
+  // off piped stdout (a long held-back list was truncated, so callers intermittently missed its last lines).
+  const lines = ['would publish ' + (shipping.length + 2) + ' files; holding back ' + held.length + ':']
+    .concat(held.map(f => '  - ' + f))
+    .concat(Object.entries(SUBSTITUTIONS).map(([target, source]) => '  ~ ' + target + ' <- ' + source));
+  process.stdout.write(lines.join('\n') + '\n', () => process.exit(0));
+} else {
 
 // A substitution whose source vanished would silently publish the full-credits original.
 for (const [target, source] of Object.entries(SUBSTITUTIONS)) {
@@ -198,3 +200,4 @@ if (existsSync(sitemapPath) && held.length) {
 console.log('staged ' + (shipping.length + 2) + ' files -> website-deploy/');
 for (const f of held) console.log('held back: ' + f);
 console.log('\nnext:\n  npx wrangler pages deploy website-deploy --project-name ' + PROJECT);
+}

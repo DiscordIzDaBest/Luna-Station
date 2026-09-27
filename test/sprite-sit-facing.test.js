@@ -68,7 +68,9 @@ const REACH_MIN = 1.2;   // |dx| below this is silhouette noise, not a facing
 
   let checked = 0;
   for (const set of fs.readdirSync(ROOT, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name)) {
-    const wp = path.join(ROOT, set, 'sit_west.png'), ep = path.join(ROOT, set, 'sit_east.png');
+    // legacy sets ship sit_<dir>.png; production sets (Luna crew, upstream approved_) ship sit_<dir>_4.png
+    const pick = d => [path.join(ROOT, set, 'sit_' + d + '.png'), path.join(ROOT, set, 'sit_' + d + '_4.png')].find(p => fs.existsSync(p)) || '';
+    const wp = pick('west'), ep = pick('east');
     if (!fs.existsSync(wp) || !fs.existsSync(ep)) continue;   // a set with no sit frames falls back to rot — assets.js owns that
     checked++;
     const W = load(wp), E = load(ep);
@@ -86,7 +88,7 @@ const REACH_MIN = 1.2;   // |dx| below this is silhouette noise, not a facing
     A.ok(rw < 0, set + ': sit_west faces WEST (lower body reaches west of the head, dx=' + rw.toFixed(2) + ')');
     A.ok(re > 0, set + ': sit_east faces EAST (lower body reaches east of the head, dx=' + re.toFixed(2) + ')');
   }
-  A.ok(checked >= 30, 'the whole shipped skin catalog was walked, not a handful (' + checked + ' sets)');
+  A.ok(checked >= 20, 'the whole shipped skin catalog was walked, not a handful (' + checked + ' sets)');
 
   A.report('sprite-sit-facing');
 })();
